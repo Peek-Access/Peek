@@ -128,22 +128,50 @@ public sealed class WorkerRecoveryTests
         string? because = null,
         int? previousPid = null)
     {
-        var deadline = DateTime.UtcNow + (timeout ?? TimeSpan.FromSeconds(30));
+        var budget = timeout ?? TimeSpan.FromSeconds(30);
+        var elapsed = Stopwatch.StartNew();
+        var ct = TestContext.Current.CancellationToken;
+        string lastProbeFailure = "RPC probe has not run";
 
-        // Ready can still describe the old connection before its exit event is handled.
-        while (connection.CurrentState != ConnectionState.Ready ||
-               connection.WorkerProcessId is not int currentPid || currentPid == previousPid)
+        // State and PID are snapshots: recovery may restart again during the RPC.
+        while (elapsed.Elapsed < budget)
         {
-            if (DateTime.UtcNow > deadline)
+            ct.ThrowIfCancellationRequested();
+            if (connection.CurrentState == ConnectionState.Ready &&
+                connection.WorkerProcessId is int currentPid && currentPid != previousPid)
             {
-                Assert.Fail(
-                    because ?? $"Worker did not become ready (state={connection.CurrentState}, " +
-                    $"pid={connection.WorkerProcessId}, previousPid={previousPid})");
+                using var probeCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                var remaining = budget - elapsed.Elapsed;
+                if (remaining <= TimeSpan.Zero) break;
+                probeCts.CancelAfter(remaining < TimeSpan.FromSeconds(2)
+                    ? remaining : TimeSpan.FromSeconds(2));
+                try
+                {
+                    // Unlike PingAsync, GetStatusAsync preserves transport failure details.
+                    await connection.Client.Automation.GetStatusAsync(probeCts.Token)
+                        .WaitAsync(probeCts.Token);
+                    if (connection.CurrentState == ConnectionState.Ready &&
+                        connection.WorkerProcessId == currentPid)
+                        return;
+
+                    lastProbeFailure = "Worker changed during the RPC probe";
+                }
+                catch (Exception ex) when (ex is IOException or InvalidOperationException or
+                                           TimeoutException or OperationCanceledException)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    lastProbeFailure = $"{ex.GetType().Name}: {ex.Message}";
+                }
             }
 
-            await Task.Delay(100, TestContext.Current.CancellationToken);
+            var delay = budget - elapsed.Elapsed;
+            if (delay <= TimeSpan.Zero) break;
+            await Task.Delay(delay < TimeSpan.FromMilliseconds(100)
+                ? delay : TimeSpan.FromMilliseconds(100), ct);
         }
 
-        Assert.True(await connection.Client.Automation.PingAsync(TestContext.Current.CancellationToken));
+        Assert.Fail($"{because ?? "Worker did not become ready"} " +
+            $"(state={connection.CurrentState}, pid={connection.WorkerProcessId}, " +
+            $"previousPid={previousPid}, lastProbeFailure={lastProbeFailure})");
     }
 }

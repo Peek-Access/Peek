@@ -95,6 +95,8 @@ internal sealed class RecordingSpeechService : IAccessibilitySpeechService
 
     public bool IsChannelReserved => ExclusiveLeases > 0;
 
+    public bool IsSpeaking => throw new NotImplementedException();
+
     private sealed class ActionDisposable(Action onDispose) : IDisposable
     {
         public void Dispose() => onDispose();

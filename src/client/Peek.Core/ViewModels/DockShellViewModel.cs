@@ -9,7 +9,7 @@ namespace Peek.Core.ViewModels;
 
 /// <summary>
 /// Owns the docked shell window's own concerns - edge docking and cycling between the four
-/// monitor views - as distinct from any one monitor's own ViewModel. See DockShellSettings
+/// monitor views plus Settings - as distinct from any one monitor's own ViewModel. See DockShellSettings
 /// for why this exists: reserving a permanent screen strip is what lets selecting an
 /// element bring its window forward (see ElementInspectorViewModel.OnNodeSelectedAsync)
 /// without shoving the dock strip itself out of view.
@@ -27,19 +27,21 @@ namespace Peek.Core.ViewModels;
 /// </summary>
 public partial class DockShellViewModel : ViewModelBase
 {
-    /// <summary>Fixed rotation order for PageUp/PageDown - Settings is reachable separately (see NavigateToSettingsAsync) and deliberately isn't part of the cycle.</summary>
+    /// <summary>Fixed rotation order for PageUp/PageDown. Settings is the final page in the cycle.</summary>
     public static readonly string[] MonitorViewNames =
     [
         "ScreenReaderView",
         "ElementInspectorView",
         "AppMonitorView",
         "ProcessMonitorView",
+        "SettingsView",
     ];
 
     // Deliberately distinct from MainView's "MainRegion" - both MainView and DockShellView
     // are declared statically side by side in MainWindow.axaml (see MainWindow.axaml.cs),
     // so each needs its own region name to avoid two hosts racing to register the same one.
     private const string RegionName = "DockRegion";
+    private const string AnnouncementRegionName = "DockAnnouncementRegion";
 
     private readonly IEdgeDockingService _dockingService;
     private readonly ISettingsService _settingsService;
@@ -48,9 +50,13 @@ public partial class DockShellViewModel : ViewModelBase
 
     private string _currentViewName = MonitorViewNames[0];
 
-    /// <summary>1-based position of the current monitor within <see cref="MonitorViewNames"/>, for the dock header's "N / count" indicator - 0 while a non-cycled view (e.g. Settings) is showing.</summary>
+    /// <summary>1-based position of the current page within <see cref="MonitorViewNames"/>.</summary>
     [Reactive]
     private int _currentMonitorPosition = 1;
+
+    /// <summary>Title shown in the dock header for the current page.</summary>
+    [Reactive]
+    private string _currentPageTitle = "Screen Reader";
 
     public int MonitorCount => MonitorViewNames.Length;
 
@@ -77,6 +83,7 @@ public partial class DockShellViewModel : ViewModelBase
                     _currentViewName = name;
                     var index = Array.IndexOf(MonitorViewNames, name);
                     CurrentMonitorPosition = index < 0 ? 0 : index + 1;
+                    CurrentPageTitle = GetViewTitle(name);
                 }
             };
         }
@@ -92,6 +99,9 @@ public partial class DockShellViewModel : ViewModelBase
 
     public Task NavigateToFirstMonitorAsync() => _regionManager.RequestNavigateAsync(RegionName, MonitorViewNames[0]);
 
+    public Task NavigateToAnnouncementsAsync() =>
+        _regionManager.RequestNavigateAsync(AnnouncementRegionName, "DockAnnouncementView");
+
     public Task NavigateNextAsync() => NavigateByOffsetAsync(1);
 
     public Task NavigatePreviousAsync() => NavigateByOffsetAsync(-1);
@@ -101,9 +111,7 @@ public partial class DockShellViewModel : ViewModelBase
     private async Task NavigateByOffsetAsync(int offset)
     {
         var currentIndex = Array.IndexOf(MonitorViewNames, _currentViewName);
-        // Not currently on one of the four monitors (e.g. Settings is showing) - PageDown/
-        // PageUp both just land back on the first monitor rather than computing a
-        // meaningless offset from an index of -1.
+        // If an unknown view is showing, restart the cycle at the first page.
         var nextIndex = currentIndex < 0
             ? 0
             : ((currentIndex + offset) % MonitorViewNames.Length + MonitorViewNames.Length) % MonitorViewNames.Length;
@@ -113,4 +121,14 @@ public partial class DockShellViewModel : ViewModelBase
         if (_settingsService.Current.DockShell.PageSwitchSoundEnabled)
             _ = _switchSoundPlayer.PlayAsync();
     }
+
+    private static string GetViewTitle(string viewName) => viewName switch
+    {
+        "ScreenReaderView" => "Screen Reader",
+        "ElementInspectorView" => "Element Inspector",
+        "AppMonitorView" => "App Monitor",
+        "ProcessMonitorView" => "Process Monitor",
+        "SettingsView" => "Settings",
+        _ => viewName,
+    };
 }

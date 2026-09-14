@@ -44,6 +44,9 @@ public interface IAccessibilitySpeechService
     /// <summary>True while a user-requested announcement or an exclusive lease owns the channel.</summary>
     bool IsChannelReserved { get; }
 
+    /// <summary>True while any synthesized audio is being played.</summary>
+    bool IsSpeaking { get; }
+
     /// <summary>
     /// Stops whatever is currently being synthesized or played, immediately, without
     /// speaking anything in its place - the "be quiet" command every screen reader needs a

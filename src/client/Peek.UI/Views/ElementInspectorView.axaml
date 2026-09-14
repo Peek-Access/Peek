@@ -12,16 +12,38 @@
     x:DataType="{x:Type vm:ElementInspectorViewModel}"
     mc:Ignorable="d">
     <Grid
-        Margin="10"
-        RowDefinitions="Auto,*,Auto"
-        RowSpacing="8">
+        Margin="18,16"
+        RowDefinitions="Auto,Auto,*,Auto"
+        RowSpacing="14">
+
+        <StackPanel
+            Grid.Row="0"
+            Margin="4,4,4,0"
+            Spacing="5">
+            <TextBlock
+                FontSize="22"
+                FontWeight="SemiBold"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ElementInspector}}" />
+            <TextBlock
+                FontSize="13"
+                Foreground="{DynamicResource PipboyTextDimBrush}"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_HelpText}}"
+                TextWrapping="Wrap" />
+        </StackPanel>
 
         <!--
             WrapPanel, not a horizontal StackPanel: at a docked strip's narrow width this
             toolbar (plus its trailing help text) has too much content to fit on one line -
             a StackPanel would let it overflow past the page instead of wrapping.
         -->
-        <WrapPanel Grid.Row="0" Orientation="Horizontal">
+        <Border
+            Grid.Row="1"
+            Padding="14,12"
+            Background="{DynamicResource PipboySurfaceBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
+            <WrapPanel Orientation="Horizontal">
             <Button
                 Margin="0,0,10,4"
                 Command="{Binding RefreshCommand}"
@@ -45,18 +67,12 @@
                 Foreground="{DynamicResource PipboyTextDimBrush}"
                 IsVisible="{Binding IsLoading}"
                 Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Loading}}" />
-            <TextBlock
-                Margin="0,0,0,4"
-                VerticalAlignment="Center"
-                FontSize="11"
-                Foreground="{DynamicResource PipboyTextDimBrush}"
-                IsVisible="{Binding !IsLoading}"
-                Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_HelpText}}" />
-        </WrapPanel>
+            </WrapPanel>
+        </Border>
 
         <DataGrid
             Name="Tree"
-            Grid.Row="1"
+            Grid.Row="2"
             AutoGenerateColumns="False"
             CanUserReorderColumns="True"
             CanUserResizeColumns="True"
@@ -196,8 +212,8 @@
             window) ever runs at a time.
         -->
         <Border
-            Grid.Row="2"
-            Padding="10"
+            Grid.Row="3"
+            Padding="14"
             Background="{DynamicResource PipboySurfaceBrush}"
             BorderBrush="{DynamicResource PipboyBorderBrush}"
             BorderThickness="1"

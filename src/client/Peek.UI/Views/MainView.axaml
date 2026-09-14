@@ -17,8 +17,8 @@
         <Style Selector="ToggleButton.navItem">
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="Padding" Value="10,8" />
-            <Setter Property="Margin" Value="0,0,0,2" />
+            <Setter Property="Padding" Value="12,9" />
+            <Setter Property="Margin" Value="0,0,0,3" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0,0,0,0" />
             <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusControl}" />
@@ -37,20 +37,36 @@
             <Setter Property="BorderBrush" Value="{DynamicResource PipboyPrimaryBrush}" />
         </Style>
     </UserControl.Styles>
-    <Grid Margin="12" ColumnDefinitions="196,*" ColumnSpacing="12">
+    <Grid Margin="18,16,18,18" ColumnDefinitions="220,*" RowDefinitions="*,Auto" ColumnSpacing="16" RowSpacing="12">
 
         <!--  Nav sidebar - icon + label + a left accent bar on the active item for visual hierarchy.  -->
         <Border
             Grid.Column="0"
-            Padding="8"
+            Grid.RowSpan="2"
+            Padding="12"
             Background="{DynamicResource PipboySurfaceBrush}"
             BorderBrush="{DynamicResource PipboyBorderBrush}"
             BorderThickness="1"
             CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top" Spacing="1">
+                    <StackPanel
+                        Margin="4,0,4,18"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                        <Image
+                            Width="26"
+                            Height="26"
+                            Source="avares://Peek.UI/Assets/peek-icon.ico"
+                            Stretch="Uniform" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontSize="18"
+                            FontWeight="SemiBold"
+                            Text="Peek" />
+                    </StackPanel>
                     <TextBlock
-                        Margin="8,2,8,8"
+                        Margin="10,4,10,12"
                         FontSize="10"
                         Foreground="{DynamicResource PipboyTextDimBrush}"
                         LetterSpacing="2"
@@ -120,7 +136,7 @@
 
                 <!--  Worker/version footer - was nowhere in the app before; gives a persistent "is Peek actually working" signal.  -->
                 <StackPanel
-                    Margin="8,0,8,4"
+                    Margin="10,0,10,6"
                     DockPanel.Dock="Bottom"
                     Spacing="2">
                     <Separator Margin="0,0,0,6" />
@@ -147,14 +163,23 @@
 
         <Border
             Grid.Column="1"
+            Grid.Row="0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
-            Background="{DynamicResource PipboyBackgroundBrush}"
+            Padding="4"
+            Background="{DynamicResource PipboySurfaceBrush}"
             BorderBrush="{DynamicResource PipboyBorderBrush}"
             BorderThickness="1"
             CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
-            <ContentControl Padding="4" an:RegionManager.RegionName="MainRegion" />
+            <ContentControl an:RegionManager.RegionName="MainRegion" />
         </Border>
+
+        <!-- Persistent speech feedback, independent from whichever monitor is selected. -->
+        <ContentControl
+            Grid.Column="1"
+            Grid.Row="1"
+            an:RegionManager.PreferCache="True"
+            an:RegionManager.RegionName="AnnouncementRegion" />
     </Grid>
 
 </UserControl>

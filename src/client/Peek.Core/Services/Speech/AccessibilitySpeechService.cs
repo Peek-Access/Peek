@@ -24,6 +24,7 @@ public sealed class AccessibilitySpeechService : IAccessibilitySpeechService, ID
 
     /// <summary>1 while a single user-requested utterance is being synthesized or played.</summary>
     private int _userUtteranceInFlight;
+    private int _speechInFlight;
 
     public AccessibilitySpeechService(
         WorkerConnection workerConnection,
@@ -49,6 +50,8 @@ public sealed class AccessibilitySpeechService : IAccessibilitySpeechService, ID
             lock (_leaseGate) return _leases.Count > 0;
         }
     }
+
+    public bool IsSpeaking => Volatile.Read(ref _speechInFlight) > 0;
 
     public Task AnnounceAsync(SemanticElement element, SpeechPriority priority, CancellationToken ct = default)
     {
@@ -129,6 +132,7 @@ public sealed class AccessibilitySpeechService : IAccessibilitySpeechService, ID
 
         var isUserRequested = priority == SpeechPriority.UserRequested;
         if (isUserRequested) Interlocked.Increment(ref _userUtteranceInFlight);
+        Interlocked.Increment(ref _speechInFlight);
 
         var oldCts = _ttsCts;
         _ttsCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -174,6 +178,7 @@ public sealed class AccessibilitySpeechService : IAccessibilitySpeechService, ID
         }
         finally
         {
+            Interlocked.Decrement(ref _speechInFlight);
             if (isUserRequested) Interlocked.Decrement(ref _userUtteranceInFlight);
         }
     }

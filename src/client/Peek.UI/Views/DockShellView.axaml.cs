@@ -6,9 +6,10 @@ using Peek.Views;
 namespace Peek.UI.Views;
 
 /// <summary>
-/// Docked-mode content for MainWindow: the same four monitor views MainView's nav sidebar
-/// shows in normal mode, hosted in a region and cycled with a keyboard shortcut instead of
-/// clicking a nav item - see DockShellViewModel and DockShellSettings.Mode. The
+/// Docked-mode content for MainWindow: the same four monitor views plus Settings that
+/// MainView's nav sidebar shows in normal mode, hosted in a region and cycled with a
+/// keyboard shortcut instead of clicking a nav item - see DockShellViewModel and
+/// DockShellSettings.Mode. The
 /// PageUp/PageDown handling itself lives on MainWindow, not here (see
 /// MainWindow.OnKeyDown) - it needs to fire regardless of which descendant control inside
 /// the navigated content currently has focus, which only a Window-level handler reliably
@@ -45,6 +46,7 @@ public partial class DockShellView : UserControl
         _vm = vm;
 
         _ = vm.NavigateToFirstMonitorAsync();
+        _ = vm.NavigateToAnnouncementsAsync();
     }
 
     private void OnAboutClick(object? sender, RoutedEventArgs e)

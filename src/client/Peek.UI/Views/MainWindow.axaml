@@ -55,7 +55,9 @@
             <Setter Property="Text" Value="⚑" />
         </Style>
     </Window.Styles>
-    <Grid RowDefinitions="34,*">
+    <Grid
+        x:Name="WindowLayout"
+        RowDefinitions="34,*">
 
         <!--
             Left side deliberately left empty: with a real Icon/Title set (see below),
@@ -111,7 +113,8 @@
 
         <!--
             Both declared statically (not swapped in via code-behind Content assignment) so
-            their regions - "MainRegion" / "DockRegion", see DockShellViewModel - are
+            their regions - "MainRegion" / "DockRegion" plus each shell's announcement region,
+            see DockShellViewModel - are
             registered the moment MainWindow.InitializeComponent() runs, before either
             MainViewModel or DockShellViewModel is even constructed (see
             MainWindow.axaml.cs/App.axaml.cs) - constructing them lazily raced the eager

@@ -14,12 +14,34 @@
     <UserControl.Resources>
         <converters:MemorySizeConverter x:Key="MemorySizeConverter" />
     </UserControl.Resources>
-    <Grid Margin="10" RowDefinitions="Auto,*" RowSpacing="8">
+    <Grid Margin="18,16" RowDefinitions="Auto,Auto,*" RowSpacing="14">
+
+        <StackPanel
+            Grid.Row="0"
+            Margin="4,4,4,0"
+            Spacing="5">
+            <TextBlock
+                FontSize="22"
+                FontWeight="SemiBold"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ProcessMonitor}}" />
+            <TextBlock
+                FontSize="13"
+                Foreground="{DynamicResource PipboyTextDimBrush}"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_ShowSystemProcessesCheckbox}}"
+                TextWrapping="Wrap" />
+        </StackPanel>
 
         <!--  WrapPanel, not a horizontal StackPanel: at a docked strip's narrow width this
               toolbar has too many controls to fit on one line - a StackPanel would let them
               overflow past the page instead of wrapping.  -->
-        <WrapPanel Grid.Row="0" Orientation="Horizontal">
+        <Border
+            Grid.Row="1"
+            Padding="14,12"
+            Background="{DynamicResource PipboySurfaceBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
+            <WrapPanel Orientation="Horizontal">
             <Button
                 Margin="0,0,10,4"
                 Command="{Binding RefreshCommand}"
@@ -44,11 +66,12 @@
                 Foreground="{DynamicResource PipboyTextDimBrush}"
                 IsVisible="{Binding IsLoading}"
                 Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Loading}}" />
-        </WrapPanel>
+            </WrapPanel>
+        </Border>
 
         <DataGrid
             Name="Grid"
-            Grid.Row="1"
+            Grid.Row="2"
             AutoGenerateColumns="False"
             CanUserReorderColumns="True"
             CanUserResizeColumns="True"

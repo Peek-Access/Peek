@@ -14,6 +14,7 @@ namespace Peek.Views;
 
 public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
 {
+    private const double NormalTitleBarHeight = 34;
     private bool _isReallyExiting;
     private DockShellViewModel? _dockShellViewModel;
     private KeyGesture? _dockNextGesture;
@@ -134,13 +135,31 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
             // WindowsEdgeDockingService, independent of this Window's Topmost property -
             // the pin toggle would do nothing visible there, so hide it to avoid confusion.
             PinButton.IsVisible = false;
+            ApplyShellChrome(isDocked: true);
         }
         else
         {
             NormalShellView.IsVisible = true;
             DockedShellView.IsVisible = false;
             PinButton.IsVisible = true;
+            ApplyShellChrome(isDocked: false);
         }
+    }
+
+    /// <summary>
+    /// Keeps the native decoration mode and the app-drawn title-bar row in sync. BorderOnly
+    /// removes the OS title bar in docked mode; collapsing the row as well prevents the
+    /// hidden title-bar controls from leaving a blank strip above DockShellView. Normal mode
+    /// restores both pieces so the regular title bar and its action buttons return together.
+    /// </summary>
+    private void ApplyShellChrome(bool isDocked)
+    {
+        TitleBarButtons.IsVisible = !isDocked;
+        WindowLayout.RowDefinitions[0].Height = isDocked
+            ? new GridLength(0)
+            : new GridLength(NormalTitleBarHeight);
+        WindowDecorations = isDocked ? WindowDecorations.BorderOnly : WindowDecorations.Full;
+        ExtendClientAreaToDecorationsHint = true;
     }
 
     private static KeyGesture ParseOrFallback(string gesture, string fallback)

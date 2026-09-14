@@ -63,6 +63,19 @@
             <Setter Property="FontSize" Value="10" />
             <Setter Property="Foreground" Value="{DynamicResource PipboyPrimaryLightBrush}" />
         </Style>
+        <!-- Keep the control-type chip readable on the dark surface. A bright primary fill
+             with the theme's light text creates the low-contrast white-on-green treatment. -->
+        <Style Selector="Border.controlTypeBadge">
+            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="Background" Value="{DynamicResource PipboySurfaceHighBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PipboyPrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusPill}" />
+        </Style>
+        <Style Selector="Border.controlTypeBadge > TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyPrimaryLightBrush}" />
+        </Style>
     </UserControl.Styles>
 
     <StackPanel Spacing="16">
@@ -73,15 +86,13 @@
                 VerticalAlignment="Center"
                 FontSize="18"
                 FontWeight="Bold"
-                Foreground="{DynamicResource PipboyPrimaryLightBrush}"
+                Foreground="{DynamicResource PipboyPrimaryBrush}"
                 Text="{Binding Name, Converter={StaticResource Placeholder}, ConverterParameter='(unnamed)'}"
                 TextWrapping="Wrap" />
             <Border
-                Padding="8,3"
-                VerticalAlignment="Center"
-                Background="{DynamicResource PipboyPrimaryBrush}"
-                CornerRadius="{DynamicResource PipboyCornerRadiusPill}">
-                <TextBlock FontSize="11" Foreground="{DynamicResource PipboyTextBrush}" Text="{Binding ControlType}" />
+                Classes="controlTypeBadge"
+                VerticalAlignment="Center">
+                <TextBlock Text="{Binding ControlType}" />
             </Border>
         </StackPanel>
 

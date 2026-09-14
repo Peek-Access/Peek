@@ -67,10 +67,19 @@
     </UserControl.Resources>
     <ScrollViewer>
         <StackPanel
-            Margin="24"
+            Margin="18,16,18,24"
             HorizontalAlignment="Center"
             MaxWidth="720"
-            Spacing="14">
+            Spacing="16">
+
+            <StackPanel
+                Margin="4,4,4,4"
+                Spacing="5">
+                <TextBlock
+                    FontSize="22"
+                    FontWeight="SemiBold"
+                    Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_Settings}}" />
+            </StackPanel>
 
             <!--  First section deliberately: how Peek decides what to read out is the core of
                   what it does, and the focus/hover choice is the difference between it being

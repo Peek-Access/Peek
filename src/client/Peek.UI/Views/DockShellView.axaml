@@ -25,7 +25,10 @@
             <Setter Property="Foreground" Value="{DynamicResource PipboyTextBrush}" />
         </Style>
     </UserControl.Styles>
-    <Grid Background="{DynamicResource PipboyBackgroundBrush}" RowDefinitions="Auto,*">
+    <Grid
+        Background="{DynamicResource PipboyBackgroundBrush}"
+        RowDefinitions="Auto,*,Auto"
+        RowSpacing="6">
 
         <Border
             Grid.Row="0"
@@ -35,31 +38,33 @@
             BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto">
 
-                <!--  Visible, clickable monitor-cycling controls - PageUp/PageDown (see
-                      MainWindow.OnKeyDown) do the same thing, but nothing on screen
-                      previously exposed that this dock strip even has other pages.  -->
+                <!--
+                    Visible, clickable page-cycling controls - PageUp/PageDown (see
+                    MainWindow.OnKeyDown) do the same thing, while the title beside them
+                    keeps the current page clear in the narrow dock layout.
+                -->
                 <Button
                     Grid.Column="0"
-                    Classes="dockHeaderBtn"
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_PreviousMonitor}}"
+                    Classes="dockHeaderBtn"
                     Click="OnPreviousClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_PreviousMonitor}}">
                     <TextBlock FontSize="13" Text="◀" />
                 </Button>
                 <TextBlock
                     Grid.Column="1"
+                    MaxWidth="180"
                     Margin="4,0"
                     VerticalAlignment="Center"
                     FontSize="11"
-                    Foreground="{DynamicResource PipboyTextDimBrush}">
-                    <Run Text="{Binding CurrentMonitorPosition}" />
-                    <Run Text=" / " />
-                    <Run Text="{Binding MonitorCount}" />
+                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                    TextTrimming="CharacterEllipsis">
+                    <Run Text="{Binding CurrentPageTitle}" />
                 </TextBlock>
                 <Button
                     Grid.Column="2"
-                    Classes="dockHeaderBtn"
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_NextMonitor}}"
+                    Classes="dockHeaderBtn"
                     Click="OnNextClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_NextMonitor}}">
                     <TextBlock FontSize="13" Text="▶" />
@@ -76,16 +81,16 @@
                     Text="PEEK · DOCKED" />
                 <Button
                     Grid.Column="5"
-                    Classes="dockHeaderBtn"
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_Settings}}"
+                    Classes="dockHeaderBtn"
                     Click="OnSettingsClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_Settings}}">
                     <TextBlock FontSize="13" Text="⚙" />
                 </Button>
                 <Button
                     Grid.Column="6"
-                    Classes="dockHeaderBtn"
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}"
+                    Classes="dockHeaderBtn"
                     Click="OnAboutClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}">
                     <TextBlock FontSize="13" Text="ⓘ" />
@@ -98,5 +103,14 @@
             Padding="4"
             an:RegionManager.PreferCache="True"
             an:RegionManager.RegionName="DockRegion" />
+
+        <!--
+            Dock mode has its own navigation host, so it also needs its own persistent
+            announcement host. It remains outside DockRegion while monitor pages change.
+        -->
+        <ContentControl
+            Grid.Row="2"
+            an:RegionManager.PreferCache="True"
+            an:RegionManager.RegionName="DockAnnouncementRegion" />
     </Grid>
 </UserControl>

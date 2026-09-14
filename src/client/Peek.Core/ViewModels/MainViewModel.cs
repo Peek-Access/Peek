@@ -46,8 +46,6 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
 
         _disposeService = serviceProvider.GetRequiredService<IDisposeService>();
-        _ = serviceProvider.GetRequiredService<AudioPlayer>().VlcInitializeAsync();
-
         // Pays the window-enumeration path's one-time JIT cost in the background, so the first
         // switch to the window monitor doesn't - see WindowEnumerator.WarmUpAsync. Well after
         // startup on purpose.
@@ -100,6 +98,7 @@ public partial class MainViewModel : ViewModelBase, IDisposable
     {
 
         var ret = await _regionManager.RequestNavigateAsync("MainRegion", "ScreenReaderView");
+        await _regionManager.RequestNavigateAsync("AnnouncementRegion", "AnnouncementView");
         _mouseTracker.SelectedStream
             .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(_ => 

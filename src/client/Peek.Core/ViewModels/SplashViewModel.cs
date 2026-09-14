@@ -87,6 +87,11 @@ public partial class SplashViewModel : ViewModelBase, IDialogAware
 
             if (token.IsCancellationRequested) return;
 
+            // The progress loop observes completion but must also await the loading task so a
+            // LibVLC startup failure is handled here instead of becoming an unobserved task
+            // exception after the splash closes.
+            await loadingTask;
+
             if (RequestCloseAsync is not null)
             {
                 await RequestCloseAsync.Invoke(this,

@@ -61,6 +61,8 @@ public partial class App : Application
         services.AddNavigationSupport(navigationOptions)
                 .RegisterDialogWindow<SplashWindow, SplashViewModel>("SplashWindow")
                 .RegisterView<ScreenReaderView, ScreenReaderViewModel>(nameof(ScreenReaderView))
+                .RegisterView<AnnouncementView, AnnouncementViewModel>(nameof(AnnouncementView))
+                .RegisterView<DockAnnouncementView, AnnouncementViewModel>(nameof(DockAnnouncementView))
                 .RegisterView<ElementInspectorView, ElementInspectorViewModel>(nameof(ElementInspectorView))
                 .RegisterView<AppMonitorView, AppMonitorViewModel>(nameof(AppMonitorView))
                 .RegisterView<ProcessMonitorView, ProcessMonitorViewModel>(nameof(ProcessMonitorView))

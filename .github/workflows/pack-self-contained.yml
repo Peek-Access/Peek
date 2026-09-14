@@ -1,17 +1,7 @@
-name: pack
+name: pack-self-contained
 
 on:
   workflow_dispatch:
-    inputs:
-      build_mode:
-        description: "Which publish mode(s) to build"
-        required: true
-        default: both
-        type: choice
-        options:
-          - both
-          - self-contained
-          - framework-dependent
 
 permissions:
   contents: read
@@ -20,32 +10,17 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # A matrix entry always exists for both modes; each job below skips itself (via
-        # `if:`) when the caller only asked for the other one - GitHub Actions has no way to
-        # compute a matrix's contents from an input, so this is the standard workaround.
-        build_mode: [self-contained, framework-dependent]
-
     steps:
-      - name: Skip unselected build mode
-        if: ${{ inputs.build_mode != 'both' && inputs.build_mode != matrix.build_mode }}
-        run: echo "Skipping ${{ matrix.build_mode }} - not selected"
-
       - name: Checkout
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         uses: actions/checkout@v4
 
       # --- .NET ---
       - name: Setup .NET
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
 
       - name: Restore .NET (using local nuget.config with token substitution)
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         env:
           GH_PAT: ${{ secrets.GH_PACKAGES_TOKEN }}
         shell: pwsh
@@ -60,7 +35,6 @@ jobs:
           dotnet restore Peek.slnx
 
       - name: Read app version
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         id: version
         shell: pwsh
         run: |
@@ -73,7 +47,6 @@ jobs:
           Write-Host "App version: $version"
 
       - name: Clean output directory
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         shell: pwsh
         run: |
           $dist = "dist/win-x64"
@@ -94,18 +67,17 @@ jobs:
       # could be extended with a runtime-check/bootstrap page if that becomes a support
       # burden).
       - name: Build C# (UI)
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         shell: pwsh
         run: |
           $proj = "src/client/Peek.Desktop/Peek.Desktop.csproj"
-          $selfContained = "${{ matrix.build_mode }}" -eq "self-contained" ? "true" : "false"
 
           dotnet publish $proj `
             -c Release `
             -r win-x64 `
-            --self-contained $selfContained `
+            --self-contained true `
             -p:StripSymbols=true `
             -o dist/win-x64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
           # LibVLC ships every audio/video codec, video output backend, and visualization
           # plugin it has - Peek only ever plays short local WAV clips (TTS output +
@@ -150,26 +122,24 @@ jobs:
       # reachability is calculated per-app. WorkerConnectionOptions.WorkerExecutablePath
       # defaults to "worker\Peek.Worker.exe", matching this layout.
       - name: Build C# (Worker)
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         shell: pwsh
         run: |
           $proj = "src/worker/Peek.Worker/Peek.Worker.csproj"
-          $selfContained = "${{ matrix.build_mode }}" -eq "self-contained" ? "true" : "false"
 
           dotnet publish $proj `
             -c Release `
             -r win-x64 `
-            --self-contained $selfContained `
+            --self-contained true `
             -p:StripSymbols=true `
             -o dist/win-x64/worker
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
           Get-ChildItem dist/win-x64 -Recurse -Filter *.pdb | Remove-Item -Force
 
       - name: Verify build outputs
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         shell: pwsh
         run: |
-          Write-Host "`n[Build outputs] dist/win-x64 (${{ matrix.build_mode }})"
+          Write-Host "`n[Build outputs] dist/win-x64 (self-contained)"
           Get-ChildItem dist/win-x64 -Recurse -File | ForEach-Object {
             $sizeMB = [math]::Round($_.Length / 1MB, 1)
             Write-Host ("  {0,-55} {1,7} MB" -f $_.Name, $sizeMB)
@@ -178,31 +148,27 @@ jobs:
           Write-Host ("`n  TOTAL: {0:N1} MB" -f ($total / 1MB))
 
       - name: Create zip
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         run: |
-          powershell Compress-Archive -Path dist\win-x64\* -DestinationPath Peek-win-x64-${{ matrix.build_mode }}.zip
+          powershell Compress-Archive -Path dist\win-x64\* -DestinationPath Peek-win-x64-self-contained.zip
 
       - name: Upload zip artifact
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         uses: actions/upload-artifact@v4
         with:
-          name: Peek-win-x64-${{ matrix.build_mode }}
-          path: Peek-win-x64-${{ matrix.build_mode }}.zip
+          name: Peek-win-x64-self-contained
+          path: Peek-win-x64-self-contained.zip
 
       # Inno Setup 6 (ISCC.exe) ships preinstalled on the windows-latest runner image - see
       # pack/peek.iss for what it packages.
       - name: Build Windows installer
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         shell: pwsh
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" pack\peek.iss `
             "/DPeekDistDir=$pwd\dist\win-x64" `
             "/DPeekVersion=${{ steps.version.outputs.version }}" `
-            "/DPeekBuildMode=${{ matrix.build_mode }}"
+            "/DPeekBuildMode=self-contained"
 
       - name: Upload installer artifact
-        if: ${{ inputs.build_mode == 'both' || inputs.build_mode == matrix.build_mode }}
         uses: actions/upload-artifact@v4
         with:
-          name: Peek-Setup-${{ matrix.build_mode }}
+          name: Peek-Setup-self-contained
           path: dist/installer/*.exe

@@ -52,7 +52,7 @@ public sealed class WorkerRecoveryTests
 
         KillProcess(firstPid.Value);
 
-        await WaitForReadyAsync(connection, TimeSpan.FromSeconds(45));
+        await WaitForReadyAsync(connection, TimeSpan.FromSeconds(45), previousPid: firstPid);
 
         Assert.NotEqual(firstPid, connection.WorkerProcessId);
     }
@@ -68,8 +68,9 @@ public sealed class WorkerRecoveryTests
 
         Assert.NotEmpty(await connection.Client.SystemMonitor.EnumerateProcessesAsync(false));
 
-        KillProcess(connection.WorkerProcessId!.Value);
-        await WaitForReadyAsync(connection, TimeSpan.FromSeconds(45));
+        var previousPid = connection.WorkerProcessId!.Value;
+        KillProcess(previousPid);
+        await WaitForReadyAsync(connection, TimeSpan.FromSeconds(45), previousPid: previousPid);
 
         Assert.NotEmpty(await connection.Client.SystemMonitor.EnumerateProcessesAsync(false));
     }
@@ -93,7 +94,7 @@ public sealed class WorkerRecoveryTests
             KillProcess(pid.Value);
 
             await WaitForReadyAsync(connection, TimeSpan.FromSeconds(45),
-                $"Round {round}: the connection never came back to Ready");
+                $"Round {round}: the connection never recovered with a new worker", previousPid: pid);
         }
     }
 
@@ -107,9 +108,10 @@ public sealed class WorkerRecoveryTests
         await connection.StartAsync();
         await WaitForReadyAsync(connection);
 
-        KillProcess(connection.WorkerProcessId!.Value);
+        var previousPid = connection.WorkerProcessId!.Value;
+        KillProcess(previousPid);
 
-        await WaitForReadyAsync(connection, TimeSpan.FromSeconds(45));
+        await WaitForReadyAsync(connection, TimeSpan.FromSeconds(45), previousPid: previousPid);
         Assert.Equal(ConnectionState.Ready, connection.CurrentState);
     }
 
@@ -123,19 +125,25 @@ public sealed class WorkerRecoveryTests
     private static async Task WaitForReadyAsync(
         WorkerConnection connection,
         TimeSpan? timeout = null,
-        string? because = null)
+        string? because = null,
+        int? previousPid = null)
     {
         var deadline = DateTime.UtcNow + (timeout ?? TimeSpan.FromSeconds(30));
 
-        while (connection.CurrentState != ConnectionState.Ready)
+        // Ready can still describe the old connection before its exit event is handled.
+        while (connection.CurrentState != ConnectionState.Ready ||
+               connection.WorkerProcessId is not int currentPid || currentPid == previousPid)
         {
             if (DateTime.UtcNow > deadline)
             {
                 Assert.Fail(
-                    because ?? $"The connection stayed in {connection.CurrentState} instead of reaching Ready");
+                    because ?? $"Worker did not become ready (state={connection.CurrentState}, " +
+                    $"pid={connection.WorkerProcessId}, previousPid={previousPid})");
             }
 
-            await Task.Delay(100);
+            await Task.Delay(100, TestContext.Current.CancellationToken);
         }
+
+        Assert.True(await connection.Client.Automation.PingAsync(TestContext.Current.CancellationToken));
     }
 }

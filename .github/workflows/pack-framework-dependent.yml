@@ -1,0 +1,174 @@
+name: pack-framework-dependent
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --- .NET ---
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore .NET (using local nuget.config with token substitution)
+        env:
+          GH_PAT: ${{ secrets.GH_PACKAGES_TOKEN }}
+        shell: pwsh
+        run: |
+          dotnet nuget add source `
+            https://nuget.pkg.github.com/NeverMorewd/index.json `
+            --name pipboy-preview `
+            --username NeverMorewd `
+            --password $env:GH_PAT `
+            --store-password-in-clear-text
+
+          dotnet restore Peek.slnx
+
+      - name: Read app version
+        id: version
+        shell: pwsh
+        run: |
+          # Directory.Build.props (repo root) is the single source of truth for the app
+          # version (see that file's header comment) - read it rather than duplicating a
+          # version number here.
+          [xml]$props = Get-Content Directory.Build.props
+          $version = $props.Project.PropertyGroup.Version | Select-Object -First 1
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "App version: $version"
+
+      - name: Clean output directory
+        shell: pwsh
+        run: |
+          $dist = "dist/win-x64"
+          if (Test-Path $dist) { Remove-Item -Recurse -Force $dist }
+          New-Item -ItemType Directory -Path $dist -Force
+
+      # self-contained: both exes bundle the .NET 10 runtime, so nothing needs to be
+      # preinstalled on the target machine - at the cost of a larger per-install payload.
+      # NativeAOT is fundamentally incompatible with System.Windows.Automation
+      # (ComWrappers-only marshalling), so this is a plain self-contained/JIT publish, not
+      # natively compiled. Peek.Worker publishes PublishTrimmed too (see Peek.Worker.csproj);
+      # Peek.Desktop deliberately doesn't, so the two publish to separate folders
+      # (dist/win-x64 and dist/win-x64/worker) rather than sharing one - sharing one folder
+      # would let their independently-trimmed/untrimmed copies of shared runtime files land in
+      # the same folder, silently corrupting whichever one published second.
+      # framework-dependent: small managed DLLs sharing whatever .NET 10 desktop runtime is
+      # already installed - smaller download, but the runtime must be present (Inno Setup
+      # could be extended with a runtime-check/bootstrap page if that becomes a support
+      # burden).
+      - name: Build C# (UI)
+        shell: pwsh
+        run: |
+          $proj = "src/client/Peek.Desktop/Peek.Desktop.csproj"
+
+          dotnet publish $proj `
+            -c Release `
+            -r win-x64 `
+            --self-contained false `
+            -p:StripSymbols=true `
+            -o dist/win-x64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          # LibVLC ships every audio/video codec, video output backend, and visualization
+          # plugin it has - Peek only ever plays short local WAV clips (TTS output +
+          # notification/monitor-switch sounds) through it (see AudioPlayer.cs), so this
+          # drops ~95MB of never-used plugins: the non-win-x64 RID folders entirely, then
+          # every plugin category unrelated to local WAV playback, keeping only the handful
+          # of access/demux/codec/audio_output/audio_filter/audio_mixer plugins that pipeline
+          # actually exercises. Verified live (real TTS announcement played back with no
+          # LibVLC errors) before this was added - if AudioPlayer's usage ever grows beyond
+          # local WAV playback, this allowlist needs revisiting.
+          $libvlc = "dist/win-x64/libvlc"
+          if (Test-Path $libvlc) {
+            Get-ChildItem $libvlc -Directory | Where-Object { $_.Name -ne "win-x64" } | Remove-Item -Recurse -Force
+
+            $plugins = "$libvlc/win-x64/plugins"
+            $keep = @{
+              access        = @("libfilesystem_plugin.dll")
+              demux         = @("libwav_plugin.dll")
+              codec         = @("libaraw_plugin.dll", "libadpcm_plugin.dll", "liblpcm_plugin.dll")
+              audio_output  = @("libmmdevice_plugin.dll", "libwasapi_plugin.dll", "libdirectsound_plugin.dll", "libwaveout_plugin.dll")
+              audio_filter  = @("libaudio_format_plugin.dll", "libsimple_channel_mixer_plugin.dll", "libtrivial_channel_mixer_plugin.dll", "libugly_resampler_plugin.dll", "libspeex_resampler_plugin.dll")
+              audio_mixer   = @("libfloat_mixer_plugin.dll", "libinteger_mixer_plugin.dll")
+            }
+            Get-ChildItem $plugins -Directory | ForEach-Object {
+              $category = $_.Name
+              $categoryPath = $_.FullName
+              if ($keep.ContainsKey($category)) {
+                Get-ChildItem $categoryPath -File | Where-Object { $_.Name -notin $keep[$category] } | Remove-Item -Force
+              } else {
+                Remove-Item -Recurse -Force $categoryPath
+              }
+            }
+          }
+
+          Get-ChildItem dist/win-x64 -Recurse -Filter *.pdb | Remove-Item -Force
+
+      # Published to dist/win-x64/worker, not the same folder as Peek.Desktop.exe: this exe
+      # publishes with PublishTrimmed=true (self-contained Release only, see
+      # Peek.Worker.csproj) while Peek.Desktop.csproj deliberately doesn't - sharing one
+      # output folder let one exe's independently-trimmed copy of a shared runtime file
+      # (e.g. System.Private.CoreLib.dll) silently overwrite the other's, since trim
+      # reachability is calculated per-app. WorkerConnectionOptions.WorkerExecutablePath
+      # defaults to "worker\Peek.Worker.exe", matching this layout.
+      - name: Build C# (Worker)
+        shell: pwsh
+        run: |
+          $proj = "src/worker/Peek.Worker/Peek.Worker.csproj"
+
+          dotnet publish $proj `
+            -c Release `
+            -r win-x64 `
+            --self-contained false `
+            -p:StripSymbols=true `
+            -o dist/win-x64/worker
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          Get-ChildItem dist/win-x64 -Recurse -Filter *.pdb | Remove-Item -Force
+
+      - name: Verify build outputs
+        shell: pwsh
+        run: |
+          Write-Host "`n[Build outputs] dist/win-x64 (framework-dependent)"
+          Get-ChildItem dist/win-x64 -Recurse -File | ForEach-Object {
+            $sizeMB = [math]::Round($_.Length / 1MB, 1)
+            Write-Host ("  {0,-55} {1,7} MB" -f $_.Name, $sizeMB)
+          }
+          $total = (Get-ChildItem dist/win-x64 -Recurse -File | Measure-Object Length -Sum).Sum
+          Write-Host ("`n  TOTAL: {0:N1} MB" -f ($total / 1MB))
+
+      - name: Create zip
+        run: |
+          powershell Compress-Archive -Path dist\win-x64\* -DestinationPath Peek-win-x64-framework-dependent.zip
+
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Peek-win-x64-framework-dependent
+          path: Peek-win-x64-framework-dependent.zip
+
+      # Inno Setup 6 (ISCC.exe) ships preinstalled on the windows-latest runner image - see
+      # pack/peek.iss for what it packages.
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" pack\peek.iss `
+            "/DPeekDistDir=$pwd\dist\win-x64" `
+            "/DPeekVersion=${{ steps.version.outputs.version }}" `
+            "/DPeekBuildMode=framework-dependent"
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Peek-Setup-framework-dependent
+          path: dist/installer/*.exe

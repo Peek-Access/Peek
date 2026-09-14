@@ -1,0 +1,36 @@
+<Project>
+  <!--
+    Shared assembly identity for every project in the repo (client and worker alike) - the
+    single source of truth AboutViewModel reads via reflection (Assembly.GetEntryAssembly()
+    attributes) rather than hardcoding version/copyright strings in a view model. Lives at
+    the repo root (not src/client) specifically so Peek.Worker.exe under src/worker picks
+    it up too and ships with the same version/copyright as Peek.Desktop.exe, instead of
+    silently defaulting to 1.0.0.0.
+    Bump Version here when cutting a release; there is no git-tag-driven
+    versioning yet.
+  -->
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <Product>Peek</Product>
+    <Company>NeverMorewd</Company>
+    <Authors>NeverMorewd</Authors>
+    <Description>A screen reader for Windows</Description>
+    <Copyright>Copyright (C) 2026 NeverMorewd</Copyright>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Peek-Access/Peek</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Peek-Access/Peek</RepositoryUrl>
+  </PropertyGroup>
+
+  <!--
+    Peek's own UI strings (Strings.resx/.de-DE.resx/.zh-CN.resx) go through Irihi.Lingua's
+    source generator, not MSBuild's culture/satellite-assembly mechanism - this setting has
+    no effect on them. It only stops NuGet dependencies that ship their own localized
+    satellite resource DLLs (exception messages, framework strings) from copying every
+    culture's copy to the publish output - a self-contained publish otherwise picks up
+    ~15 unused culture folders (ru/ja/cs/de/es/fr/it/ko/pl/pt-BR/tr/zh-Hans/zh-Hant, ~15MB)
+    nobody ever sees, since Peek's own UI is never displayed via any of them.
+  -->
+  <PropertyGroup>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+</Project>

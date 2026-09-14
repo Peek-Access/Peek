@@ -1,0 +1,600 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="App_Title" xml:space="preserve">
+    <value>Peek</value>
+  </data>
+  <data name="Greeting_Message" xml:space="preserve">
+    <value>欢迎来到Peek</value>
+  </data>
+	<data name="Settings_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Settings_Appearance_Header" xml:space="preserve">
+    <value>主题颜色</value>
+  </data>
+  <data name="Settings_Speech_Header" xml:space="preserve">
+    <value>语音</value>
+  </data>
+  <data name="Settings_Speech_Verbosity" xml:space="preserve">
+    <value>详细程度</value>
+  </data>
+  <data name="Settings_Speech_Language" xml:space="preserve">
+    <value>朗读主语言</value>
+  </data>
+  <data name="Settings_Speech_LanguageHint" xml:space="preserve">
+    <value>用于无法自动判断语种的内容（如普通拉丁字母文本）。检测到中文字符时，始终使用普通话朗读，不受此设置影响。</value>
+  </data>
+  <data name="Settings_Speech_VoicesHeader" xml:space="preserve">
+    <value>发音人</value>
+  </data>
+  <data name="Settings_Speech_VoiceEnglish" xml:space="preserve">
+    <value>英语</value>
+  </data>
+  <data name="Settings_Speech_VoiceGerman" xml:space="preserve">
+    <value>德语</value>
+  </data>
+  <data name="Settings_Speech_VoiceChinese" xml:space="preserve">
+    <value>中文</value>
+  </data>
+  <data name="Settings_Speech_PreviewTooltip" xml:space="preserve">
+    <value>试听该发音人</value>
+  </data>
+  <data name="Settings_Speech_PreviewEnglishVoice" xml:space="preserve">
+    <value>试听英语发音人</value>
+  </data>
+  <data name="Settings_Speech_PreviewGermanVoice" xml:space="preserve">
+    <value>试听德语发音人</value>
+  </data>
+  <data name="Settings_Speech_PreviewChineseVoice" xml:space="preserve">
+    <value>试听中文发音人</value>
+  </data>
+  <data name="Settings_Speech_Rate" xml:space="preserve">
+    <value>语速</value>
+  </data>
+  <data name="Settings_Speech_Preview" xml:space="preserve">
+    <value>▶  试听</value>
+  </data>
+  <data name="Settings_Ocr_Header" xml:space="preserve">
+    <value>OCR 文字识别</value>
+  </data>
+  <data name="Settings_Ocr_Preference" xml:space="preserve">
+    <value>OCR 运行时机</value>
+  </data>
+  <data name="Settings_Ai_Header" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Settings_Ai_Enabled" xml:space="preserve">
+    <value>启用 AI 描述与分析</value>
+  </data>
+  <data name="Settings_Ai_Provider" xml:space="preserve">
+    <value>服务商</value>
+  </data>
+  <data name="Settings_Ai_Endpoint" xml:space="preserve">
+    <value>接口地址</value>
+  </data>
+  <data name="Settings_Ai_ApiKey" xml:space="preserve">
+    <value>API 密钥</value>
+  </data>
+  <data name="Settings_Ai_Model" xml:space="preserve">
+    <value>模型</value>
+  </data>
+  <data name="Settings_Ai_TestConnection" xml:space="preserve">
+    <value>测试连接</value>
+  </data>
+  <data name="Settings_AnnouncementHistory_Header" xml:space="preserve">
+    <value>播报历史</value>
+  </data>
+  <data name="Settings_AnnouncementHistory_Enabled" xml:space="preserve">
+    <value>记录播报历史</value>
+  </data>
+  <data name="Settings_AnnouncementHistory_MaxCharacters" xml:space="preserve">
+    <value>历史记录最大长度（字符数）</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Header" xml:space="preserve">
+    <value>窗口播报</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Enabled" xml:space="preserve">
+    <value>播报窗口变化</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Opened" xml:space="preserve">
+    <value>新窗口打开</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Closed" xml:space="preserve">
+    <value>窗口关闭</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_FocusChanged" xml:space="preserve">
+    <value>激活窗口切换</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Subject" xml:space="preserve">
+    <value>播报内容</value>
+  </data>
+  <data name="Settings_Shell_Header" xml:space="preserve">
+    <value>外壳</value>
+  </data>
+  <data name="Settings_Shell_Description" xml:space="preserve">
+    <value>Peek 有四个监视器：屏幕朗读（屏幕内容播报）、元素检查器（UI 树）、程序监视器、进程监视器。在这里选择它们的呈现方式。</value>
+  </data>
+  <data name="Nav_Section" xml:space="preserve">
+    <value>导航</value>
+  </data>
+  <data name="Nav_ScreenReader" xml:space="preserve">
+    <value>屏幕朗读</value>
+  </data>
+  <data name="Nav_ElementInspector" xml:space="preserve">
+    <value>元素检查器</value>
+  </data>
+  <data name="Nav_AppMonitor" xml:space="preserve">
+    <value>程序监视器</value>
+  </data>
+  <data name="Nav_ProcessMonitor" xml:space="preserve">
+    <value>进程监视器</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="ScreenReader_Description" xml:space="preserve">
+    <value>将鼠标悬停在屏幕上的任意元素上，即可听到光标所在处的实时描述。</value>
+  </data>
+  <data name="ScreenReader_Tracking" xml:space="preserve">
+    <value>跟踪</value>
+  </data>
+  <data name="ScreenReader_Describe" xml:space="preserve">
+    <value>✎ 描述</value>
+  </data>
+  <data name="ScreenReader_DescribeTooltip" xml:space="preserve">
+    <value>使用本地大模型（截图 + OCR + UI 自动化上下文）简要说明光标所在的元素。</value>
+  </data>
+  <data name="ScreenReader_EmptyTitle" xml:space="preserve">
+    <value>就绪</value>
+  </data>
+  <data name="ScreenReader_EmptySubtitle" xml:space="preserve">
+    <value>将鼠标移到某个元素上即可查看详情</value>
+  </data>
+  <data name="ScreenReader_HistoryHeader" xml:space="preserve">
+    <value>播报历史</value>
+  </data>
+  <data name="ScreenReader_HistoryCopy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="ScreenReader_HistoryClear" xml:space="preserve">
+    <value>清空</value>
+  </data>
+  <data name="ScreenReader_HistoryEmpty" xml:space="preserve">
+    <value>暂无播报内容</value>
+  </data>
+  <data name="ScreenReader_AnalyzeScreen" xml:space="preserve">
+    <value>🔍 分析屏幕</value>
+  </data>
+  <data name="Inspector_AnalyzeWindow" xml:space="preserve">
+    <value>🔍 分析窗口</value>
+  </data>
+  <data name="Ai_ResultHeader" xml:space="preserve">
+    <value>AI 分析</value>
+  </data>
+  <data name="Ai_Analyzing" xml:space="preserve">
+    <value>分析中…</value>
+  </data>
+  <data name="Ai_Stop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="Dock_PreviousMonitor" xml:space="preserve">
+    <value>上一个监视器</value>
+  </data>
+  <data name="Dock_NextMonitor" xml:space="preserve">
+    <value>下一个监视器</value>
+  </data>
+  <data name="Dock_Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Dock_About" xml:space="preserve">
+    <value>关于 Peek</value>
+  </data>
+  <data name="MainWindow_Pin" xml:space="preserve">
+    <value>窗口置顶</value>
+  </data>
+  <data name="Settings_Shell_Mode" xml:space="preserve">
+    <value>外壳模式</value>
+  </data>
+  <data name="Settings_Shell_RestartRequired" xml:space="preserve">
+    <value>重启 Peek 后生效。</value>
+  </data>
+  <data name="Settings_Shell_DockEdge" xml:space="preserve">
+    <value>贴边方向</value>
+  </data>
+  <data name="Settings_Shell_DockWidth" xml:space="preserve">
+    <value>贴边宽度</value>
+  </data>
+  <data name="Settings_Shell_PageSwitchSound" xml:space="preserve">
+    <value>切换监视器时播放提示音</value>
+  </data>
+  <data name="Settings_Shell_ShortcutsHeader" xml:space="preserve">
+    <value>快捷键</value>
+  </data>
+  <data name="Settings_Shell_MonitorNextShortcut" xml:space="preserve">
+    <value>下一个监视器（贴边模式）</value>
+  </data>
+  <data name="Settings_Shell_MonitorPreviousShortcut" xml:space="preserve">
+    <value>上一个监视器（贴边模式）</value>
+  </data>
+  <data name="Settings_Shell_InspectorExpandShortcut" xml:space="preserve">
+    <value>元素检查器：展开/折叠</value>
+  </data>
+  <data name="Settings_Shell_AppLaunchShortcut" xml:space="preserve">
+    <value>程序监视器：启动</value>
+  </data>
+  <data name="Settings_Shell_ProcessKillShortcut" xml:space="preserve">
+    <value>进程监视器：结束进程</value>
+  </data>
+  <data name="Settings_Shell_ProcessOpenFolderShortcut" xml:space="preserve">
+    <value>进程监视器：打开所在目录</value>
+  </data>
+  <data name="Settings_Shell_GlobalShortcutsNote" xml:space="preserve">
+    <value>这两个快捷键在 Peek 未获得焦点时也能全局生效。</value>
+  </data>
+  <data name="Settings_Shell_DescribeFocusedElementShortcut" xml:space="preserve">
+    <value>朗读当前跟踪的元素</value>
+  </data>
+  <data name="Settings_Shell_ToggleTrackingShortcut" xml:space="preserve">
+    <value>切换悬停跟踪</value>
+  </data>
+  <data name="Settings_ProcessMonitor_Header" xml:space="preserve">
+    <value>进程监视器</value>
+  </data>
+  <data name="Settings_ProcessMonitor_ShowSystemProcesses" xml:space="preserve">
+    <value>显示系统（会话 0）进程</value>
+  </data>
+  <data name="Settings_ProcessMonitor_AnnounceDetailed" xml:space="preserve">
+    <value>选中进程时播报内存占用</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>⟳ 刷新</value>
+  </data>
+  <data name="Common_Loading" xml:space="preserve">
+    <value>加载中…</value>
+  </data>
+  <data name="Field_Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Field_ControlType" xml:space="preserve">
+    <value>控件类型</value>
+  </data>
+  <data name="Field_Class" xml:space="preserve">
+    <value>类</value>
+  </data>
+  <data name="Field_Process" xml:space="preserve">
+    <value>进程</value>
+  </data>
+  <data name="Field_Handle" xml:space="preserve">
+    <value>句柄</value>
+  </data>
+  <data name="Field_Description" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="AppMonitor_RefreshTooltip" xml:space="preserve">
+    <value>重新读取已安装应用的注册表</value>
+  </data>
+  <data name="AppMonitor_Launch" xml:space="preserve">
+    <value>▶ 启动</value>
+  </data>
+  <data name="AppMonitor_LaunchTooltip" xml:space="preserve">
+    <value>启动选中的应用</value>
+  </data>
+  <data name="AppMonitor_HelpText" xml:space="preserve">
+    <value>选择一个应用以听取其详情 · 双击或按回车启动</value>
+  </data>
+  <data name="AppMonitor_Version" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="AppMonitor_Publisher" xml:space="preserve">
+    <value>发布者</value>
+  </data>
+  <data name="AppMonitor_DiskUsage" xml:space="preserve">
+    <value>磁盘占用</value>
+  </data>
+  <data name="ProcessMonitor_RefreshTooltip" xml:space="preserve">
+    <value>重新枚举正在运行的进程</value>
+  </data>
+  <data name="ProcessMonitor_EndProcessButton" xml:space="preserve">
+    <value>✕ 结束进程</value>
+  </data>
+  <data name="ProcessMonitor_OpenFolderButton" xml:space="preserve">
+    <value>📁 打开文件夹</value>
+  </data>
+  <data name="ProcessMonitor_EndProcessMenu" xml:space="preserve">
+    <value>结束进程</value>
+  </data>
+  <data name="ProcessMonitor_OpenFolderMenu" xml:space="preserve">
+    <value>打开所在文件夹</value>
+  </data>
+  <data name="ProcessMonitor_ShowSystemProcessesCheckbox" xml:space="preserve">
+    <value>显示系统进程</value>
+  </data>
+  <data name="ProcessMonitor_ProcessName" xml:space="preserve">
+    <value>进程名称</value>
+  </data>
+  <data name="ProcessMonitor_Memory" xml:space="preserve">
+    <value>内存</value>
+  </data>
+  <data name="Inspector_RefreshWindows" xml:space="preserve">
+    <value>⟳ 刷新窗口</value>
+  </data>
+  <data name="Inspector_RefreshWindowsTooltip" xml:space="preserve">
+    <value>重新枚举顶层窗口并清除后台的自动化树缓存</value>
+  </data>
+  <data name="Inspector_AnalyzeWindowTooltip" xml:space="preserve">
+    <value>将选中行窗口的截图发送给 AI，进行语音播报分析</value>
+  </data>
+  <data name="Inspector_HelpText" xml:space="preserve">
+    <value>展开窗口以浏览其 UI 自动化树 · 双击任意行查看完整详情</value>
+  </data>
+  <data name="Inspector_RowLoading" xml:space="preserve">
+    <value>加载中…</value>
+  </data>
+  <data name="Inspector_LoadFailed" xml:space="preserve">
+    <value>⚠ 子项加载失败 - 折叠并重新展开以重试</value>
+  </data>
+  <data name="Inspector_LoadFailedTooltip" xml:space="preserve">
+    <value>该窗口/元素可能在浏览过程中已关闭，或者后台调用失败。折叠并重新展开此行将重试。</value>
+  </data>
+  <data name="ElementDetail_SectionIdentity" xml:space="preserve">
+    <value>身份信息</value>
+  </data>
+  <data name="ElementDetail_SectionState" xml:space="preserve">
+    <value>状态</value>
+  </data>
+  <data name="ElementDetail_SectionLayout" xml:space="preserve">
+    <value>布局</value>
+  </data>
+  <data name="ElementDetail_SectionValueText" xml:space="preserve">
+    <value>值 / 文本</value>
+  </data>
+  <data name="ElementDetail_SectionInteraction" xml:space="preserve">
+    <value>交互</value>
+  </data>
+  <data name="ElementDetail_Enabled" xml:space="preserve">
+    <value>已启用</value>
+  </data>
+  <data name="ElementDetail_Focused" xml:space="preserve">
+    <value>已聚焦</value>
+  </data>
+  <data name="ElementDetail_FocusedTooltip" xml:space="preserve">
+    <value>拥有键盘焦点</value>
+  </data>
+  <data name="ElementDetail_Focusable" xml:space="preserve">
+    <value>可聚焦</value>
+  </data>
+  <data name="ElementDetail_FocusableTooltip" xml:space="preserve">
+    <value>可以接收键盘焦点</value>
+  </data>
+  <data name="ElementDetail_OffScreen" xml:space="preserve">
+    <value>屏幕外</value>
+  </data>
+  <data name="ElementDetail_OffScreenTooltip" xml:space="preserve">
+    <value>当前处于屏幕外</value>
+  </data>
+  <data name="ElementDetail_LocalizedControlType" xml:space="preserve">
+    <value>本地化控件类型</value>
+  </data>
+  <data name="ElementDetail_ClassName" xml:space="preserve">
+    <value>类名</value>
+  </data>
+  <data name="ElementDetail_AutomationId" xml:space="preserve">
+    <value>自动化 ID</value>
+  </data>
+  <data name="ElementDetail_Framework" xml:space="preserve">
+    <value>框架</value>
+  </data>
+  <data name="ElementDetail_ProcessId" xml:space="preserve">
+    <value>进程 ID</value>
+  </data>
+  <data name="ElementDetail_WindowHwnd" xml:space="preserve">
+    <value>窗口句柄 (HWND)</value>
+  </data>
+  <data name="ElementDetail_InspectorSessionId" xml:space="preserve">
+    <value>检查器会话 ID</value>
+  </data>
+  <data name="ElementDetail_InspectorSessionIdTooltip" xml:space="preserve">
+    <value>用于延迟展开树的不透明后台令牌 - 仅在通过元素检查器浏览时设置，悬停跟踪时不设置。</value>
+  </data>
+  <data name="ElementDetail_KeyboardFocusable" xml:space="preserve">
+    <value>键盘可聚焦</value>
+  </data>
+  <data name="ElementDetail_Selected" xml:space="preserve">
+    <value>已选中</value>
+  </data>
+  <data name="ElementDetail_SelectedTooltip" xml:space="preserve">
+    <value>N/A 表示该元素不支持 SelectionItemPattern</value>
+  </data>
+  <data name="ElementDetail_ToggleState" xml:space="preserve">
+    <value>切换状态</value>
+  </data>
+  <data name="ElementDetail_ToggleStateTooltip" xml:space="preserve">
+    <value>N/A 表示该元素不支持 TogglePattern</value>
+  </data>
+  <data name="ElementDetail_ExpandState" xml:space="preserve">
+    <value>展开状态</value>
+  </data>
+  <data name="ElementDetail_ExpandStateTooltip" xml:space="preserve">
+    <value>N/A 表示该元素不支持 ExpandCollapsePattern</value>
+  </data>
+  <data name="ElementDetail_PositionLeftTop" xml:space="preserve">
+    <value>位置（左, 上）</value>
+  </data>
+  <data name="ElementDetail_SizeWH" xml:space="preserve">
+    <value>大小（宽 × 高）</value>
+  </data>
+  <data name="ElementDetail_Value" xml:space="preserve">
+    <value>值</value>
+  </data>
+  <data name="ElementDetail_HelpText" xml:space="preserve">
+    <value>帮助文本</value>
+  </data>
+  <data name="ElementDetail_ItemStatus" xml:space="preserve">
+    <value>项目状态</value>
+  </data>
+  <data name="ElementDetail_AcceleratorKey" xml:space="preserve">
+    <value>快捷键</value>
+  </data>
+  <data name="ElementDetail_AccessKey" xml:space="preserve">
+    <value>访问键</value>
+  </data>
+  <data name="ElementDetail_AvailableActions" xml:space="preserve">
+    <value>可用操作</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>关于 Peek</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>许可证：</value>
+  </data>
+  <data name="About_Source" xml:space="preserve">
+    <value>源码：</value>
+  </data>
+  <data name="About_BuiltWith" xml:space="preserve">
+    <value>基于以下开源项目构建</value>
+  </data>
+  <data name="About_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="ElementDetail_WindowTitle" xml:space="preserve">
+    <value>元素详情 - Peek</value>
+  </data>
+  <data name="Speech_PartSeparator" xml:space="preserve">
+    <value>，</value>
+  </data>
+  <data name="Speech_UnlabeledElement" xml:space="preserve">
+    <value>未命名元素</value>
+  </data>
+  <data name="Speech_ShortcutFormat" xml:space="preserve">
+    <value>快捷键 {0}</value>
+  </data>
+  <data name="Speech_State_Checked" xml:space="preserve">
+    <value>已选中</value>
+  </data>
+  <data name="Speech_State_Unchecked" xml:space="preserve">
+    <value>未选中</value>
+  </data>
+  <data name="Speech_State_PartiallyChecked" xml:space="preserve">
+    <value>部分选中</value>
+  </data>
+  <data name="Speech_State_Selected" xml:space="preserve">
+    <value>已选择</value>
+  </data>
+  <data name="Speech_State_Expanded" xml:space="preserve">
+    <value>已展开</value>
+  </data>
+  <data name="Speech_State_Collapsed" xml:space="preserve">
+    <value>已折叠</value>
+  </data>
+  <data name="Speech_State_Disabled" xml:space="preserve">
+    <value>已禁用</value>
+  </data>
+  <data name="Speech_MainWindow_Pinned" xml:space="preserve">
+    <value>窗口已置顶</value>
+  </data>
+  <data name="Speech_MainWindow_Unpinned" xml:space="preserve">
+    <value>已取消置顶</value>
+  </data>
+  <data name="Speech_Window_Opened" xml:space="preserve">
+    <value>新窗口</value>
+  </data>
+  <data name="Speech_Window_Closed" xml:space="preserve">
+    <value>窗口已关闭</value>
+  </data>
+  <data name="Speech_Window_FocusChanged" xml:space="preserve">
+    <value>当前窗口</value>
+  </data>
+  <data name="Speech_Process_Unnamed" xml:space="preserve">
+    <value>未命名进程</value>
+  </data>
+  <data name="Speech_Process_Fallback" xml:space="preserve">
+    <value>该进程</value>
+  </data>
+  <data name="Speech_Process_WithMemoryFormat" xml:space="preserve">
+    <value>{0}，进程 {1}，占用 {2}。</value>
+  </data>
+  <data name="Speech_Process_Format" xml:space="preserve">
+    <value>{0}，进程 {1}。</value>
+  </data>
+  <data name="Speech_Process_KillSucceededFormat" xml:space="preserve">
+    <value>已结束 {0}。</value>
+  </data>
+  <data name="Speech_Process_KillFailedFormat" xml:space="preserve">
+    <value>结束 {0} 失败。</value>
+  </data>
+  <data name="Speech_Process_KillFailedReasonFormat" xml:space="preserve">
+    <value>结束 {0} 失败：{1}</value>
+  </data>
+  <data name="Speech_Process_OpenFolderFailedFormat" xml:space="preserve">
+    <value>无法打开 {0} 所在的目录。</value>
+  </data>
+  <data name="Speech_Process_OpenFolderFailedReasonFormat" xml:space="preserve">
+    <value>无法打开 {0} 所在的目录：{1}</value>
+  </data>
+  <data name="Speech_Size_GigabytesFormat" xml:space="preserve">
+    <value>{0} GB</value>
+  </data>
+  <data name="Speech_Size_MegabytesFormat" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="Speech_App_Unnamed" xml:space="preserve">
+    <value>未命名应用</value>
+  </data>
+  <data name="Speech_App_Fallback" xml:space="preserve">
+    <value>该应用</value>
+  </data>
+  <data name="Speech_App_VersionFormat" xml:space="preserve">
+    <value>版本 {0}</value>
+  </data>
+  <data name="Speech_App_PublisherFormat" xml:space="preserve">
+    <value>发布者 {0}</value>
+  </data>
+  <data name="Speech_App_LaunchSucceededFormat" xml:space="preserve">
+    <value>已启动 {0}。</value>
+  </data>
+  <data name="Speech_App_LaunchFailedFormat" xml:space="preserve">
+    <value>启动 {0} 失败。</value>
+  </data>
+  <data name="Speech_App_LaunchFailedReasonFormat" xml:space="preserve">
+    <value>启动 {0} 失败：{1}</value>
+  </data>
+  <data name="Speech_Inspector_Unnamed" xml:space="preserve">
+    <value>未命名</value>
+  </data>
+  <data name="Speech_Inspector_InProcessFormat" xml:space="preserve">
+    <value>，位于 {0}</value>
+  </data>
+  <data name="Speech_Inspector_SelectionFormat" xml:space="preserve">
+    <value>{0}，{1}{2}，位置 {3}, {4}，大小 {5} 乘 {6}。</value>
+  </data>
+  <data name="Speech_Inspector_NoChildren" xml:space="preserve">
+    <value>没有子元素。</value>
+  </data>
+  <data name="Speech_Inspector_OneChild" xml:space="preserve">
+    <value>1 个子元素。</value>
+  </data>
+  <data name="Speech_Inspector_ChildrenFormat" xml:space="preserve">
+    <value>{0} 个子元素。</value>
+  </data>
+  <data name="Speech_TtsUnavailable" xml:space="preserve">
+    <value>语音不可用，Peek 无法加载发音人。</value>
+  </data>
+  <data name="Settings_Accessibility_Header" xml:space="preserve">
+    <value>屏幕朗读</value>
+  </data>
+  <data name="Settings_Accessibility_Description" xml:space="preserve">
+    <value>Peek 如何决定朗读什么。焦点跟随会跟着键盘走——也就是你用 Tab 切换到的位置——不需要看见就能定位。</value>
+  </data>
+  <data name="Settings_Accessibility_AnnounceOnFocus" xml:space="preserve">
+    <value>朗读获得键盘焦点的元素（推荐）</value>
+  </data>
+  <data name="Settings_Accessibility_AnnounceOnHover" xml:space="preserve">
+    <value>朗读鼠标指针下的元素</value>
+  </data>
+  <data name="Settings_Accessibility_HighlightFocused" xml:space="preserve">
+    <value>在屏幕上高亮当前焦点元素</value>
+  </data>
+  <data name="Settings_Shell_StopSpeakingShortcut" xml:space="preserve">
+    <value>停止朗读</value>
+  </data>
+</root>

@@ -1,0 +1,136 @@
+<Window
+    x:Class="Peek.UI.Views.AboutWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    Title="{Translate {x:Static i18n:LanguageManager+Keys.About_Title}}"
+    Width="420"
+    Height="480"
+    d:DesignHeight="480"
+    d:DesignWidth="420"
+    x:DataType="{x:Type vm:AboutViewModel}"
+    CanResize="False"
+    Icon="avares://Peek.UI/Assets/peek-icon.ico"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d">
+    <Window.Styles>
+        <Style Selector="Button.linkBtn">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyPrimaryLightBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontSize" Value="11" />
+        </Style>
+        <Style Selector="Button.linkBtn:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource PipboyPrimaryBrush}" />
+        </Style>
+    </Window.Styles>
+    <ScrollViewer>
+        <StackPanel Margin="24" Spacing="14">
+
+            <StackPanel HorizontalAlignment="Center" Spacing="8">
+                <Image
+                    Width="72"
+                    Height="72"
+                    HorizontalAlignment="Center"
+                    Source="avares://Peek.UI/Assets/peek-logo.png" />
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    FontSize="20"
+                    FontWeight="Bold"
+                    Foreground="{DynamicResource PipboyPrimaryLightBrush}"
+                    LetterSpacing="4"
+                    Text="{Binding AppName}" />
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    FontSize="12"
+                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                    Text="{Binding Tagline}" />
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    FontSize="11"
+                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                    Opacity="0.7"
+                    Text="{Binding Version, StringFormat='Version {0}'}" />
+            </StackPanel>
+
+            <Separator />
+
+            <StackPanel Spacing="6">
+                <TextBlock
+                    FontSize="11"
+                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                    Text="{Binding Copyright}" />
+
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="11"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.About_License}}" />
+                    <Button
+                        Padding="4,0"
+                        Classes="linkBtn"
+                        Command="{Binding OpenLicenseCommand}"
+                        Content="{Binding LicenseName}" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="11"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.About_Source}}" />
+                    <Button
+                        Padding="4,0"
+                        Classes="linkBtn"
+                        Command="{Binding OpenRepoCommand}"
+                        Content="{Binding RepoUrl}" />
+                </StackPanel>
+            </StackPanel>
+
+            <Separator />
+
+            <StackPanel Spacing="6">
+                <TextBlock
+                    FontSize="10"
+                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                    LetterSpacing="2"
+                    Opacity="0.7"
+                    Text="{Translate {x:Static i18n:LanguageManager+Keys.About_BuiltWith}}" />
+                <ItemsControl ItemsSource="{Binding ThirdPartyLibraries}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Border
+                                Margin="0,0,6,6"
+                                Padding="7,3"
+                                Background="{DynamicResource PipboySurfaceBrush}"
+                                BorderBrush="{DynamicResource PipboyBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource PipboyCornerRadiusPill}">
+                                <TextBlock FontSize="10" Foreground="{DynamicResource PipboyTextDimBrush}" Text="{Binding}" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <Button
+                Margin="0,8,0,0"
+                HorizontalAlignment="Center"
+                Click="OnCloseClick"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.About_Close}}" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Window>

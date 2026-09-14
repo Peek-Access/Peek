@@ -1,0 +1,225 @@
+<UserControl
+    x:Class="Peek.UI.Views.ElementInspectorView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:hier="clr-namespace:Avalonia.Controls.DataGridHierarchical;assembly=Avalonia.Controls.DataGrid"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    d:DesignHeight="680"
+    d:DesignWidth="1000"
+    x:DataType="{x:Type vm:ElementInspectorViewModel}"
+    mc:Ignorable="d">
+    <Grid
+        Margin="10"
+        RowDefinitions="Auto,*,Auto"
+        RowSpacing="8">
+
+        <!--
+            WrapPanel, not a horizontal StackPanel: at a docked strip's narrow width this
+            toolbar (plus its trailing help text) has too much content to fit on one line -
+            a StackPanel would let it overflow past the page instead of wrapping.
+        -->
+        <WrapPanel Grid.Row="0" Orientation="Horizontal">
+            <Button
+                Margin="0,0,10,4"
+                Command="{Binding RefreshCommand}"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindows}}"
+                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindowsTooltip}}" />
+            <Button
+                Margin="0,0,10,4"
+                Command="{Binding AnalyzeSelectedWindowCommand}"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindow}}"
+                IsEnabled="{Binding !ScreenAnalysis.IsAnalyzing}"
+                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindowTooltip}}" />
+            <Button
+                Margin="0,0,10,4"
+                Command="{Binding StopAnalysisCommand}"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.Ai_Stop}}"
+                IsVisible="{Binding ScreenAnalysis.IsAnalyzing}" />
+            <TextBlock
+                Margin="0,0,0,4"
+                VerticalAlignment="Center"
+                FontSize="11"
+                Foreground="{DynamicResource PipboyTextDimBrush}"
+                IsVisible="{Binding IsLoading}"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Loading}}" />
+            <TextBlock
+                Margin="0,0,0,4"
+                VerticalAlignment="Center"
+                FontSize="11"
+                Foreground="{DynamicResource PipboyTextDimBrush}"
+                IsVisible="{Binding !IsLoading}"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_HelpText}}" />
+        </WrapPanel>
+
+        <DataGrid
+            Name="Tree"
+            Grid.Row="1"
+            AutoGenerateColumns="False"
+            CanUserReorderColumns="True"
+            CanUserResizeColumns="True"
+            Classes="hierarchical"
+            DoubleTapped="OnRowDoubleTapped"
+            GridLinesVisibility="Horizontal"
+            HeadersVisibility="Column"
+            HierarchicalRowsEnabled="True"
+            IsReadOnly="True"
+            RowHeight="24"
+            SelectedItem="{Binding SelectedNode}"
+            SelectionMode="Single"
+            SelectionUnit="FullRow"
+            UseLogicalScrollable="True">
+
+            <DataGrid.Columns>
+
+                <!--  Name — expand/collapse toggle lives here  -->
+                <DataGridHierarchicalColumn
+                    Width="2.5*"
+                    x:CompileBindings="False"
+                    Binding="{Binding Item}"
+                    Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Name}}">
+                    <DataGridHierarchicalColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:InspectorNodeViewModel">
+                            <!--
+                                Grid, not a horizontal StackPanel: a StackPanel measures its
+                                child with unbounded width, so TextTrimming never actually
+                                triggers - the name just renders at full width and gets
+                                hard-clipped by the cell instead of ellipsis-trimmed, running
+                                flush into whatever column comes next (very visible once the
+                                narrow-width layout below leaves only Name + Handle visible).
+                                The "*" column here is what finally constrains it.
+                            -->
+                            <Grid
+                                Margin="0,0,10,0"
+                                ColumnDefinitions="*,Auto,Auto"
+                                ColumnSpacing="6">
+                                <SelectableTextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Foreground="{DynamicResource PipboyTextBrush}"
+                                    Text="{Binding Name}"
+                                    TextTrimming="CharacterEllipsis"
+                                    ToolTip.Tip="{Binding Name}" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{DynamicResource PipboyPrimaryLightBrush}"
+                                    IsVisible="{Binding IsLoading}"
+                                    Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RowLoading}}" />
+                                <TextBlock
+                                    Grid.Column="2"
+                                    VerticalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{DynamicResource PipboyWarningBrush}"
+                                    IsVisible="{Binding LoadFailed}"
+                                    Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_LoadFailed}}"
+                                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_LoadFailedTooltip}}" />
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridHierarchicalColumn.CellTemplate>
+                </DataGridHierarchicalColumn>
+
+                <DataGridTemplateColumn Width="1.3*" Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_ControlType}}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="hier:HierarchicalNode">
+                            <SelectableTextBlock
+                                VerticalAlignment="Center"
+                                x:DataType="vm:InspectorNodeViewModel"
+                                DataContext="{Binding Item}"
+                                Foreground="{DynamicResource PipboyPrimaryLightBrush}"
+                                Text="{Binding ControlType}"
+                                TextTrimming="CharacterEllipsis" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Width="1.5*" Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Class}}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="hier:HierarchicalNode">
+                            <SelectableTextBlock
+                                VerticalAlignment="Center"
+                                x:DataType="vm:InspectorNodeViewModel"
+                                DataContext="{Binding Item}"
+                                Foreground="{DynamicResource PipboyTextDimBrush}"
+                                Opacity="0.85"
+                                Text="{Binding ClassName}"
+                                TextTrimming="CharacterEllipsis"
+                                ToolTip.Tip="{Binding ClassName}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Width="1*" Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Process}}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="hier:HierarchicalNode">
+                            <SelectableTextBlock
+                                VerticalAlignment="Center"
+                                x:DataType="vm:InspectorNodeViewModel"
+                                DataContext="{Binding Item}"
+                                Foreground="{DynamicResource PipboyTextDimBrush}"
+                                Text="{Binding ProcessName}"
+                                TextTrimming="CharacterEllipsis" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!--
+                    Hidden by default - only shown in place of Control Type/Class/Process
+                    at a narrow width (docked mode), see ElementInspectorView's code-behind.
+                -->
+                <DataGridTemplateColumn
+                    Width="1.3*"
+                    Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Handle}}"
+                    IsVisible="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="hier:HierarchicalNode">
+                            <SelectableTextBlock
+                                VerticalAlignment="Center"
+                                x:DataType="vm:InspectorNodeViewModel"
+                                DataContext="{Binding Item}"
+                                FontFamily="Courier New"
+                                Foreground="{DynamicResource PipboyTextDimBrush}"
+                                Text="{Binding HandleDisplay}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!--
+            AI window analysis - shares ScreenAnalysisService (and its state) with
+            ScreenReaderView's "Analyze Screen" panel; only one analysis (screen or
+            window) ever runs at a time.
+        -->
+        <Border
+            Grid.Row="2"
+            Padding="10"
+            Background="{DynamicResource PipboySurfaceBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}"
+            IsVisible="{Binding ScreenAnalysis.HasResult}">
+            <StackPanel Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock FontWeight="SemiBold" Text="{Translate {x:Static i18n:LanguageManager+Keys.Ai_ResultHeader}}" />
+                    <TextBlock
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        IsVisible="{Binding ScreenAnalysis.IsAnalyzing}"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Ai_Analyzing}}" />
+                </StackPanel>
+                <ScrollViewer MaxHeight="160">
+                    <TextBlock Text="{Binding ScreenAnalysis.StreamingText}" TextWrapping="Wrap" />
+                </ScrollViewer>
+                <TextBlock
+                    Foreground="{DynamicResource PipboyWarningBrush}"
+                    IsVisible="{Binding ScreenAnalysis.ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                    Text="{Binding ScreenAnalysis.ErrorMessage}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

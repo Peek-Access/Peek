@@ -1,0 +1,149 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Peek.Worker</RootNamespace>
+    <AssemblyName>Peek.Worker</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Must stay false while InvariantGlobalization is true, or Windows speech (SAPI) is
+         dead in this process. In invariant mode the default PredefinedCulturesOnly=true makes
+         `new CultureInfo("en-US")` throw CultureNotFoundException; System.Speech builds a
+         CultureInfo for every installed voice while enumerating them, swallows that, and ends
+         up with no usable voice token - so GetInstalledVoices and every Speak call fail with a
+         NullReferenceException out of VoiceSynthesis.GetComEngine.
+         This is what actually made a packaged install silent. It looked like a trimming
+         problem (the trimmed worker died with an access violation rather than throwing) and
+         it isn't one: verified by reproducing the identical failure in a plain Debug build
+         and in an untrimmed Release publish, then fixing all three with this one line.
+         Setting it here rather than turning InvariantGlobalization off keeps ICU - about 30MB
+         in a self-contained publish - out of the package. -->
+    <PredefinedCulturesOnly>false</PredefinedCulturesOnly>
+    <!--
+      Co-locate dev builds with Peek.Desktop's own output (also forced to
+      ..\..\..\bin\, see Peek.Desktop.csproj) so WorkerConnection - which resolves
+      Peek.Worker.exe next to its own executable - finds it in a plain `dotnet
+      build`/F5 dev loop, not just in a published/packaged layout. The literal
+      "net10.0" folder name (this project actually targets net10.0-windows) is
+      intentional: it must match Peek.Desktop's resolved output folder exactly.
+    -->
+    <OutputPath>..\..\..\bin\net10.0\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <!-- Matches Peek.Desktop.csproj's windowed-Release gating. Redundant when launched by
+       Peek.Desktop (WorkerConnection.cs already passes CreateNoWindow=true), but this
+       also covers running Peek.Worker.exe standalone in Release, which would otherwise
+       still pop its own console window since OutputType=Exe is a Console-subsystem app
+       regardless of who launches it. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+
+  <!-- NativeAOT is deliberately NOT enabled here, even for a self-contained Release publish
+       (see build_binary.yml's "aot" mode, which is really just "self-contained" now - the
+       label is legacy). This project uses System.Windows.Automation
+       (AutomationElement.FromPoint etc., in Peek.Worker.Automation.Windows), which still
+       relies on the legacy built-in COM interop marshaller - NativeAOT only supports
+       ComWrappers-based COM interop, so the very first call throws
+       System.NotSupportedException: "COM Interop requires ComWrapper instance registered for
+       marshalling" out of AutomationElementIdentifiers..cctor(), and every call after that
+       fails with TypeInitializationException (a failed static constructor stays failed) -
+       i.e. this worker's core hover/inspect feature is permanently broken from the first
+       mouse move. Verified in isolation with a standalone AOT-published harness calling
+       WindowsAutomationService.GetElementFromPointAsync directly. Fixing this for real would
+       mean replacing System.Windows.Automation with raw IUIAutomation COM interfaces via
+       ComWrappers - not attempted here since AOT's only other upside (smaller size) is
+       already dwarfed by LibVLC's own ~100MB either way. -->
+
+  <!-- Plain IL trimming (not AOT - see above) IS enabled here, self-contained Release only:
+       Peek.Worker.Automation.Windows sets UseWPF=true just to reach System.Windows.Automation
+       types, which otherwise bundles the entire WPF+WinForms runtime (~40MB:
+       PresentationFramework.dll, System.Windows.Forms.dll, System.Windows.Forms.Design.dll,
+       etc.) into a self-contained publish even though nothing here uses any actual WPF/
+       WinForms UI. Trimmed, PresentationFramework/System.Windows.Forms/.Design drop out
+       entirely (nothing references them at all) while UIAutomationClient/Types/WindowsBase
+       shrink to a few hundred KB each.
+
+       Getting there safely needed two non-obvious overrides, not just PublishTrimmed=true:
+       - PublishTrimmed's default trim pass disables "built-in COM" support outright (a
+         documented, intentional trimmer behavior - https://aka.ms/dotnet-illink/com), which
+         System.Windows.Automation's legacy COM marshaller depends on. Left at the default,
+         every automation RPC call fails at runtime with "Worker RPC error -32603: Built-in
+         COM has been disabled via a feature switch" - this is NOT a build-time error or even
+         a build warning, it only surfaces the first time real code exercises it, so it's easy
+         to ship believing trimming "worked" off nothing but a clean build.
+         BuiltInComInteropSupport=true restores it.
+       - Even with that restored, the trimmer still silently removed internal
+         System.Private.CoreLib marshaling stub helpers (System.StubHelpers.*) that
+         System.Windows.Automation's *is safe* variant only reaches through the CLR's COM
+         interop plumbing rather than ordinary IL call sites the trim analysis can see -
+         different UIA operations broke on different missing stub types
+         (InterfaceMarshaler for GetElementFromPoint, MngdSafeArrayMarshaler for
+         GetElementFromHandle/inspector tree traversal), so a narrow smoke test that only
+         exercises one operation can look completely fine while a different one is still
+         broken. Rooting System.Private.CoreLib (plus UIAutomationClient/Types, defense in
+         depth) fixes this by keeping those helpers' reachability analysis conservative
+         instead of removed. TrimMode=partial was tried first and looked promising (no
+         warnings!) but turned out to just avoid the ONE code path in a shallow manual check,
+         not the underlying problem - only running the real integration suite against the
+         actual published, trimmed exe (Peek_TEST_WORKER_PATH) surfaced the GetElementFromHandle
+         failure and the false confidence.
+
+       Verified via the full Peek.Integration.Tests suite pointed at the actual published,
+       trimmed Peek.Worker.exe (not just a clean build): 26/26 passing (one pre-existing,
+       unrelated parallelism flake aside). A build succeeding, or even a spot-checked manual
+       smoke test, is not sufficient evidence trimming this project is safe - re-run the real
+       integration suite against the published exe again if these settings, TargetFramework,
+       or the WindowsDesktop runtime pack version ever change.
+
+       Deliberately NOT mirrored on Peek.Desktop.csproj: ILLink flags Avalonia's DataGrid and
+       ReactiveUI's WhenAnyValue - both used throughout Desktop's UI - as reflection-dependent
+       and not trim-safe, a materially different and larger risk surface than Worker's plain
+       typed COM-interop calls. The two exes are published to separate folders (see
+       WorkerConnectionOptions.WorkerExecutablePath) specifically so their independently
+       -trimmed/untrimmed copies of shared runtime files never collide. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' AND '$(SelfContained)' == 'true'">
+    <PublishTrimmed>true</PublishTrimmed>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release' AND '$(SelfContained)' == 'true'">
+    <TrimmerRootAssembly Include="System.Private.CoreLib" />
+    <TrimmerRootAssembly Include="UIAutomationClient" />
+    <TrimmerRootAssembly Include="UIAutomationTypes" />
+    <TrimmerRootAssembly Include="PiperSharp" />
+    <!-- Same class of problem as UIAutomation above, and it bit us the same way. System.Speech
+         is a thin managed wrapper over SAPI's COM interfaces (ISpVoice et al.), reached through
+         the CLR's interop plumbing rather than IL call sites the trimmer can follow. Trimmed
+         without this root, the *first* SpeechSynthesizer.Speak call takes the whole worker
+         process down with an access violation (exit code 0xC0000005) - no managed exception, no
+         log line, just a dead worker. And because this is the fallback engine, it only runs
+         when Piper has already failed, so a build can look completely healthy right up until
+         the first machine that has no network on first run. Found exactly that way: a packaged
+         install logged "Neural speech (Piper) failed - falling back to Windows voices", then
+         the worker exited 0xC0000005 four seconds later and the app never spoke again. -->
+    <TrimmerRootAssembly Include="System.Speech" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Peek.Worker.Contracts\Peek.Worker.Contracts.csproj" />
+    <ProjectReference Include="..\Peek.Worker.Automation.Windows\Peek.Worker.Automation.Windows.csproj" />
+    <ProjectReference Include="..\Peek.Worker.SystemMonitor.Windows\Peek.Worker.SystemMonitor.Windows.csproj" />
+    <ProjectReference Include="..\Peek.Worker.Tts\Peek.Worker.Tts.csproj" />
+    <ProjectReference Include="..\Peek.Worker.Tts.Windows\Peek.Worker.Tts.Windows.csproj" />
+    <ProjectReference Include="..\Peek.Worker.Ocr\Peek.Worker.Ocr.csproj" />
+    <ProjectReference Include="..\Peek.Worker.Screenshot.Windows\Peek.Worker.Screenshot.Windows.csproj" />
+    <ProjectReference Include="..\Peek.Worker.Llm\Peek.Worker.Llm.csproj" />
+  </ItemGroup>
+
+</Project>

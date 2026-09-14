@@ -1,0 +1,600 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data name="App_Title" xml:space="preserve">
+    <value>Peek</value>
+  </data>
+	<data name="Greeting_Message" xml:space="preserve">
+    <value>Willkommen bei Peek!</value>
+  </data>
+	<data name="Settings_Language" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="Settings_Appearance_Header" xml:space="preserve">
+    <value>Designfarbe</value>
+  </data>
+  <data name="Settings_Speech_Header" xml:space="preserve">
+    <value>Sprachausgabe</value>
+  </data>
+  <data name="Settings_Speech_Verbosity" xml:space="preserve">
+    <value>Ausführlichkeit</value>
+  </data>
+  <data name="Settings_Speech_Language" xml:space="preserve">
+    <value>Sprachausgabe-Sprache</value>
+  </data>
+  <data name="Settings_Speech_LanguageHint" xml:space="preserve">
+    <value>Wird für alles verwendet, was nicht automatisch erkannt werden kann (z. B. reiner lateinischer Text). Chinesischer Text wird unabhängig von dieser Einstellung immer erkannt und auf Hochchinesisch vorgelesen.</value>
+  </data>
+  <data name="Settings_Speech_VoicesHeader" xml:space="preserve">
+    <value>Stimmen</value>
+  </data>
+  <data name="Settings_Speech_VoiceEnglish" xml:space="preserve">
+    <value>Englisch</value>
+  </data>
+  <data name="Settings_Speech_VoiceGerman" xml:space="preserve">
+    <value>Deutsch</value>
+  </data>
+  <data name="Settings_Speech_VoiceChinese" xml:space="preserve">
+    <value>Chinesisch</value>
+  </data>
+  <data name="Settings_Speech_PreviewTooltip" xml:space="preserve">
+    <value>Diese Stimme anhören</value>
+  </data>
+  <data name="Settings_Speech_PreviewEnglishVoice" xml:space="preserve">
+    <value>Englische Stimme anhören</value>
+  </data>
+  <data name="Settings_Speech_PreviewGermanVoice" xml:space="preserve">
+    <value>Deutsche Stimme anhören</value>
+  </data>
+  <data name="Settings_Speech_PreviewChineseVoice" xml:space="preserve">
+    <value>Chinesische Stimme anhören</value>
+  </data>
+  <data name="Settings_Speech_Rate" xml:space="preserve">
+    <value>Geschwindigkeit</value>
+  </data>
+  <data name="Settings_Speech_Preview" xml:space="preserve">
+    <value>▶  Vorschau</value>
+  </data>
+  <data name="Settings_Ocr_Header" xml:space="preserve">
+    <value>OCR</value>
+  </data>
+  <data name="Settings_Ocr_Preference" xml:space="preserve">
+    <value>Wann OCR ausgeführt wird</value>
+  </data>
+  <data name="Settings_Ai_Header" xml:space="preserve">
+    <value>KI</value>
+  </data>
+  <data name="Settings_Ai_Enabled" xml:space="preserve">
+    <value>KI-Beschreibungen und -Analyse aktivieren</value>
+  </data>
+  <data name="Settings_Ai_Provider" xml:space="preserve">
+    <value>Anbieter</value>
+  </data>
+  <data name="Settings_Ai_Endpoint" xml:space="preserve">
+    <value>Endpunkt</value>
+  </data>
+  <data name="Settings_Ai_ApiKey" xml:space="preserve">
+    <value>API-Schlüssel</value>
+  </data>
+  <data name="Settings_Ai_Model" xml:space="preserve">
+    <value>Modell</value>
+  </data>
+  <data name="Settings_Ai_TestConnection" xml:space="preserve">
+    <value>Verbindung testen</value>
+  </data>
+  <data name="Settings_AnnouncementHistory_Header" xml:space="preserve">
+    <value>Ansageverlauf</value>
+  </data>
+  <data name="Settings_AnnouncementHistory_Enabled" xml:space="preserve">
+    <value>Ansageverlauf aufzeichnen</value>
+  </data>
+  <data name="Settings_AnnouncementHistory_MaxCharacters" xml:space="preserve">
+    <value>Maximale Verlaufslänge (Zeichen)</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Header" xml:space="preserve">
+    <value>Fensteransagen</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Enabled" xml:space="preserve">
+    <value>Fensteränderungen ansagen</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Opened" xml:space="preserve">
+    <value>Neues Fenster geöffnet</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Closed" xml:space="preserve">
+    <value>Fenster geschlossen</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_FocusChanged" xml:space="preserve">
+    <value>Aktives Fenster gewechselt</value>
+  </data>
+  <data name="Settings_WindowAnnouncement_Subject" xml:space="preserve">
+    <value>Ansagen nach</value>
+  </data>
+  <data name="Settings_Shell_Header" xml:space="preserve">
+    <value>Shell</value>
+  </data>
+  <data name="Settings_Shell_Description" xml:space="preserve">
+    <value>Peek hat vier Monitore: Bildschirmvorlesung (Bildschirminhalt vorlesen), Element-Inspektor (UI-Baum), App-Monitor und Process-Monitor. Wählen Sie hier ihre Anordnung.</value>
+  </data>
+  <data name="Nav_Section" xml:space="preserve">
+    <value>NAVIGATION</value>
+  </data>
+  <data name="Nav_ScreenReader" xml:space="preserve">
+    <value>Bildschirmvorlesung</value>
+  </data>
+  <data name="Nav_ElementInspector" xml:space="preserve">
+    <value>Element-Inspektor</value>
+  </data>
+  <data name="Nav_AppMonitor" xml:space="preserve">
+    <value>App-Monitor</value>
+  </data>
+  <data name="Nav_ProcessMonitor" xml:space="preserve">
+    <value>Process-Monitor</value>
+  </data>
+  <data name="Nav_Settings" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="ScreenReader_Description" xml:space="preserve">
+    <value>Bewegen Sie die Maus über ein beliebiges Bildschirmelement, um eine Live-Beschreibung der Position unter dem Zeiger zu hören.</value>
+  </data>
+  <data name="ScreenReader_Tracking" xml:space="preserve">
+    <value>Verfolgung</value>
+  </data>
+  <data name="ScreenReader_Describe" xml:space="preserve">
+    <value>✎ Beschreiben</value>
+  </data>
+  <data name="ScreenReader_DescribeTooltip" xml:space="preserve">
+    <value>Nutzt das lokale LLM (Screenshot + OCR + UI-Automation-Kontext), um das Element unter dem Zeiger kurz zu erklären.</value>
+  </data>
+  <data name="ScreenReader_EmptyTitle" xml:space="preserve">
+    <value>Bereit</value>
+  </data>
+  <data name="ScreenReader_EmptySubtitle" xml:space="preserve">
+    <value>Bewegen Sie die Maus über ein Element, um es zu untersuchen</value>
+  </data>
+  <data name="ScreenReader_HistoryHeader" xml:space="preserve">
+    <value>Ansageverlauf</value>
+  </data>
+  <data name="ScreenReader_HistoryCopy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="ScreenReader_HistoryClear" xml:space="preserve">
+    <value>Leeren</value>
+  </data>
+  <data name="ScreenReader_HistoryEmpty" xml:space="preserve">
+    <value>Noch keine Ansagen</value>
+  </data>
+  <data name="ScreenReader_AnalyzeScreen" xml:space="preserve">
+    <value>🔍 Bildschirm analysieren</value>
+  </data>
+  <data name="Inspector_AnalyzeWindow" xml:space="preserve">
+    <value>🔍 Fenster analysieren</value>
+  </data>
+  <data name="Ai_ResultHeader" xml:space="preserve">
+    <value>KI-Analyse</value>
+  </data>
+  <data name="Ai_Analyzing" xml:space="preserve">
+    <value>Analysiere…</value>
+  </data>
+  <data name="Ai_Stop" xml:space="preserve">
+    <value>Stopp</value>
+  </data>
+  <data name="Dock_PreviousMonitor" xml:space="preserve">
+    <value>Vorheriger Monitor</value>
+  </data>
+  <data name="Dock_NextMonitor" xml:space="preserve">
+    <value>Nächster Monitor</value>
+  </data>
+  <data name="Dock_Settings" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Dock_About" xml:space="preserve">
+    <value>Über Peek</value>
+  </data>
+  <data name="MainWindow_Pin" xml:space="preserve">
+    <value>Fenster im Vordergrund halten</value>
+  </data>
+  <data name="Settings_Shell_Mode" xml:space="preserve">
+    <value>Shell-Modus</value>
+  </data>
+  <data name="Settings_Shell_RestartRequired" xml:space="preserve">
+    <value>Wird nach einem Neustart von Peek wirksam.</value>
+  </data>
+  <data name="Settings_Shell_DockEdge" xml:space="preserve">
+    <value>An Bildschirmrand andocken</value>
+  </data>
+  <data name="Settings_Shell_DockWidth" xml:space="preserve">
+    <value>Andockbreite</value>
+  </data>
+  <data name="Settings_Shell_PageSwitchSound" xml:space="preserve">
+    <value>Beim Wechseln des Monitors einen Ton abspielen</value>
+  </data>
+  <data name="Settings_Shell_ShortcutsHeader" xml:space="preserve">
+    <value>Tastenkombinationen</value>
+  </data>
+  <data name="Settings_Shell_MonitorNextShortcut" xml:space="preserve">
+    <value>Nächster Monitor (Dock-Modus)</value>
+  </data>
+  <data name="Settings_Shell_MonitorPreviousShortcut" xml:space="preserve">
+    <value>Vorheriger Monitor (Dock-Modus)</value>
+  </data>
+  <data name="Settings_Shell_InspectorExpandShortcut" xml:space="preserve">
+    <value>Inspector: Ein-/Ausklappen</value>
+  </data>
+  <data name="Settings_Shell_AppLaunchShortcut" xml:space="preserve">
+    <value>App Monitor: Starten</value>
+  </data>
+  <data name="Settings_Shell_ProcessKillShortcut" xml:space="preserve">
+    <value>Process Monitor: Prozess beenden</value>
+  </data>
+  <data name="Settings_Shell_ProcessOpenFolderShortcut" xml:space="preserve">
+    <value>Process Monitor: Speicherort öffnen</value>
+  </data>
+  <data name="Settings_Shell_GlobalShortcutsNote" xml:space="preserve">
+    <value>Diese beiden funktionieren überall, auch wenn Peek nicht fokussiert ist.</value>
+  </data>
+  <data name="Settings_Shell_DescribeFocusedElementShortcut" xml:space="preserve">
+    <value>Aktuell verfolgtes Element beschreiben</value>
+  </data>
+  <data name="Settings_Shell_ToggleTrackingShortcut" xml:space="preserve">
+    <value>Hover-Verfolgung umschalten</value>
+  </data>
+  <data name="Settings_ProcessMonitor_Header" xml:space="preserve">
+    <value>Process-Monitor</value>
+  </data>
+  <data name="Settings_ProcessMonitor_ShowSystemProcesses" xml:space="preserve">
+    <value>Systemprozesse (Sitzung 0) anzeigen</value>
+  </data>
+  <data name="Settings_ProcessMonitor_AnnounceDetailed" xml:space="preserve">
+    <value>Speichernutzung bei Prozessauswahl ansagen</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>⟳ Aktualisieren</value>
+  </data>
+  <data name="Common_Loading" xml:space="preserve">
+    <value>Wird geladen…</value>
+  </data>
+  <data name="Field_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Field_ControlType" xml:space="preserve">
+    <value>Steuerelementtyp</value>
+  </data>
+  <data name="Field_Class" xml:space="preserve">
+    <value>Klasse</value>
+  </data>
+  <data name="Field_Process" xml:space="preserve">
+    <value>Prozess</value>
+  </data>
+  <data name="Field_Handle" xml:space="preserve">
+    <value>Handle</value>
+  </data>
+  <data name="Field_Description" xml:space="preserve">
+    <value>Beschreibung</value>
+  </data>
+  <data name="AppMonitor_RefreshTooltip" xml:space="preserve">
+    <value>Registrierung der installierten Apps neu einlesen</value>
+  </data>
+  <data name="AppMonitor_Launch" xml:space="preserve">
+    <value>▶ Starten</value>
+  </data>
+  <data name="AppMonitor_LaunchTooltip" xml:space="preserve">
+    <value>Die ausgewählte App starten</value>
+  </data>
+  <data name="AppMonitor_HelpText" xml:space="preserve">
+    <value>Eine App auswählen, um Details zu hören · Doppelklick oder Eingabetaste zum Starten</value>
+  </data>
+  <data name="AppMonitor_Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="AppMonitor_Publisher" xml:space="preserve">
+    <value>Herausgeber</value>
+  </data>
+  <data name="AppMonitor_DiskUsage" xml:space="preserve">
+    <value>Speicherplatz</value>
+  </data>
+  <data name="ProcessMonitor_RefreshTooltip" xml:space="preserve">
+    <value>Laufende Prozesse neu erfassen</value>
+  </data>
+  <data name="ProcessMonitor_EndProcessButton" xml:space="preserve">
+    <value>✕ Prozess beenden</value>
+  </data>
+  <data name="ProcessMonitor_OpenFolderButton" xml:space="preserve">
+    <value>📁 Ordner öffnen</value>
+  </data>
+  <data name="ProcessMonitor_EndProcessMenu" xml:space="preserve">
+    <value>Prozess beenden</value>
+  </data>
+  <data name="ProcessMonitor_OpenFolderMenu" xml:space="preserve">
+    <value>Enthaltenden Ordner öffnen</value>
+  </data>
+  <data name="ProcessMonitor_ShowSystemProcessesCheckbox" xml:space="preserve">
+    <value>Systemprozesse anzeigen</value>
+  </data>
+  <data name="ProcessMonitor_ProcessName" xml:space="preserve">
+    <value>Prozessname</value>
+  </data>
+  <data name="ProcessMonitor_Memory" xml:space="preserve">
+    <value>Arbeitsspeicher</value>
+  </data>
+  <data name="Inspector_RefreshWindows" xml:space="preserve">
+    <value>⟳ Fenster aktualisieren</value>
+  </data>
+  <data name="Inspector_RefreshWindowsTooltip" xml:space="preserve">
+    <value>Fenster der obersten Ebene neu erfassen und den zwischengespeicherten Automatisierungsbaum des Workers leeren</value>
+  </data>
+  <data name="Inspector_AnalyzeWindowTooltip" xml:space="preserve">
+    <value>Sendet einen Screenshot des Fensters der ausgewählten Zeile zur gesprochenen KI-Analyse</value>
+  </data>
+  <data name="Inspector_HelpText" xml:space="preserve">
+    <value>Ein Fenster erweitern, um dessen UI Automation-Baum zu durchsuchen · Doppelklick auf eine Zeile für alle Details</value>
+  </data>
+  <data name="Inspector_RowLoading" xml:space="preserve">
+    <value>wird geladen…</value>
+  </data>
+  <data name="Inspector_LoadFailed" xml:space="preserve">
+    <value>⚠ Laden der Unterelemente fehlgeschlagen - zum erneuten Versuch ein-/ausklappen</value>
+  </data>
+  <data name="Inspector_LoadFailedTooltip" xml:space="preserve">
+    <value>Das Fenster/Element wurde möglicherweise während der Durchsuchung geschlossen, oder der Worker-Aufruf ist fehlgeschlagen. Durch erneutes Ein- und Ausklappen dieser Zeile wird es erneut versucht.</value>
+  </data>
+  <data name="ElementDetail_SectionIdentity" xml:space="preserve">
+    <value>IDENTITÄT</value>
+  </data>
+  <data name="ElementDetail_SectionState" xml:space="preserve">
+    <value>STATUS</value>
+  </data>
+  <data name="ElementDetail_SectionLayout" xml:space="preserve">
+    <value>LAYOUT</value>
+  </data>
+  <data name="ElementDetail_SectionValueText" xml:space="preserve">
+    <value>WERT / TEXT</value>
+  </data>
+  <data name="ElementDetail_SectionInteraction" xml:space="preserve">
+    <value>INTERAKTION</value>
+  </data>
+  <data name="ElementDetail_Enabled" xml:space="preserve">
+    <value>Aktiviert</value>
+  </data>
+  <data name="ElementDetail_Focused" xml:space="preserve">
+    <value>Fokussiert</value>
+  </data>
+  <data name="ElementDetail_FocusedTooltip" xml:space="preserve">
+    <value>Hat den Tastaturfokus</value>
+  </data>
+  <data name="ElementDetail_Focusable" xml:space="preserve">
+    <value>Fokussierbar</value>
+  </data>
+  <data name="ElementDetail_FocusableTooltip" xml:space="preserve">
+    <value>Kann den Tastaturfokus erhalten</value>
+  </data>
+  <data name="ElementDetail_OffScreen" xml:space="preserve">
+    <value>Außerhalb des Bildschirms</value>
+  </data>
+  <data name="ElementDetail_OffScreenTooltip" xml:space="preserve">
+    <value>Derzeit außerhalb des Bildschirms</value>
+  </data>
+  <data name="ElementDetail_LocalizedControlType" xml:space="preserve">
+    <value>Lokalisierter Steuerelementtyp</value>
+  </data>
+  <data name="ElementDetail_ClassName" xml:space="preserve">
+    <value>Klassenname</value>
+  </data>
+  <data name="ElementDetail_AutomationId" xml:space="preserve">
+    <value>Automatisierungs-ID</value>
+  </data>
+  <data name="ElementDetail_Framework" xml:space="preserve">
+    <value>Framework</value>
+  </data>
+  <data name="ElementDetail_ProcessId" xml:space="preserve">
+    <value>Prozess-ID</value>
+  </data>
+  <data name="ElementDetail_WindowHwnd" xml:space="preserve">
+    <value>Fenster (HWND)</value>
+  </data>
+  <data name="ElementDetail_InspectorSessionId" xml:space="preserve">
+    <value>Inspector-Sitzungs-ID</value>
+  </data>
+  <data name="ElementDetail_InspectorSessionIdTooltip" xml:space="preserve">
+    <value>Undurchsichtiges Worker-Token, das dieses Element für die verzögerte Baumerweiterung identifiziert - nur gesetzt, wenn es über den Element-Inspector durchsucht wird, nicht durch Hover-Tracking.</value>
+  </data>
+  <data name="ElementDetail_KeyboardFocusable" xml:space="preserve">
+    <value>Tastaturfokussierbar</value>
+  </data>
+  <data name="ElementDetail_Selected" xml:space="preserve">
+    <value>Ausgewählt</value>
+  </data>
+  <data name="ElementDetail_SelectedTooltip" xml:space="preserve">
+    <value>N/A bedeutet, dass SelectionItemPattern von diesem Element nicht unterstützt wird</value>
+  </data>
+  <data name="ElementDetail_ToggleState" xml:space="preserve">
+    <value>Umschaltzustand</value>
+  </data>
+  <data name="ElementDetail_ToggleStateTooltip" xml:space="preserve">
+    <value>N/A bedeutet, dass TogglePattern von diesem Element nicht unterstützt wird</value>
+  </data>
+  <data name="ElementDetail_ExpandState" xml:space="preserve">
+    <value>Erweiterungszustand</value>
+  </data>
+  <data name="ElementDetail_ExpandStateTooltip" xml:space="preserve">
+    <value>N/A bedeutet, dass ExpandCollapsePattern von diesem Element nicht unterstützt wird</value>
+  </data>
+  <data name="ElementDetail_PositionLeftTop" xml:space="preserve">
+    <value>Position (Links, Oben)</value>
+  </data>
+  <data name="ElementDetail_SizeWH" xml:space="preserve">
+    <value>Größe (B × H)</value>
+  </data>
+  <data name="ElementDetail_Value" xml:space="preserve">
+    <value>Wert</value>
+  </data>
+  <data name="ElementDetail_HelpText" xml:space="preserve">
+    <value>Hilfetext</value>
+  </data>
+  <data name="ElementDetail_ItemStatus" xml:space="preserve">
+    <value>Elementstatus</value>
+  </data>
+  <data name="ElementDetail_AcceleratorKey" xml:space="preserve">
+    <value>Tastenkombination</value>
+  </data>
+  <data name="ElementDetail_AccessKey" xml:space="preserve">
+    <value>Zugriffstaste</value>
+  </data>
+  <data name="ElementDetail_AvailableActions" xml:space="preserve">
+    <value>Verfügbare Aktionen</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>Über Peek</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>Lizenz:</value>
+  </data>
+  <data name="About_Source" xml:space="preserve">
+    <value>Quelle:</value>
+  </data>
+  <data name="About_BuiltWith" xml:space="preserve">
+    <value>ERSTELLT MIT</value>
+  </data>
+  <data name="About_Close" xml:space="preserve">
+    <value>Schließen</value>
+  </data>
+  <data name="ElementDetail_WindowTitle" xml:space="preserve">
+    <value>Elementdetails - Peek</value>
+  </data>
+  <data name="Speech_PartSeparator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="Speech_UnlabeledElement" xml:space="preserve">
+    <value>Unbeschriftetes Element</value>
+  </data>
+  <data name="Speech_ShortcutFormat" xml:space="preserve">
+    <value>Tastenkürzel {0}</value>
+  </data>
+  <data name="Speech_State_Checked" xml:space="preserve">
+    <value>aktiviert</value>
+  </data>
+  <data name="Speech_State_Unchecked" xml:space="preserve">
+    <value>nicht aktiviert</value>
+  </data>
+  <data name="Speech_State_PartiallyChecked" xml:space="preserve">
+    <value>teilweise aktiviert</value>
+  </data>
+  <data name="Speech_State_Selected" xml:space="preserve">
+    <value>ausgewählt</value>
+  </data>
+  <data name="Speech_State_Expanded" xml:space="preserve">
+    <value>erweitert</value>
+  </data>
+  <data name="Speech_State_Collapsed" xml:space="preserve">
+    <value>reduziert</value>
+  </data>
+  <data name="Speech_State_Disabled" xml:space="preserve">
+    <value>deaktiviert</value>
+  </data>
+  <data name="Speech_MainWindow_Pinned" xml:space="preserve">
+    <value>Fenster oben angeheftet</value>
+  </data>
+  <data name="Speech_MainWindow_Unpinned" xml:space="preserve">
+    <value>Anheften aufgehoben</value>
+  </data>
+  <data name="Speech_Window_Opened" xml:space="preserve">
+    <value>Neues Fenster</value>
+  </data>
+  <data name="Speech_Window_Closed" xml:space="preserve">
+    <value>Fenster geschlossen</value>
+  </data>
+  <data name="Speech_Window_FocusChanged" xml:space="preserve">
+    <value>Aktives Fenster</value>
+  </data>
+  <data name="Speech_Process_Unnamed" xml:space="preserve">
+    <value>Unbenannter Prozess</value>
+  </data>
+  <data name="Speech_Process_Fallback" xml:space="preserve">
+    <value>den Prozess</value>
+  </data>
+  <data name="Speech_Process_WithMemoryFormat" xml:space="preserve">
+    <value>{0}, Prozess {1}, belegt {2}.</value>
+  </data>
+  <data name="Speech_Process_Format" xml:space="preserve">
+    <value>{0}, Prozess {1}.</value>
+  </data>
+  <data name="Speech_Process_KillSucceededFormat" xml:space="preserve">
+    <value>{0} beendet.</value>
+  </data>
+  <data name="Speech_Process_KillFailedFormat" xml:space="preserve">
+    <value>{0} konnte nicht beendet werden.</value>
+  </data>
+  <data name="Speech_Process_KillFailedReasonFormat" xml:space="preserve">
+    <value>{0} konnte nicht beendet werden: {1}</value>
+  </data>
+  <data name="Speech_Process_OpenFolderFailedFormat" xml:space="preserve">
+    <value>Der Ordner für {0} konnte nicht geöffnet werden.</value>
+  </data>
+  <data name="Speech_Process_OpenFolderFailedReasonFormat" xml:space="preserve">
+    <value>Der Ordner für {0} konnte nicht geöffnet werden: {1}</value>
+  </data>
+  <data name="Speech_Size_GigabytesFormat" xml:space="preserve">
+    <value>{0} Gigabyte</value>
+  </data>
+  <data name="Speech_Size_MegabytesFormat" xml:space="preserve">
+    <value>{0} Megabyte</value>
+  </data>
+  <data name="Speech_App_Unnamed" xml:space="preserve">
+    <value>Unbenannte App</value>
+  </data>
+  <data name="Speech_App_Fallback" xml:space="preserve">
+    <value>die App</value>
+  </data>
+  <data name="Speech_App_VersionFormat" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="Speech_App_PublisherFormat" xml:space="preserve">
+    <value>von {0}</value>
+  </data>
+  <data name="Speech_App_LaunchSucceededFormat" xml:space="preserve">
+    <value>{0} gestartet.</value>
+  </data>
+  <data name="Speech_App_LaunchFailedFormat" xml:space="preserve">
+    <value>{0} konnte nicht gestartet werden.</value>
+  </data>
+  <data name="Speech_App_LaunchFailedReasonFormat" xml:space="preserve">
+    <value>{0} konnte nicht gestartet werden: {1}</value>
+  </data>
+  <data name="Speech_Inspector_Unnamed" xml:space="preserve">
+    <value>Unbenannt</value>
+  </data>
+  <data name="Speech_Inspector_InProcessFormat" xml:space="preserve">
+    <value>, in {0}</value>
+  </data>
+  <data name="Speech_Inspector_SelectionFormat" xml:space="preserve">
+    <value>{0}, {1}{2}, bei {3}, {4}, Größe {5} mal {6}.</value>
+  </data>
+  <data name="Speech_Inspector_NoChildren" xml:space="preserve">
+    <value>Keine untergeordneten Elemente.</value>
+  </data>
+  <data name="Speech_Inspector_OneChild" xml:space="preserve">
+    <value>1 untergeordnetes Element.</value>
+  </data>
+  <data name="Speech_Inspector_ChildrenFormat" xml:space="preserve">
+    <value>{0} untergeordnete Elemente.</value>
+  </data>
+  <data name="Speech_TtsUnavailable" xml:space="preserve">
+    <value>Sprachausgabe nicht verfügbar. Peek konnte keine Stimme laden.</value>
+  </data>
+  <data name="Settings_Accessibility_Header" xml:space="preserve">
+    <value>Bildschirmausgabe</value>
+  </data>
+  <data name="Settings_Accessibility_Description" xml:space="preserve">
+    <value>Wie Peek entscheidet, was vorgelesen wird. Die Fokusverfolgung folgt der Tastatur - dem, was Sie mit Tab ansteuern - und funktioniert, ohne dass Sie sehen müssen, wohin Sie zeigen.</value>
+  </data>
+  <data name="Settings_Accessibility_AnnounceOnFocus" xml:space="preserve">
+    <value>Alles ansagen, was den Tastaturfokus erhält (empfohlen)</value>
+  </data>
+  <data name="Settings_Accessibility_AnnounceOnHover" xml:space="preserve">
+    <value>Element unter dem Mauszeiger ansagen</value>
+  </data>
+  <data name="Settings_Accessibility_HighlightFocused" xml:space="preserve">
+    <value>Fokussiertes Element auf dem Bildschirm hervorheben</value>
+  </data>
+  <data name="Settings_Shell_StopSpeakingShortcut" xml:space="preserve">
+    <value>Sprachausgabe stoppen</value>
+  </data>
+</root>

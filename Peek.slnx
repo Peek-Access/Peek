@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="src/client/Peek.Core/Peek.Core.csproj" Id="692f12dd-a41f-4de6-aca8-d3a4e659305a" />
+  <Project Path="src/client/Peek.Desktop/Peek.Desktop.csproj" />
+  <Project Path="src/client/Peek.Ipc/Peek.Ipc.csproj" Id="710f4811-a726-4825-966d-49d3364bf02e" />
+  <Project Path="src/client/Peek.UI/Peek.UI.csproj" />
+  <Project Path="src/worker/Peek.Worker.Contracts/Peek.Worker.Contracts.csproj" />
+  <Project Path="src/worker/Peek.Worker.Automation.Windows/Peek.Worker.Automation.Windows.csproj" />
+  <Project Path="src/worker/Peek.Worker.Tts/Peek.Worker.Tts.csproj" />
+  <Project Path="src/worker/Peek.Worker.Tts.Windows/Peek.Worker.Tts.Windows.csproj" />
+  <Project Path="src/worker/Peek.Worker.Ocr/Peek.Worker.Ocr.csproj" />
+  <Project Path="src/worker/Peek.Worker.Screenshot.Windows/Peek.Worker.Screenshot.Windows.csproj" />
+  <Project Path="src/worker/Peek.Worker.SystemMonitor.Windows/Peek.Worker.SystemMonitor.Windows.csproj" />
+  <Project Path="src/worker/Peek.Worker.Llm/Peek.Worker.Llm.csproj" />
+  <Project Path="test/Peek.Core.Tests/Peek.Core.Tests.csproj" />
+  <Project Path="test/Peek.Integration.Tests/Peek.Integration.Tests.csproj" />
+  <Project Path="src/worker/Peek.Worker/Peek.Worker.csproj" />
+</Solution>

@@ -1,0 +1,21 @@
+<Window
+    x:Class="Peek.UI.Views.SplashWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:pipboy="https://github.com/NeverMorewd/Pipboy.Avalonia"
+    xmlns:views="using:Peek.UI.Views"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    Name="root"
+    Title="Peek"
+    Width="512"
+    Height="512"
+    x:DataType="{x:Type vm:SplashViewModel}"
+    ExtendClientAreaToDecorationsHint="True"
+    Icon="avares://Peek.UI/Assets/peek-icon.ico"
+    WindowDecorations="BorderOnly"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <views:LoadingIndicator Margin="1" />
+</Window>

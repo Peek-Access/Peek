@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Peek.Integration.Tests</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- Isolated real test windows (see TestWindow.cs) are the target for
+         automation/screenshot/OCR round-trips - WinForms is the simplest way to
+         create one deterministically. -->
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.0" />
+    <PackageReference Include="xunit.v3" Version="4.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\client\Peek.Core\Peek.Core.csproj" />
+    <ProjectReference Include="..\..\src\client\Peek.Ipc\Peek.Ipc.csproj" />
+  </ItemGroup>
+
+</Project>

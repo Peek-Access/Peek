@@ -1,0 +1,102 @@
+<UserControl
+    x:Class="Peek.UI.Views.DockShellView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="using:AsyncNavigation.Avalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    d:DesignHeight="900"
+    d:DesignWidth="420"
+    x:DataType="{x:Type vm:DockShellViewModel}"
+    mc:Ignorable="d">
+    <UserControl.Styles>
+        <Style Selector="Button.dockHeaderBtn">
+            <Setter Property="Padding" Value="6,3" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusControl}" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextDimBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.dockHeaderBtn:pointerover">
+            <Setter Property="Background" Value="{DynamicResource PipboyHoverBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextBrush}" />
+        </Style>
+    </UserControl.Styles>
+    <Grid Background="{DynamicResource PipboyBackgroundBrush}" RowDefinitions="Auto,*">
+
+        <Border
+            Grid.Row="0"
+            Padding="6,4"
+            Background="{DynamicResource PipboySurfaceBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto">
+
+                <!--  Visible, clickable monitor-cycling controls - PageUp/PageDown (see
+                      MainWindow.OnKeyDown) do the same thing, but nothing on screen
+                      previously exposed that this dock strip even has other pages.  -->
+                <Button
+                    Grid.Column="0"
+                    Classes="dockHeaderBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_PreviousMonitor}}"
+                    Click="OnPreviousClick"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_PreviousMonitor}}">
+                    <TextBlock FontSize="13" Text="◀" />
+                </Button>
+                <TextBlock
+                    Grid.Column="1"
+                    Margin="4,0"
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    Foreground="{DynamicResource PipboyTextDimBrush}">
+                    <Run Text="{Binding CurrentMonitorPosition}" />
+                    <Run Text=" / " />
+                    <Run Text="{Binding MonitorCount}" />
+                </TextBlock>
+                <Button
+                    Grid.Column="2"
+                    Classes="dockHeaderBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_NextMonitor}}"
+                    Click="OnNextClick"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_NextMonitor}}">
+                    <TextBlock FontSize="13" Text="▶" />
+                </Button>
+
+                <TextBlock
+                    Grid.Column="4"
+                    Margin="0,0,8,0"
+                    VerticalAlignment="Center"
+                    FontSize="10"
+                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                    LetterSpacing="1"
+                    Opacity="0.7"
+                    Text="PEEK · DOCKED" />
+                <Button
+                    Grid.Column="5"
+                    Classes="dockHeaderBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_Settings}}"
+                    Click="OnSettingsClick"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_Settings}}">
+                    <TextBlock FontSize="13" Text="⚙" />
+                </Button>
+                <Button
+                    Grid.Column="6"
+                    Classes="dockHeaderBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}"
+                    Click="OnAboutClick"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}">
+                    <TextBlock FontSize="13" Text="ⓘ" />
+                </Button>
+            </Grid>
+        </Border>
+
+        <ContentControl
+            Grid.Row="1"
+            Padding="4"
+            an:RegionManager.PreferCache="True"
+            an:RegionManager.RegionName="DockRegion" />
+    </Grid>
+</UserControl>

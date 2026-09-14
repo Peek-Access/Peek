@@ -1,0 +1,91 @@
+<UserControl
+    x:Class="Peek.UI.Views.ProcessMonitorView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Peek.UI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    d:DesignHeight="680"
+    d:DesignWidth="1000"
+    x:DataType="{x:Type vm:ProcessMonitorViewModel}"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:MemorySizeConverter x:Key="MemorySizeConverter" />
+    </UserControl.Resources>
+    <Grid Margin="10" RowDefinitions="Auto,*" RowSpacing="8">
+
+        <!--  WrapPanel, not a horizontal StackPanel: at a docked strip's narrow width this
+              toolbar has too many controls to fit on one line - a StackPanel would let them
+              overflow past the page instead of wrapping.  -->
+        <WrapPanel Grid.Row="0" Orientation="Horizontal">
+            <Button
+                Margin="0,0,10,4"
+                Command="{Binding RefreshCommand}"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.Common_Refresh}}"
+                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_RefreshTooltip}}" />
+            <Button
+                Margin="0,0,10,4"
+                Command="{Binding KillCommand}"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_EndProcessButton}}" />
+            <Button
+                Margin="0,0,10,4"
+                Command="{Binding OpenFolderCommand}"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_OpenFolderButton}}" />
+            <CheckBox
+                Margin="0,0,10,4"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_ShowSystemProcessesCheckbox}}"
+                IsChecked="{Binding ShowSystemProcesses}" />
+            <TextBlock
+                Margin="0,0,0,4"
+                VerticalAlignment="Center"
+                FontSize="11"
+                Foreground="{DynamicResource PipboyTextDimBrush}"
+                IsVisible="{Binding IsLoading}"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Loading}}" />
+        </WrapPanel>
+
+        <DataGrid
+            Name="Grid"
+            Grid.Row="1"
+            AutoGenerateColumns="False"
+            CanUserReorderColumns="True"
+            CanUserResizeColumns="True"
+            CanUserSortColumns="True"
+            GridLinesVisibility="Horizontal"
+            HeadersVisibility="Column"
+            IsReadOnly="True"
+            ItemsSource="{Binding Processes}"
+            RowHeight="24"
+            SelectedItem="{Binding SelectedProcess}"
+            SelectionMode="Single">
+
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Command="{Binding KillCommand}" Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_EndProcessMenu}}" />
+                    <MenuItem Command="{Binding OpenFolderCommand}" Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_OpenFolderMenu}}" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Width="2*"
+                    Binding="{Binding Name}"
+                    Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_ProcessName}}" />
+                <DataGridTextColumn
+                    Width="0.7*"
+                    Binding="{Binding Id}"
+                    Header="PID" />
+                <DataGridTextColumn
+                    Width="1*"
+                    Binding="{Binding MemoryBytes, Converter={StaticResource MemorySizeConverter}}"
+                    Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_Memory}}" />
+                <DataGridTextColumn
+                    Width="2.5*"
+                    Binding="{Binding Description}"
+                    Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Description}}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

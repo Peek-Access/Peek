@@ -1,0 +1,22 @@
+<Window
+    x:Class="Peek.UI.Views.ElementDetailWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:automation="using:Peek.Worker.Contracts.Automation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="using:Peek.UI.Views"
+    Title="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_WindowTitle}}"
+    Width="480"
+    Height="620"
+    d:DesignHeight="620"
+    d:DesignWidth="480"
+    x:DataType="{x:Type automation:SemanticElement}"
+    Icon="avares://Peek.UI/Assets/peek-icon.ico"
+    WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d">
+    <ScrollViewer>
+        <views:ElementDetailView Margin="16" />
+    </ScrollViewer>
+</Window>

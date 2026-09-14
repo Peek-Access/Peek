@@ -1,0 +1,244 @@
+<UserControl
+    x:Class="Peek.UI.Views.ElementDetailView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:automation="using:Peek.Worker.Contracts.Automation"
+    xmlns:converters="using:Peek.UI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="900"
+    d:DesignWidth="520"
+    x:DataType="{x:Type automation:SemanticElement}"
+    mc:Ignorable="d">
+    <!--
+        Every SemanticElement property, grouped and laid out as a proper properties panel
+        (à la Inspect.exe / Visual Studio's Properties window) - not a curated subset.
+        Shared by ScreenReaderView (hover) and ElementDetailWindow (Inspector double-click
+        popup) so this presentation only exists once. Bind DataContext directly to a
+        SemanticElement. Every value is a SelectableTextBlock so it can be copied; blank/
+        null/empty values render as "—" via PlaceholderConverter rather than empty space,
+        so "confirmed empty" is visually distinct from "something failed to render".
+    -->
+    <UserControl.Resources>
+        <converters:PlaceholderConverter x:Key="Placeholder" />
+    </UserControl.Resources>
+    <UserControl.Styles>
+        <Style Selector="TextBlock.fieldLabel">
+            <Setter Property="Width" Value="160" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextDimBrush}" />
+        </Style>
+        <Style Selector="SelectableTextBlock.fieldValue">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextBrush}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style Selector="StackPanel.fieldRow">
+            <Setter Property="Orientation" Value="Horizontal" />
+            <Setter Property="Spacing" Value="10" />
+        </Style>
+        <Style Selector="TextBlock.sectionHeader">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextDimBrush}" />
+            <Setter Property="LetterSpacing" Value="2" />
+            <Setter Property="Opacity" Value="0.7" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style Selector="Border.section">
+            <Setter Property="Padding" Value="12" />
+            <Setter Property="Background" Value="{DynamicResource PipboySurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PipboyBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusPanel}" />
+        </Style>
+        <Style Selector="Border.stateBadge">
+            <Setter Property="Padding" Value="6,2" />
+            <Setter Property="Background" Value="{DynamicResource PipboySurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PipboyPrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusPill}" />
+        </Style>
+        <Style Selector="Border.stateBadge > TextBlock">
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyPrimaryLightBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <StackPanel Spacing="16">
+
+        <!--  Header: name + control-type badge - kept as the one "at a glance" summary above the full property list.  -->
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <SelectableTextBlock
+                VerticalAlignment="Center"
+                FontSize="18"
+                FontWeight="Bold"
+                Foreground="{DynamicResource PipboyPrimaryLightBrush}"
+                Text="{Binding Name, Converter={StaticResource Placeholder}, ConverterParameter='(unnamed)'}"
+                TextWrapping="Wrap" />
+            <Border
+                Padding="8,3"
+                VerticalAlignment="Center"
+                Background="{DynamicResource PipboyPrimaryBrush}"
+                CornerRadius="{DynamicResource PipboyCornerRadiusPill}">
+                <TextBlock FontSize="11" Foreground="{DynamicResource PipboyTextBrush}" Text="{Binding ControlType}" />
+            </Border>
+        </StackPanel>
+
+        <!--  State badges - quick visual summary; every one of these is also a full row below in STATE.  -->
+        <StackPanel Orientation="Horizontal" Spacing="4">
+            <Border Classes="stateBadge" IsVisible="{Binding IsEnabled}" ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_Enabled}}">
+                <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_Enabled}}" />
+            </Border>
+            <Border Classes="stateBadge" IsVisible="{Binding IsFocused}" ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_FocusedTooltip}}">
+                <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_Focused}}" />
+            </Border>
+            <Border Classes="stateBadge" IsVisible="{Binding IsKeyboardFocusable}" ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_FocusableTooltip}}">
+                <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_Focusable}}" />
+            </Border>
+            <Border Classes="stateBadge" IsVisible="{Binding IsOffscreen}" ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_OffScreenTooltip}}">
+                <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_OffScreen}}" />
+            </Border>
+        </StackPanel>
+
+        <!--  IDENTITY  -->
+        <Border Classes="section">
+            <StackPanel Spacing="8">
+                <TextBlock Classes="sectionHeader" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_SectionIdentity}}" />
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.Field_Name}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding Name, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.Field_ControlType}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding ControlType, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_LocalizedControlType}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding LocalizedControlType, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_ClassName}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding ClassName, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_AutomationId}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding AutomationId, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_Framework}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding Framework, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_ProcessId}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding ProcessId}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_WindowHwnd}}" />
+                    <SelectableTextBlock Classes="fieldValue" FontFamily="Consolas,Menlo,monospace" Text="{Binding Hwnd, StringFormat='0x{0:X}'}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_InspectorSessionId}}" ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_InspectorSessionIdTooltip}}" />
+                    <SelectableTextBlock Classes="fieldValue" FontFamily="Consolas,Menlo,monospace" FontSize="11" Text="{Binding ElementId, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!--  STATE  -->
+        <Border Classes="section">
+            <StackPanel Spacing="8">
+                <TextBlock Classes="sectionHeader" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_SectionState}}" />
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_Enabled}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding IsEnabled}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_KeyboardFocusable}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding IsKeyboardFocusable}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_Focused}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding IsFocused}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_OffScreen}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding IsOffscreen}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_Selected}}" ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_SelectedTooltip}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding IsSelected, Converter={StaticResource Placeholder}, ConverterParameter='N/A'}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_ToggleState}}" ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_ToggleStateTooltip}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding ToggleState, Converter={StaticResource Placeholder}, ConverterParameter='N/A'}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_ExpandState}}" ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_ExpandStateTooltip}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding ExpandState, Converter={StaticResource Placeholder}, ConverterParameter='N/A'}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!--  LAYOUT  -->
+        <Border Classes="section">
+            <StackPanel Spacing="8">
+                <TextBlock Classes="sectionHeader" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_SectionLayout}}" />
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_PositionLeftTop}}" />
+                    <SelectableTextBlock Classes="fieldValue" FontFamily="Consolas,Menlo,monospace">
+                        <Run Text="{Binding Rect.Left}" />, <Run Text="{Binding Rect.Top}" />
+                    </SelectableTextBlock>
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_SizeWH}}" />
+                    <SelectableTextBlock Classes="fieldValue" FontFamily="Consolas,Menlo,monospace">
+                        <Run Text="{Binding Rect.Width}" />×<Run Text="{Binding Rect.Height}" />
+                    </SelectableTextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!--  VALUE / TEXT  -->
+        <Border Classes="section">
+            <StackPanel Spacing="8">
+                <TextBlock Classes="sectionHeader" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_SectionValueText}}" />
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_Value}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding Value, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_HelpText}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding HelpText, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.Field_Description}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding Description, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_ItemStatus}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding ItemStatus, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!--  INTERACTION  -->
+        <Border Classes="section">
+            <StackPanel Spacing="8">
+                <TextBlock Classes="sectionHeader" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_SectionInteraction}}" />
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_AcceleratorKey}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding AcceleratorKey, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_AccessKey}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding AccessKey, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+                <StackPanel Classes="fieldRow">
+                    <TextBlock Classes="fieldLabel" Text="{Translate {x:Static i18n:LanguageManager+Keys.ElementDetail_AvailableActions}}" />
+                    <SelectableTextBlock Classes="fieldValue" Text="{Binding AvailableActions, Converter={StaticResource Placeholder}}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

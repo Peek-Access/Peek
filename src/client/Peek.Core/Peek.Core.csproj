@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--
+    VideoLAN.LibVLC.Windows.targets only copies libvlc.dll/libvlccore.dll (the actual native
+    binaries AudioPlayer needs at runtime for TTS/notification-sound playback - everything
+    downstream of it, from a normal announcement to the new AI-narration sound cues, fails
+    with "Failed to load required native libraries" without them) when it can match
+    $(Platform) against the literal strings "x64" or "AnyCPU". That works when building via
+    `dotnet build`, but not reliably from every build entry point this repo is built from
+    (Visual Studio's classic "Any CPU" - note the space - is a different string; a `.slnx`-
+    driven build resolves $(Platform) differently again) - a build that resolves anything
+    else silently skips the copy with no warning or error, and a later, fully successful
+    incremental build can still skip it too (MSBuild's copy tracking doesn't re-verify a
+    previously-"handled" file still exists on disk). Setting this before the package's own
+    conditional assignment runs (Condition="'$(VlcWindowsX64Enabled)' == '' AND ...")
+    pre-empts it entirely, so the win-x64 copy always happens regardless of how $(Platform)
+    resolves for a given build.
+  -->
+  <PropertyGroup>
+    <VlcWindowsX64Enabled>true</VlcWindowsX64Enabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="i18n\Strings.de-DE.resx" />
+    <AdditionalFiles Include="i18n\Strings.resx" />
+    <AdditionalFiles Include="i18n\Strings.zh-CN.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\window-announcement.wav" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsyncNavigation" />
+    <PackageReference Include="Irihi.Lingua" />
+    <PackageReference Include="LibVLCSharp" />
+    <PackageReference Include="Microsoft.Windows.CsWin32">
+      <PrivateAssets>all</PrivateAssets>
+      <!--<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
+    </PackageReference>
+    <PackageReference Include="ReactiveUI" />
+    <PackageReference Include="ReactiveUI.SourceGenerators">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="VideoLAN.LibVLC.Windows" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Peek.Ipc\Peek.Ipc.csproj" />
+  </ItemGroup>
+
+</Project>

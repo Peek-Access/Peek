@@ -1,0 +1,743 @@
+<UserControl
+    x:Class="Peek.UI.Views.SettingsView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="https://github.com/NeverMorewd/AsyncNavigation"
+    xmlns:converters="using:Peek.UI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:lingua="https://irihi.tech/lingua"
+    xmlns:models="using:Peek.Core.Models"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    d:DesignHeight="600"
+    d:DesignWidth="800"
+    x:DataType="{x:Type vm:SettingsViewModel}"
+    mc:Ignorable="d">
+    <UserControl.Styles>
+        <Style Selector="GroupBox">
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Background" Value="{DynamicResource PipboySurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PipboyBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusPanel}" />
+        </Style>
+        <Style Selector="TextBlock.sectionIcon">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+        </Style>
+        <!--  The installed Pipboy.Avalonia package version doesn't dim a disabled
+              ComboBox on its own - fix locally rather than depend on a future
+              package bump.  -->
+        <Style Selector="ComboBox:disabled">
+            <Setter Property="Opacity" Value="0.45" />
+        </Style>
+    </UserControl.Styles>
+    <UserControl.Resources>
+        <converters:ColorModelToBrushConverter x:Key="ColorToBrush" />
+        <DataTemplate x:Key="SwatchTemplate" DataType="{x:Type vm:PaletteSwatchViewModel}">
+            <Button
+                Width="22"
+                Height="22"
+                Margin="2"
+                Padding="0"
+                AutomationProperties.Name="{Binding HexValue}"
+                Background="{Binding Color, Converter={StaticResource ColorToBrush}}"
+                BorderThickness="0"
+                Command="{Binding SelectCommand}"
+                Cursor="Hand"
+                ToolTip.Tip="{Binding HexValue}">
+
+                <Button.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                    </Style>
+
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="BorderBrush" Value="White" />
+                    </Style>
+
+                    <Style Selector="Button:checked">
+                        <Setter Property="BorderBrush" Value="Yellow" />
+                    </Style>
+                </Button.Styles>
+
+            </Button>
+        </DataTemplate>
+    </UserControl.Resources>
+    <ScrollViewer>
+        <StackPanel
+            Margin="24"
+            HorizontalAlignment="Center"
+            MaxWidth="720"
+            Spacing="14">
+
+            <!--  First section deliberately: how Peek decides what to read out is the core of
+                  what it does, and the focus/hover choice is the difference between it being
+                  usable without sight and not.  -->
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="👁" />
+                        <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_Header}}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8" Spacing="10">
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Opacity="0.7"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_Description}}"
+                        TextWrapping="Wrap" />
+                    <CheckBox Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_AnnounceOnFocus}}" IsChecked="{Binding AnnounceOnFocus}" />
+                    <CheckBox Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_AnnounceOnHover}}" IsChecked="{Binding AnnounceOnHover}" />
+                    <CheckBox Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_HighlightFocused}}" IsChecked="{Binding HighlightFocusedElement}" />
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel
+                        Height="30"
+                        VerticalAlignment="Bottom"
+                        Orientation="Horizontal"
+                        Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="🌐" />
+                        <SelectableTextBlock VerticalAlignment="Bottom" Text="{Binding DisplayLanguage^}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8" Orientation="Horizontal" Spacing="4">
+                    <TextBlock
+                        x:Name="DisplayLanguageLabel"
+                        Margin="0,8,0,0"
+                        VerticalAlignment="Top"
+                        FontSize="12"
+                        Opacity="0.6"
+                        Text="{Binding DisplayLanguage^}" />
+                    <ComboBox
+                        Width="150"
+                        Height="40"
+                        VerticalAlignment="Top"
+                        AutomationProperties.LabeledBy="{Binding #DisplayLanguageLabel}"
+                        ItemsSource="{Binding Languages}"
+                        SelectedItem="{Binding CurrentCulture}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:LanguageItem}">
+                                <TextBlock Text="{Binding Key}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="🎨" />
+                        <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Appearance_Header}}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8" Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border
+                            Width="20"
+                            Height="20"
+                            Background="{Binding ColorPicker.SelectedColor, Converter={StaticResource ColorToBrush}}"
+                            BorderBrush="{DynamicResource PipboyBorderBrush}"
+                            BorderThickness="1" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="Courier New"
+                            Text="{Binding ColorPicker.HexLabel}" />
+                    </StackPanel>
+                    <ItemsControl ItemTemplate="{StaticResource SwatchTemplate}" ItemsSource="{Binding ColorPicker.Swatches}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="🔊" />
+                        <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_Header}}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8" Spacing="10">
+                    <StackPanel>
+                        <TextBlock
+                            x:Name="VerbosityLabel"
+                            Margin="0,0,0,4"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_Verbosity}}" />
+                        <ComboBox
+                            Width="200"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.LabeledBy="{Binding #VerbosityLabel}"
+                            ItemsSource="{Binding VerbosityOptions}"
+                            SelectedItem="{Binding Verbosity}" />
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock
+                            x:Name="SpeechLanguageLabel"
+                            Margin="0,0,0,4"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_Language}}" />
+                        <ComboBox
+                            Width="200"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.LabeledBy="{Binding #SpeechLanguageLabel}"
+                            ItemsSource="{Binding Languages}"
+                            SelectedItem="{Binding SpeechLanguage}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:LanguageItem}">
+                                    <TextBlock Text="{Binding Key}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock
+                            MaxWidth="500"
+                            Margin="0,4,0,0"
+                            FontSize="11"
+                            Foreground="{DynamicResource PipboyTextDimBrush}"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_LanguageHint}}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_VoicesHeader}}" />
+
+                        <!--  Grid, not a horizontal StackPanel: label+box+button (90+240+32
+                              plus spacing) barely exceeds a docked strip's default 420px
+                              width once margins/padding are subtracted - a StackPanel would
+                              let the row overflow instead of letting the (star-sized) TextBox
+                              shrink to fit.  -->
+                        <Grid ColumnDefinitions="90,*,32" ColumnSpacing="6">
+                            <TextBlock
+                                x:Name="VoiceEnglishLabel"
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_VoiceEnglish}}" />
+                            <TextBox
+                                Grid.Column="1"
+                                AutomationProperties.LabeledBy="{Binding #VoiceEnglishLabel}"
+                                Text="{Binding EnglishVoiceId}" />
+                            <Button
+                                Grid.Column="2"
+                                AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewEnglishVoice}}"
+                                Command="{Binding PreviewEnglishVoiceCommand}"
+                                Content="▶"
+                                IsEnabled="{Binding !IsPreviewing}"
+                                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewTooltip}}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="90,*,32" ColumnSpacing="6">
+                            <TextBlock
+                                x:Name="VoiceGermanLabel"
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_VoiceGerman}}" />
+                            <TextBox
+                                Grid.Column="1"
+                                AutomationProperties.LabeledBy="{Binding #VoiceGermanLabel}"
+                                Text="{Binding GermanVoiceId}" />
+                            <Button
+                                Grid.Column="2"
+                                AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewGermanVoice}}"
+                                Command="{Binding PreviewGermanVoiceCommand}"
+                                Content="▶"
+                                IsEnabled="{Binding !IsPreviewing}"
+                                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewTooltip}}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="90,*,32" ColumnSpacing="6">
+                            <TextBlock
+                                x:Name="VoiceChineseLabel"
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_VoiceChinese}}" />
+                            <TextBox
+                                Grid.Column="1"
+                                AutomationProperties.LabeledBy="{Binding #VoiceChineseLabel}"
+                                Text="{Binding ChineseVoiceId}" />
+                            <Button
+                                Grid.Column="2"
+                                AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewChineseVoice}}"
+                                Command="{Binding PreviewChineseVoiceCommand}"
+                                Content="▶"
+                                IsEnabled="{Binding !IsPreviewing}"
+                                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewTooltip}}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock
+                            x:Name="SpeechRateLabel"
+                            Margin="0,0,0,4"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_Rate}}" />
+                        <StackPanel Orientation="Horizontal">
+                            <Slider
+                                x:Name="RateSlider"
+                                Width="200"
+                                VerticalAlignment="Center"
+                                AutomationProperties.LabeledBy="{Binding #SpeechRateLabel}"
+                                IsSnapToTickEnabled="True"
+                                Maximum="2.0"
+                                Minimum="0.5"
+                                TickFrequency="0.1"
+                                Value="{Binding SpeechRate}" />
+                            <TextBlock
+                                Width="40"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Text="{Binding #RateSlider.Value, StringFormat={}{0:0.0}x}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button
+                        Padding="12,6"
+                        HorizontalAlignment="Left"
+                        Command="{Binding PreviewVoiceCommand}"
+                        Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_Preview}}"
+                        IsEnabled="{Binding !IsPreviewing}" />
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="🔎" />
+                        <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ocr_Header}}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8">
+                    <TextBlock
+                        x:Name="OcrPreferenceLabel"
+                        Margin="0,0,0,4"
+                        FontSize="12"
+                        Opacity="0.6"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ocr_Preference}}" />
+                    <ComboBox
+                        Width="200"
+                        HorizontalAlignment="Left"
+                        AutomationProperties.LabeledBy="{Binding #OcrPreferenceLabel}"
+                        ItemsSource="{Binding OcrPreferenceOptions}"
+                        SelectedItem="{Binding OcrPreference}" />
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="🤖" />
+                        <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ai_Header}}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8" Spacing="10">
+                    <ToggleSwitch
+                        Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ai_Enabled}}"
+                        IsChecked="{Binding AiEnabled}" />
+                    <StackPanel IsEnabled="{Binding AiEnabled}" Spacing="10">
+                        <StackPanel>
+                            <TextBlock
+                                x:Name="AiProviderLabel"
+                                Margin="0,0,0,4"
+                                FontSize="12"
+                                Opacity="0.6"
+                                Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ai_Provider}}" />
+                            <ComboBox
+                                Width="200"
+                                HorizontalAlignment="Left"
+                                AutomationProperties.LabeledBy="{Binding #AiProviderLabel}"
+                                ItemsSource="{Binding AiProviderOptions}"
+                                SelectedItem="{Binding AiProvider}" />
+                        </StackPanel>
+
+                        <StackPanel>
+                            <TextBlock
+                                x:Name="AiEndpointLabel"
+                                Margin="0,0,0,4"
+                                FontSize="12"
+                                Opacity="0.6"
+                                Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ai_Endpoint}}" />
+                            <TextBox
+                                Width="360"
+                                HorizontalAlignment="Left"
+                                AutomationProperties.LabeledBy="{Binding #AiEndpointLabel}"
+                                Text="{Binding AiEndpoint}" />
+                        </StackPanel>
+
+                        <StackPanel>
+                            <TextBlock
+                                x:Name="AiApiKeyLabel"
+                                Margin="0,0,0,4"
+                                FontSize="12"
+                                Opacity="0.6"
+                                Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ai_ApiKey}}" />
+                            <TextBox
+                                Width="360"
+                                HorizontalAlignment="Left"
+                                AutomationProperties.LabeledBy="{Binding #AiApiKeyLabel}"
+                                PasswordChar="•"
+                                Text="{Binding AiApiKey}" />
+                        </StackPanel>
+
+                        <StackPanel>
+                            <TextBlock
+                                x:Name="AiModelLabel"
+                                Margin="0,0,0,4"
+                                FontSize="12"
+                                Opacity="0.6"
+                                Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ai_Model}}" />
+                            <TextBox
+                                Width="280"
+                                HorizontalAlignment="Left"
+                                AutomationProperties.LabeledBy="{Binding #AiModelLabel}"
+                                Text="{Binding AiModel}" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Button
+                                Command="{Binding TestAiConnectionCommand}"
+                                Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ai_TestConnection}}"
+                                IsEnabled="{Binding !IsTestingAiConnection}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontSize="12"
+                                Text="{Binding AiConnectionTestResult}" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="📜" />
+                        <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_AnnouncementHistory_Header}}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8" Spacing="10">
+                    <ToggleSwitch
+                        Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_AnnouncementHistory_Enabled}}"
+                        IsChecked="{Binding AnnouncementHistoryEnabled}" />
+                    <StackPanel IsEnabled="{Binding AnnouncementHistoryEnabled}">
+                        <TextBlock
+                            x:Name="AnnouncementHistoryMaxCharactersLabel"
+                            Margin="0,0,0,4"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_AnnouncementHistory_MaxCharacters}}" />
+                        <NumericUpDown
+                            Width="160"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.LabeledBy="{Binding #AnnouncementHistoryMaxCharactersLabel}"
+                            Increment="1000"
+                            Maximum="200000"
+                            Minimum="1000"
+                            Value="{Binding AnnouncementHistoryMaxCharacters}" />
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="🔔" />
+                        <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_WindowAnnouncement_Header}}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8" Spacing="10">
+                    <ToggleSwitch
+                        Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_WindowAnnouncement_Enabled}}"
+                        IsChecked="{Binding WindowAnnouncementEnabled}" />
+                    <StackPanel x:Name="WindowAnnouncementOptionsPanel" Spacing="10">
+                        <CheckBox
+                            Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_WindowAnnouncement_Opened}}"
+                            IsChecked="{Binding AnnounceWindowOpened}"
+                            IsEnabled="{Binding WindowAnnouncementEnabled}" />
+                        <CheckBox
+                            Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_WindowAnnouncement_Closed}}"
+                            IsChecked="{Binding AnnounceWindowClosed}"
+                            IsEnabled="{Binding WindowAnnouncementEnabled}" />
+                        <CheckBox
+                            Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_WindowAnnouncement_FocusChanged}}"
+                            IsChecked="{Binding AnnounceFocusChanged}"
+                            IsEnabled="{Binding WindowAnnouncementEnabled}" />
+                        <StackPanel IsEnabled="{Binding WindowAnnouncementEnabled}">
+                            <TextBlock
+                                x:Name="WindowAnnouncementSubjectLabel"
+                                Margin="0,0,0,4"
+                                FontSize="12"
+                                Opacity="0.6"
+                                Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_WindowAnnouncement_Subject}}" />
+                            <ComboBox
+                                Width="200"
+                                HorizontalAlignment="Left"
+                                AutomationProperties.LabeledBy="{Binding #WindowAnnouncementSubjectLabel}"
+                                ItemsSource="{Binding WindowAnnouncementSubjectOptions}"
+                                SelectedItem="{Binding WindowAnnouncementSubject}" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="🖥" />
+                        <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_Header}}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8" Spacing="10">
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Opacity="0.7"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_Description}}"
+                        TextWrapping="Wrap" />
+
+                    <Grid ColumnDefinitions="*,160" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="ShellModeLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_Mode}}"
+                            TextWrapping="Wrap" />
+                        <ComboBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #ShellModeLabel}"
+                            ItemsSource="{Binding ShellModeOptions}"
+                            SelectedItem="{Binding ShellMode}" />
+                    </Grid>
+
+                    <TextBlock
+                        Margin="0,4,0,0"
+                        FontSize="11"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Opacity="0.6"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_RestartRequired}}" />
+
+                    <Separator Margin="0,4" />
+
+                    <Grid ColumnDefinitions="*,160" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="DockEdgeLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_DockEdge}}"
+                            TextWrapping="Wrap" />
+                        <ComboBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #DockEdgeLabel}"
+                            ItemsSource="{Binding DockEdgeOptions}"
+                            SelectedItem="{Binding DockEdge}" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,200,50" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="DockWidthLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_DockWidth}}"
+                            TextWrapping="Wrap" />
+                        <Slider
+                            x:Name="DockWidthSlider"
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            AutomationProperties.LabeledBy="{Binding #DockWidthLabel}"
+                            IsSnapToTickEnabled="True"
+                            Maximum="800"
+                            Minimum="280"
+                            TickFrequency="10"
+                            Value="{Binding DockWidth}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Text="{Binding #DockWidthSlider.Value, StringFormat={}{0:0}px}" />
+                    </Grid>
+
+                    <CheckBox Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_PageSwitchSound}}" IsChecked="{Binding PageSwitchSoundEnabled}" />
+
+                    <Separator Margin="0,4" />
+
+                    <TextBlock
+                        FontSize="11"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Opacity="0.7"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_ShortcutsHeader}}" />
+
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="MonitorNextShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_MonitorNextShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #MonitorNextShortcutLabel}"
+                            Text="{Binding DockMonitorNextShortcut}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="MonitorPreviousShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_MonitorPreviousShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #MonitorPreviousShortcutLabel}"
+                            Text="{Binding DockMonitorPreviousShortcut}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="InspectorExpandShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_InspectorExpandShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #InspectorExpandShortcutLabel}"
+                            Text="{Binding InspectorExpandShortcut}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="AppLaunchShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_AppLaunchShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #AppLaunchShortcutLabel}"
+                            Text="{Binding AppMonitorLaunchShortcut}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="ProcessKillShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_ProcessKillShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #ProcessKillShortcutLabel}"
+                            Text="{Binding ProcessMonitorKillShortcut}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="ProcessOpenFolderShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_ProcessOpenFolderShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #ProcessOpenFolderShortcutLabel}"
+                            Text="{Binding ProcessMonitorOpenFolderShortcut}" />
+                    </Grid>
+
+                    <TextBlock
+                        Margin="0,4,0,0"
+                        FontSize="11"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Opacity="0.6"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_GlobalShortcutsNote}}"
+                        TextWrapping="Wrap" />
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="DescribeFocusedElementShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_DescribeFocusedElementShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #DescribeFocusedElementShortcutLabel}"
+                            Text="{Binding DescribeFocusedElementShortcut}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="ToggleTrackingShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_ToggleTrackingShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #ToggleTrackingShortcutLabel}"
+                            Text="{Binding ToggleTrackingShortcut}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="StopSpeakingShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_StopSpeakingShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #StopSpeakingShortcutLabel}"
+                            Text="{Binding StopSpeakingShortcut}" />
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox FontSize="13">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Classes="sectionIcon" Text="📋" />
+                        <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_ProcessMonitor_Header}}" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="8" Spacing="10">
+                    <CheckBox IsChecked="{Binding ShowSystemProcesses}">
+                        <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_ProcessMonitor_ShowSystemProcesses}}" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <CheckBox IsChecked="{Binding AnnounceDetailedProcessInfo}">
+                        <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_ProcessMonitor_AnnounceDetailed}}" TextWrapping="Wrap" />
+                    </CheckBox>
+                </StackPanel>
+            </GroupBox>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Peek.Core.Tests</RootNamespace>
+    <!-- xunit.v3 runs as its own Microsoft.Testing.Platform executable rather than
+         through the classic VSTest adapter. `dotnet test` is routed into MTP mode
+         by the repo-root global.json ("test": {"runner": "Microsoft.Testing.Platform"}),
+         which the .NET 10 SDK requires - TestingPlatformDotnetTestSupport was the
+         VSTest-mode compatibility shim and is not used once that's set. -->
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.0" />
+    <PackageReference Include="xunit.v3" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\client\Peek.Core\Peek.Core.csproj" />
+    <!-- FallbackTtsService lives worker-side but is pure, platform-neutral decision logic
+         (which engine speaks, and when to retry the one that failed) - exactly the kind of
+         thing that should be pinned by fast unit tests rather than only exercised by
+         launching a real worker. -->
+    <ProjectReference Include="..\..\src\worker\Peek.Worker.Tts\Peek.Worker.Tts.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,210 @@
+name: release
+
+# Cuts an actual GitHub Release from a tag, so users have somewhere to download Peek from
+# other than digging a zip out of a workflow run's artifacts. Push a tag to publish:
+#   git tag v0.2.0 && git push origin v0.2.0
+#
+# The tag is the version - it overrides Directory.Build.props for the build, so there's no
+# second place to remember to bump. The release is created as a draft: it gives you a chance
+# to write the notes and check the installer before anyone can download it.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build (e.g. 0.2.0) - for a dry run without tagging"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    # Lifted to job level so the signing steps can gate on it. The `secrets` context is
+    # NOT available in a step-level `if:` - using it there isn't a runtime failure, it
+    # fails workflow *validation*, so the whole file silently stops being a valid workflow
+    # and every run fails instantly with no jobs and no logs. `env` is available in `if:`.
+    env:
+      CERT: ${{ secrets.WINDOWS_CERT_BASE64 }}
+      CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          $version = if ("${{ github.ref_type }}" -eq "tag") {
+            "${{ github.ref_name }}" -replace '^v', ''
+          } else {
+            "${{ inputs.version }}"
+          }
+          if ($version -notmatch '^\d+\.\d+\.\d+') {
+            throw "Version '$version' is not in the expected major.minor.patch form."
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Building version $version"
+
+      - name: Authenticate the pipboy-preview feed
+        env:
+          GH_PAT: ${{ secrets.GH_PACKAGES_TOKEN }}
+        shell: pwsh
+        run: |
+          dotnet nuget add source `
+            https://nuget.pkg.github.com/NeverMorewd/index.json `
+            --name pipboy-preview `
+            --username NeverMorewd `
+            --password $env:GH_PAT `
+            --store-password-in-clear-text
+
+      - name: Restore
+        run: dotnet restore Peek.slnx
+
+      - name: Build release tests
+        run: dotnet build Peek.slnx -c Release --no-restore
+
+      - name: Unit tests
+        run: dotnet test --project test/Peek.Core.Tests/Peek.Core.Tests.csproj -c Release --no-build
+
+      # Same two-folder layout build_binary.yml produces, and for the same reason: the two
+      # exes publish with different trim settings and must not share one output folder.
+      - name: Publish
+        shell: pwsh
+        run: |
+          $v = "${{ steps.version.outputs.version }}"
+
+          dotnet publish src/client/Peek.Desktop/Peek.Desktop.csproj `
+            -c Release -r win-x64 --self-contained true `
+            -p:StripSymbols=true -p:Version=$v `
+            -o dist/win-x64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          $libvlc = "dist/win-x64/libvlc"
+          if (Test-Path $libvlc) {
+            Get-ChildItem $libvlc -Directory | Where-Object { $_.Name -ne "win-x64" } | Remove-Item -Recurse -Force
+            $plugins = "$libvlc/win-x64/plugins"
+            $keep = @{
+              access        = @("libfilesystem_plugin.dll")
+              demux         = @("libwav_plugin.dll")
+              codec         = @("libaraw_plugin.dll", "libadpcm_plugin.dll", "liblpcm_plugin.dll")
+              audio_output  = @("libmmdevice_plugin.dll", "libwasapi_plugin.dll", "libdirectsound_plugin.dll", "libwaveout_plugin.dll")
+              audio_filter  = @("libaudio_format_plugin.dll", "libsimple_channel_mixer_plugin.dll", "libtrivial_channel_mixer_plugin.dll", "libugly_resampler_plugin.dll", "libspeex_resampler_plugin.dll")
+              audio_mixer   = @("libfloat_mixer_plugin.dll", "libinteger_mixer_plugin.dll")
+            }
+            Get-ChildItem $plugins -Directory | ForEach-Object {
+              $category = $_.Name
+              $categoryPath = $_.FullName
+              if ($keep.ContainsKey($category)) {
+                Get-ChildItem $categoryPath -File | Where-Object { $_.Name -notin $keep[$category] } | Remove-Item -Force
+              } else {
+                Remove-Item -Recurse -Force $categoryPath
+              }
+            }
+          }
+
+          dotnet publish src/worker/Peek.Worker/Peek.Worker.csproj `
+            -c Release -r win-x64 --self-contained true `
+            -p:StripSymbols=true -p:Version=$v `
+            -o dist/win-x64/worker
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          Get-ChildItem dist/win-x64 -Recurse -Filter *.pdb | Remove-Item -Force
+
+      # Exercise the actual trimmed executable, including COM interop and OCR.
+      - name: Integration tests against published worker
+        shell: pwsh
+        run: |
+          $env:Peek_TEST_WORKER_PATH = "$pwd/dist/win-x64/worker/Peek.Worker.exe"
+          dotnet test --project test/Peek.Integration.Tests/Peek.Integration.Tests.csproj -c Release --no-build
+
+      - name: Windows speech against published worker
+        shell: pwsh
+        run: |
+          $env:Peek_TEST_WORKER_PATH = "$pwd/dist/win-x64/worker/Peek.Worker.exe"
+          $env:PEEK_TTS_ENGINE = "windows"
+          dotnet test --project test/Peek.Integration.Tests/Peek.Integration.Tests.csproj -c Release --no-build -- --filter-class Peek.Integration.Tests.TtsRoundTripTests
+
+      # Optional: only runs when a signing certificate has been configured. Without it the
+      # installer is unsigned and Windows SmartScreen shows an "unrecognized app" warning -
+      # a particularly bad wall for this audience, since the user may not be able to read the
+      # dialog they're being asked to click through. To enable, add two repository secrets:
+      #   WINDOWS_CERT_BASE64     - the .pfx, base64-encoded
+      #   WINDOWS_CERT_PASSWORD   - its password
+      - name: Sign binaries
+        if: ${{ env.CERT != '' }}
+        shell: pwsh
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP "peek-signing.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:CERT))
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter signtool.exe |
+            Where-Object { $_.FullName -like "*x64*" } | Select-Object -First 1
+          & $signtool.FullName sign /f $pfx /p $env:CERT_PASSWORD /fd SHA256 `
+            /tr http://timestamp.digicert.com /td SHA256 `
+            dist/win-x64/Peek.Desktop.exe dist/win-x64/worker/Peek.Worker.exe
+          Remove-Item $pfx -Force
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" pack\peek.iss `
+            "/DPeekDistDir=$pwd\dist\win-x64" `
+            "/DPeekVersion=${{ steps.version.outputs.version }}" `
+            "/DPeekBuildMode=self-contained"
+
+      - name: Sign installer
+        if: ${{ env.CERT != '' }}
+        shell: pwsh
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP "peek-signing.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:CERT))
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter signtool.exe |
+            Where-Object { $_.FullName -like "*x64*" } | Select-Object -First 1
+          Get-ChildItem dist/installer/*.exe | ForEach-Object {
+            & $signtool.FullName sign /f $pfx /p $env:CERT_PASSWORD /fd SHA256 `
+              /tr http://timestamp.digicert.com /td SHA256 $_.FullName
+          }
+          Remove-Item $pfx -Force
+
+      - name: Package zip and checksums
+        shell: pwsh
+        run: |
+          $v = "${{ steps.version.outputs.version }}"
+          Compress-Archive -Path dist\win-x64\* -DestinationPath "dist\Peek-$v-win-x64.zip"
+
+          Get-ChildItem dist\installer\*.exe, dist\*.zip | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+            "$hash  $($_.Name)"
+          } | Set-Content dist\SHA256SUMS.txt
+
+          Get-Content dist\SHA256SUMS.txt
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: Peek ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.version.outputs.version) }}
+          files: |
+            dist/installer/*.exe
+            dist/*.zip
+            dist/SHA256SUMS.txt
+          body: |
+            ## Install
+
+            Download `Peek-Setup-${{ steps.version.outputs.version }}-self-contained.exe` and run it.
+            Nothing else needs to be installed - the .NET runtime is bundled.
+
+            Verify your download against `SHA256SUMS.txt` if you want to.

@@ -1,0 +1,86 @@
+<UserControl
+    x:Class="Peek.UI.Views.AppMonitorView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Peek.UI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    d:DesignHeight="680"
+    d:DesignWidth="1000"
+    x:DataType="{x:Type vm:AppMonitorViewModel}"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:DiskSizeConverter x:Key="DiskSizeConverter" />
+    </UserControl.Resources>
+    <Grid Margin="10" RowDefinitions="Auto,*" RowSpacing="8">
+
+        <!--  WrapPanel, not a horizontal StackPanel: at a docked strip's narrow width this
+              toolbar (plus its trailing help text) has too much content to fit on one line -
+              a StackPanel would let it overflow past the page instead of wrapping.  -->
+        <WrapPanel Grid.Row="0" Orientation="Horizontal">
+            <Button
+                Margin="0,0,10,4"
+                Command="{Binding RefreshCommand}"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.Common_Refresh}}"
+                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_RefreshTooltip}}" />
+            <Button
+                Margin="0,0,10,4"
+                Command="{Binding LaunchCommand}"
+                Content="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Launch}}"
+                IsEnabled="{Binding SelectedApp.CanLaunch}"
+                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_LaunchTooltip}}" />
+            <TextBlock
+                Margin="0,0,0,4"
+                VerticalAlignment="Center"
+                FontSize="11"
+                Foreground="{DynamicResource PipboyTextDimBrush}"
+                IsVisible="{Binding IsLoading}"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Loading}}" />
+            <TextBlock
+                Margin="0,0,0,4"
+                VerticalAlignment="Center"
+                FontSize="11"
+                Foreground="{DynamicResource PipboyTextDimBrush}"
+                IsVisible="{Binding !IsLoading}"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_HelpText}}" />
+        </WrapPanel>
+
+        <DataGrid
+            Name="Grid"
+            Grid.Row="1"
+            AutoGenerateColumns="False"
+            CanUserReorderColumns="True"
+            CanUserResizeColumns="True"
+            CanUserSortColumns="True"
+            DoubleTapped="OnRowDoubleTapped"
+            GridLinesVisibility="Horizontal"
+            HeadersVisibility="Column"
+            IsReadOnly="True"
+            ItemsSource="{Binding Apps}"
+            RowHeight="24"
+            SelectedItem="{Binding SelectedApp}"
+            SelectionMode="Single">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Width="2.5*"
+                    Binding="{Binding Name}"
+                    Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Name}}" />
+                <DataGridTextColumn
+                    Width="1*"
+                    Binding="{Binding Version}"
+                    Header="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Version}}" />
+                <DataGridTextColumn
+                    Width="1.5*"
+                    Binding="{Binding Publisher}"
+                    Header="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Publisher}}" />
+                <DataGridTextColumn
+                    Width="1*"
+                    Binding="{Binding EstimatedSizeKb, Converter={StaticResource DiskSizeConverter}}"
+                    Header="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_DiskUsage}}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,65 @@
+name: ci
+
+# Every pull request, whatever it touches. Until this existed, the only PR-triggered
+# workflow was build-worker, scoped to `src/worker/**` - so a PR touching only the client
+# (which is most of them) merged with no automated verification at all, and `dotnet test`
+# ran nowhere in CI: the whole test suite only ever executed on someone's laptop, by hand.
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      # The client pulls Pipboy.Avalonia* from a private GitHub Packages feed. The checked-in
+      # src/client/nuget.config declares the source by name but holds no credentials; NuGet
+      # matches credentials to sources by name across the whole config hierarchy, so adding
+      # them at machine level here is what makes that declaration usable (see that file's
+      # own comment).
+      - name: Authenticate the pipboy-preview feed
+        env:
+          GH_PAT: ${{ secrets.GH_PACKAGES_TOKEN }}
+        shell: pwsh
+        run: |
+          dotnet nuget add source `
+            https://nuget.pkg.github.com/NeverMorewd/index.json `
+            --name pipboy-preview `
+            --username NeverMorewd `
+            --password $env:GH_PAT `
+            --store-password-in-clear-text
+
+      - name: Restore
+        run: dotnet restore Peek.slnx
+
+      # Debug rather than Release: Peek.Integration.Tests launches the real Peek.Worker.exe
+      # out of bin/net10.0 (see TestPaths.FindWorkerExecutable), so the worker has to be
+      # built before the tests run either way - and a Debug worker keeps its Debug-level
+      # logging, which is what makes a CI failure diagnosable from the log alone.
+      - name: Build
+        run: dotnet build Peek.slnx -c Debug --no-restore
+
+      - name: Unit tests
+        run: dotnet test test/Peek.Core.Tests/Peek.Core.Tests.csproj -c Debug --no-build
+
+      # These spawn a real worker process and drive real UI Automation against real
+      # off-screen windows - the only thing that actually proves the client/worker contract
+      # still holds. Each test window takes its own off-screen band (see TestWindow) so they
+      # stay reliable under xUnit's parallel collections.
+      - name: Integration tests
+        run: dotnet test test/Peek.Integration.Tests/Peek.Integration.Tests.csproj -c Debug --no-build

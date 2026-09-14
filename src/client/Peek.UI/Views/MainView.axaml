@@ -1,0 +1,160 @@
+<UserControl
+    x:Class="Peek.Views.MainView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:an="using:AsyncNavigation.Avalonia"
+    xmlns:converters="using:Peek.UI.Converters"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:views="Peek.UI.Views"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    x:DataType="vm:MainViewModel">
+    <UserControl.Resources>
+        <converters:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
+        <converters:ConnectionStateIsReadyConverter x:Key="ConnectionStateIsReadyConverter" />
+        <converters:ConnectionStateToTextConverter x:Key="ConnectionStateToTextConverter" />
+    </UserControl.Resources>
+    <UserControl.Styles>
+        <Style Selector="ToggleButton.navItem">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Margin" Value="0,0,0,2" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0,0,0,0" />
+            <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusControl}" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextDimBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="ToggleButton.navItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource PipboyHoverBrush}" />
+        </Style>
+        <Style Selector="ToggleButton.navItem:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource PipboySurfaceHighBrush}" />
+        </Style>
+        <Style Selector="ToggleButton.navItem:checked">
+            <Setter Property="Foreground" Value="{DynamicResource PipboyPrimaryLightBrush}" />
+            <Setter Property="BorderThickness" Value="2,0,0,0" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PipboyPrimaryBrush}" />
+        </Style>
+    </UserControl.Styles>
+    <Grid Margin="12" ColumnDefinitions="196,*" ColumnSpacing="12">
+
+        <!--  Nav sidebar - icon + label + a left accent bar on the active item for visual hierarchy.  -->
+        <Border
+            Grid.Column="0"
+            Padding="8"
+            Background="{DynamicResource PipboySurfaceBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Spacing="1">
+                    <TextBlock
+                        Margin="8,2,8,8"
+                        FontSize="10"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        LetterSpacing="2"
+                        Opacity="0.7"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_Section}}" />
+
+                    <ToggleButton
+                        Classes="navItem"
+                        AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ScreenReader}}"
+                        Command="{Binding NavigationCommand}"
+                        CommandParameter="ScreenReaderView"
+                        IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='ScreenReaderView'}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="◎" />
+                            <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ScreenReader}}" />
+                        </StackPanel>
+                    </ToggleButton>
+
+                    <ToggleButton
+                        Classes="navItem"
+                        AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ElementInspector}}"
+                        Command="{Binding NavigationCommand}"
+                        CommandParameter="ElementInspectorView"
+                        IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='ElementInspectorView'}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="⌕" />
+                            <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ElementInspector}}" />
+                        </StackPanel>
+                    </ToggleButton>
+
+                    <ToggleButton
+                        Classes="navItem"
+                        AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_AppMonitor}}"
+                        Command="{Binding NavigationCommand}"
+                        CommandParameter="AppMonitorView"
+                        IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='AppMonitorView'}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="▤" />
+                            <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_AppMonitor}}" />
+                        </StackPanel>
+                    </ToggleButton>
+
+                    <ToggleButton
+                        Classes="navItem"
+                        AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ProcessMonitor}}"
+                        Command="{Binding NavigationCommand}"
+                        CommandParameter="ProcessMonitorView"
+                        IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='ProcessMonitorView'}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="▦" />
+                            <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ProcessMonitor}}" />
+                        </StackPanel>
+                    </ToggleButton>
+
+                    <ToggleButton
+                        Classes="navItem"
+                        AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_Settings}}"
+                        Command="{Binding NavigationCommand}"
+                        CommandParameter="SettingsView"
+                        IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='SettingsView'}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="⚙" />
+                            <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_Settings}}" />
+                        </StackPanel>
+                    </ToggleButton>
+                </StackPanel>
+
+                <!--  Worker/version footer - was nowhere in the app before; gives a persistent "is Peek actually working" signal.  -->
+                <StackPanel
+                    Margin="8,0,8,4"
+                    DockPanel.Dock="Bottom"
+                    Spacing="2">
+                    <Separator Margin="0,0,0,6" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Panel Width="7" Height="7" VerticalAlignment="Center">
+                            <Ellipse Fill="{DynamicResource PipboyTextDimBrush}" />
+                            <Ellipse
+                                Fill="{DynamicResource PipboySuccessBrush}"
+                                IsVisible="{Binding WorkerState, Converter={StaticResource ConnectionStateIsReadyConverter}}" />
+                        </Panel>
+                        <TextBlock
+                            FontSize="10"
+                            Foreground="{DynamicResource PipboyTextDimBrush}"
+                            Text="{Binding WorkerState, Converter={StaticResource ConnectionStateToTextConverter}}" />
+                    </StackPanel>
+                    <TextBlock
+                        FontSize="10"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Opacity="0.6"
+                        Text="{Binding AppVersion, StringFormat='Peek v{0}'}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Border
+            Grid.Column="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Background="{DynamicResource PipboyBackgroundBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
+            <ContentControl Padding="4" an:RegionManager.RegionName="MainRegion" />
+        </Border>
+    </Grid>
+
+</UserControl>

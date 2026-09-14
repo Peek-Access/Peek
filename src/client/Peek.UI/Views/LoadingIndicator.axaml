@@ -1,0 +1,89 @@
+<UserControl
+    x:Class="Peek.UI.Views.LoadingIndicator"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:pipboy="https://github.com/NeverMorewd/Pipboy.Avalonia"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <!--
+        A pupil sweeping inside a clipped eye outline, giving the impression of an eye
+        looking around, drawn with the bold, solid-fill eye from the app icon
+        (assets/peek_icon.svg).
+    -->
+    <pipboy:CrtDisplay Name="MainCrt">
+        <Grid>
+            <Border
+                Background="Transparent"
+                BorderBrush="{DynamicResource PipboyPrimaryBrush}"
+                BorderThickness="0">
+                <Grid Width="512" Height="512">
+                    <Canvas>
+                        <!--  The eye's lens shape - solid fill, no outline, matching the icon.  -->
+                        <Path Data="M 66,256 C 66,178 152,158 256,158 C 360,158 446,178 446,256 C 446,334 360,354 256,354 C 152,354 66,334 66,256 Z" Fill="{DynamicResource PipboyPrimaryBrush}" />
+
+                        <Canvas
+                            Canvas.Left="0"
+                            Canvas.Top="0"
+                            Width="512"
+                            Height="512">
+                            <Canvas.Clip>
+                                <PathGeometry Figures="M 66,256 C 66,178 152,158 256,158 C 360,158 446,178 446,256 C 446,334 360,354 256,354 C 152,354 66,334 66,256 Z" />
+                            </Canvas.Clip>
+
+                            <!--
+                                Only the pupil moves, offset from the rotation center so it
+                                sweeps around inside the lens (clipped at the edges, like an
+                                eyelid) rather than spinning the whole eye shape in place.
+                            -->
+                            <Canvas
+                                x:Name="EyeGroup"
+                                Canvas.Left="0"
+                                Canvas.Top="0"
+                                Width="512"
+                                Height="512"
+                                RenderTransformOrigin="0.5,0.5">
+                                <Canvas.RenderTransform>
+                                    <RotateTransform CenterX="256" CenterY="256" />
+                                </Canvas.RenderTransform>
+                                <Canvas.Styles>
+                                    <Style Selector="Canvas#EyeGroup">
+                                        <Style.Animations>
+                                            <Animation IterationCount="Infinite" Duration="0:0:3">
+                                                <KeyFrame Cue="0%">
+                                                    <Setter Property="RotateTransform.Angle" Value="0" />
+                                                </KeyFrame>
+                                                <KeyFrame Cue="100%">
+                                                    <Setter Property="RotateTransform.Angle" Value="360" />
+                                                </KeyFrame>
+                                            </Animation>
+                                        </Style.Animations>
+                                    </Style>
+                                </Canvas.Styles>
+
+                                <Ellipse
+                                    Canvas.Left="191"
+                                    Canvas.Top="131"
+                                    Width="130"
+                                    Height="130"
+                                    Fill="{DynamicResource PipboyPrimaryDarkBrush}" />
+                            </Canvas>
+                        </Canvas>
+
+                    </Canvas>
+                    <TextBlock
+                        Margin="0,0,0,42"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Bottom"
+                        FontSize="32"
+                        FontWeight="Bold"
+                        Foreground="{DynamicResource PipboyPrimaryBrush}"
+                        LetterSpacing="6"
+                        Text="P E E K" />
+                </Grid>
+            </Border>
+        </Grid>
+    </pipboy:CrtDisplay>
+</UserControl>

@@ -1,0 +1,205 @@
+<UserControl
+    x:Class="Peek.UI.Views.ScreenReaderView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Peek.UI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="using:Peek.UI.Views"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="{x:Type vm:ScreenReaderViewModel}"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:ConnectionStateIsReadyConverter x:Key="ConnectionStateIsReadyConverter" />
+    </UserControl.Resources>
+    <Grid Margin="12" RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="10">
+
+        <!--  Page header - gives this page the same "card" presence the other monitors get
+              for free from their always-populated grids, instead of just a bare toolbar
+              floating above empty space.  -->
+        <Border
+            Grid.Row="0"
+            Padding="12,10"
+            Background="{DynamicResource PipboySurfaceBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
+            <StackPanel Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock VerticalAlignment="Center" FontSize="18" Text="◎" />
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ScreenReader}}" />
+                </StackPanel>
+                <TextBlock
+                    FontSize="12"
+                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                    Text="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_Description}}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <!--  Toolbar  -->
+        <Border
+            Grid.Row="1"
+            Padding="10"
+            Background="{DynamicResource PipboySurfaceBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
+            <!--  WrapPanel, not a horizontal StackPanel: at a docked strip's narrow width
+                  this toolbar has too many controls to fit on one line - a StackPanel would
+                  let them overflow past the border instead of wrapping to a second line.  -->
+            <WrapPanel Orientation="Horizontal">
+                <ToggleSwitch
+                    Margin="0,0,14,4"
+                    Content="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_Tracking}}"
+                    IsChecked="{Binding ElementTracker.IsTracking}" />
+                <Button
+                    Margin="0,0,14,4"
+                    Command="{Binding DescribeCommand}"
+                    Content="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_Describe}}"
+                    IsEnabled="{Binding !IsDescribing}"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_DescribeTooltip}}" />
+                <Button
+                    Margin="0,0,14,4"
+                    Command="{Binding AnalyzeScreenCommand}"
+                    Content="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_AnalyzeScreen}}"
+                    IsEnabled="{Binding !ScreenAnalysis.IsAnalyzing}" />
+                <Button
+                    Margin="0,0,14,4"
+                    Command="{Binding StopAnalysisCommand}"
+                    Content="{Translate {x:Static i18n:LanguageManager+Keys.Ai_Stop}}"
+                    IsVisible="{Binding ScreenAnalysis.IsAnalyzing}" />
+                <StackPanel
+                    Margin="0,0,0,4"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="6">
+                    <Panel Width="7" Height="7" VerticalAlignment="Center">
+                        <Ellipse Fill="{DynamicResource PipboyTextDimBrush}" />
+                        <Ellipse Fill="{DynamicResource PipboySuccessBrush}" IsVisible="{Binding ElementTracker.WorkerState, Converter={StaticResource ConnectionStateIsReadyConverter}}" />
+                    </Panel>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="11"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Text="{Binding ElementTracker.StatusText}" />
+                </StackPanel>
+            </WrapPanel>
+        </Border>
+
+        <!--  Content  -->
+        <Grid Grid.Row="2">
+
+            <!--  Empty state - a bordered card matching the header/toolbar above rather than
+                  a lone icon floating in otherwise-blank space, so the page reads as
+                  "ready and waiting" instead of "unfinished".  -->
+            <Border
+                Background="{DynamicResource PipboySurfaceBrush}"
+                BorderBrush="{DynamicResource PipboyBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="{DynamicResource PipboyCornerRadiusPanel}"
+                IsVisible="{Binding ElementTracker.CurrentElement, Converter={x:Static ObjectConverters.IsNull}}">
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="10">
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="40"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Opacity="0.4"
+                        Text="◎" />
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_EmptyTitle}}" />
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        FontSize="12"
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_EmptySubtitle}}" />
+                </StackPanel>
+            </Border>
+
+            <!--  Populated state  -->
+            <ScrollViewer IsVisible="{Binding ElementTracker.CurrentElement, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <views:ElementDetailView DataContext="{Binding ElementTracker.CurrentElement}" />
+            </ScrollViewer>
+        </Grid>
+
+        <!--  AI screen analysis - only takes up space once there's something to show, so it
+              never crowds the page for users who never trigger it.  -->
+        <Border
+            Grid.Row="3"
+            Padding="10"
+            Background="{DynamicResource PipboySurfaceBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}"
+            IsVisible="{Binding ScreenAnalysis.HasResult}">
+            <StackPanel Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock FontWeight="SemiBold" Text="{Translate {x:Static i18n:LanguageManager+Keys.Ai_ResultHeader}}" />
+                    <TextBlock
+                        Foreground="{DynamicResource PipboyTextDimBrush}"
+                        IsVisible="{Binding ScreenAnalysis.IsAnalyzing}"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Ai_Analyzing}}" />
+                </StackPanel>
+                <TextBlock
+                    MaxHeight="160"
+                    Text="{Binding ScreenAnalysis.StreamingText}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Foreground="{DynamicResource PipboyWarningBrush}"
+                    IsVisible="{Binding ScreenAnalysis.ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                    Text="{Binding ScreenAnalysis.ErrorMessage}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <!--  Announcement history - a running transcript of everything
+              AccessibilitySpeechService has spoken app-wide, not just from this page (see
+              AnnouncementHistoryService) - toggled from Settings > AI, see HistoryEnabled.  -->
+        <Border
+            Grid.Row="4"
+            Padding="10"
+            Background="{DynamicResource PipboySurfaceBrush}"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}"
+            IsVisible="{Binding HistoryEnabled}">
+            <StackPanel Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock FontWeight="SemiBold" Text="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryHeader}}" />
+                    <Button
+                        Padding="8,2"
+                        Command="{Binding CopyHistoryCommand}"
+                        Content="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryCopy}}"
+                        FontSize="11" />
+                    <Button
+                        Padding="8,2"
+                        Command="{Binding ClearHistoryCommand}"
+                        Content="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryClear}}"
+                        FontSize="11" />
+                </StackPanel>
+                <TextBox
+                    MaxHeight="160"
+                    AcceptsReturn="True"
+                    BorderThickness="0"
+                    FontSize="12"
+                    IsReadOnly="True"
+                    Text="{Binding History.Transcript}"
+                    TextWrapping="Wrap"
+                    Watermark="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryEmpty}}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

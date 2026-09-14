@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <!-- Same file the installer/exe icon use (assets/icon256.ico at the repo root) - Linked
+         here instead of duplicated as its own copy, so there's exactly one place to update it. -->
+    <AvaloniaResource Include="..\..\..\assets\icon256.ico" Link="Assets\peek-icon.ico" />
+  </ItemGroup>
+  
+
+  <ItemGroup>
+    <PackageReference Include="AsyncNavigation.Avalonia" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    <PackageReference Include="Pipboy.Avalonia.Fx" />
+    <PackageReference Include="Pipboy.Avalonia.ProDataGrid" />
+    <PackageReference Include="ProDataGrid" />
+    <PackageReference Include="ReactiveUI.Avalonia" />
+	<PackageReference Include="ReactiveUI.SourceGenerators">
+	  <PrivateAssets>all</PrivateAssets>
+	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
+	<PackageReference Include="AsyncNavigation" />
+	<PackageReference Include="Pipboy.Avalonia" />
+	<PackageReference Include="Avalonia.Themes.Simple" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Peek.Core\Peek.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\LoadingIndicator.axaml.cs">
+      <DependentUpon>LoadingIndicator.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\SplashWindow.axaml.cs">
+      <DependentUpon>SplashWindow.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\ElementTrackView.axaml.cs">
+      <DependentUpon>ElementTrackView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\WindowTrackView.axaml.cs">
+      <DependentUpon>WindowTrackView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

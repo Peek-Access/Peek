@@ -1,0 +1,19 @@
+<Application
+    x:Class="Peek.UI.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Peek.UI"
+    xmlns:pipboy="https://github.com/NeverMorewd/Pipboy.Avalonia"
+    xmlns:prodatagrid="clr-namespace:Pipboy.Avalonia.ProDataGrid;assembly=Pipboy.Avalonia.ProDataGrid"
+    RequestedThemeVariant="Default">
+    <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
+    <Application.Resources />
+    <Application.DataTemplates />
+
+    <Application.Styles>
+        <pipboy:PipboyTheme />
+        <pipboy:PipboyFxTheme />
+        <prodatagrid:PipboyProDataGridTheme />
+        <!--<SimpleTheme />-->
+    </Application.Styles>
+</Application>

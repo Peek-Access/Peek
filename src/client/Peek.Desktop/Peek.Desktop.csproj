@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>exe</OutputType>
+    <!--If you are willing to use platform-specific APIs, use conditional compilation.
+    See https://docs.avaloniaui.net/docs/guides/platforms/platform-specific-code/dotnet for more details.-->
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+	<OutputPath>..\..\..\bin\</OutputPath>
+	<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Points at the repo's single icon source of truth (assets/icon256.ico) rather than a
+         local copy - a local copy previously drifted out of sync with the real icon and shipped
+         a stale one for months without anyone noticing, since nothing re-compares them. -->
+    <ApplicationIcon>..\..\..\assets\icon256.ico</ApplicationIcon>
+  </PropertyGroup>
+  <!-- Windowed (no console) for a real end-user install: OutputType=exe puts this in the
+       Windows Console subsystem, which auto-allocates a visible console window whenever
+       the exe is launched directly (e.g. a Start Menu/desktop shortcut) - showing the raw
+       scrolling Debug-level log stream (colored red/yellow for warnings/errors) right next
+       to the app window, which read as "lots of errors" and can stall the UI thread if the
+       console is clicked into (Windows' QuickEdit mode pauses all console output until a
+       key is pressed). Left as an ordinary console app in Debug so `dotnet run`/F5 still
+       shows logs live during development. See Peek.Core\Logging\SimpleFileLoggerProvider
+       for where Release diagnostics go instead. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+  <!-- NativeAOT is deliberately NOT enabled here, even for a self-contained Release publish
+       (see build_binary.yml's "aot" mode, which is really just "self-contained" now - the
+       label is legacy). Peek.Worker.Automation.Windows uses System.Windows.Automation
+       (AutomationElement.FromPoint etc.), which still relies on the legacy built-in COM
+       interop marshaller - NativeAOT only supports ComWrappers-based COM interop, so the very
+       first call throws System.NotSupportedException: "COM Interop requires ComWrapper
+       instance registered for marshalling" out of AutomationElementIdentifiers..cctor(), and
+       every call after that fails with TypeInitializationException (a failed static
+       constructor stays failed) - i.e. the app's core hover/inspect feature is permanently
+       broken from the first mouse move. Verified in isolation with a standalone AOT-published
+       harness calling WindowsAutomationService.GetElementFromPointAsync directly. Fixing this
+       for real would mean replacing System.Windows.Automation with raw IUIAutomation COM
+       interfaces via ComWrappers - not attempted here since AOT's only other upside (smaller
+       size) is already dwarfed by LibVLC's own ~100MB either way. -->
+  <ItemGroup>
+    <Content Include="..\..\..\assets\icon256.ico" Link="icon256.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Peek.UI\Peek.UI.csproj" />
+  </ItemGroup>
+</Project>

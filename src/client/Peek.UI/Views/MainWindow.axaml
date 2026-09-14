@@ -1,0 +1,131 @@
+<Window
+    x:Class="Peek.Views.MainWindow"
+    x:Name="Self"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:uiviews="using:Peek.UI.Views"
+    xmlns:views="using:Peek.Views"
+    xmlns:vm="using:Peek.Core.ViewModels"
+    Title="Peek"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="{x:Type vm:MainViewModel}"
+    ExtendClientAreaTitleBarHeightHint="34"
+    ExtendClientAreaToDecorationsHint="True"
+    Icon="avares://Peek.UI/Assets/peek-icon.ico"
+    mc:Ignorable="d">
+    <Window.Styles>
+        <!--  Flat, borderless title-bar buttons (About).  -->
+        <Style Selector="Button.titleBarIconBtn">
+            <Setter Property="Padding" Value="6,3" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusControl}" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextDimBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.titleBarIconBtn:pointerover">
+            <Setter Property="Background" Value="{DynamicResource PipboyHoverBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextBrush}" />
+        </Style>
+        <!--  Same flat chrome as the About button, plus a checked state for the pin toggle.  -->
+        <Style Selector="ToggleButton.titleBarIconBtn">
+            <Setter Property="Padding" Value="6,3" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusControl}" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextDimBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="ToggleButton.titleBarIconBtn:pointerover">
+            <Setter Property="Background" Value="{DynamicResource PipboyHoverBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PipboyTextBrush}" />
+        </Style>
+        <Style Selector="ToggleButton.titleBarIconBtn:checked">
+            <Setter Property="Foreground" Value="{DynamicResource PipboyPrimaryLightBrush}" />
+        </Style>
+        <!--  Hollow flag = not pinned, filled flag = pinned on top - same shape family as the app's other flat glyph icons (ⓘ ◎ ⌕ ▤ ▦ ⚙), so the state is visible by shape as well as by the checked-state color above.  -->
+        <Style Selector="TextBlock.pinGlyph">
+            <Setter Property="Text" Value="⚐" />
+        </Style>
+        <Style Selector="ToggleButton.titleBarIconBtn:checked TextBlock.pinGlyph">
+            <Setter Property="Text" Value="⚑" />
+        </Style>
+    </Window.Styles>
+    <Grid RowDefinitions="34,*">
+
+        <!--
+            Left side deliberately left empty: with a real Icon/Title set (see below),
+            Windows already draws the icon + "Peek" text natively in that space even
+            with the client area extended - an app-drawn duplicate there overlapped it.
+        -->
+        <Grid
+            Name="TitleBarButtons"
+            Grid.Row="0"
+            Margin="10,0,200,0"
+            ColumnDefinitions="*,Auto"
+            WindowDecorationProperties.ElementRole="User">
+
+            <StackPanel
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="4">
+
+                <!--
+                    Not needed in docked mode: WindowsEdgeDockingService already forces the
+                    window HWND_TOPMOST at the Win32 level whenever it repositions it (see
+                    ApplyPosition), independent of this Topmost binding - toggling it off
+                    while docked would have no visible effect. Hidden there in code-behind
+                    (ConfigureShell), the same place NormalShellView/DockedShellView switch.
+                -->
+                <ToggleButton
+                    Name="PinButton"
+                    Classes="titleBarIconBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Pin}}"
+                    Click="OnPinClick"
+                    IsChecked="{Binding #Self.Topmost, Mode=TwoWay}"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Pin}}">
+                    <!--
+                        No literal glyph swap here - the ":checked" style below drives both
+                        the Text and the Foreground, so the pinned/unpinned states pick up
+                        theme colors (PipboyTextDimBrush / PipboyPrimaryLightBrush) the same
+                        way every other title-bar icon does, instead of a fixed-color emoji
+                        glyph that ignored the theme entirely.
+                    -->
+                    <TextBlock Classes="pinGlyph" FontSize="13" />
+                </ToggleButton>
+
+                <Button
+                    Classes="titleBarIconBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}"
+                    Click="OnAboutClick"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}">
+                    <TextBlock FontSize="13" Text="ⓘ" />
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!--
+            Both declared statically (not swapped in via code-behind Content assignment) so
+            their regions - "MainRegion" / "DockRegion", see DockShellViewModel - are
+            registered the moment MainWindow.InitializeComponent() runs, before either
+            MainViewModel or DockShellViewModel is even constructed (see
+            MainWindow.axaml.cs/App.axaml.cs) - constructing them lazily raced the eager
+            navigation each ViewModel's constructor kicks off against its region existing
+            yet ("Region not found or has been collected").
+        -->
+        <views:MainView
+            x:Name="NormalShellView"
+            Grid.Row="1"
+            IsVisible="False" />
+        <uiviews:DockShellView
+            x:Name="DockedShellView"
+            Grid.Row="1"
+            IsVisible="False" />
+
+    </Grid>
+</Window>

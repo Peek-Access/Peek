@@ -211,11 +211,10 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
     {
         if (_stateSubject.Value == ConnectionState.Stopped) return;
 
-        _logger.LogWarning(
-            "Worker process exited unexpectedly (code={Code})",
-            _workerProcess?.ExitCode);
+        if (sender is not Process process || !ReferenceEquals(process, _workerProcess)) return;
+        _logger.LogWarning("Worker process exited unexpectedly");
 
-        _ = TriggerReconnectAsync();
+        _ = TriggerReconnectAsync(expectedProcess: process);
     }
 
     /// <summary>
@@ -237,7 +236,7 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
     /// The <c>finally</c> below is the other half of this guarantee - recovery always lands on
     /// a state the watchdog will pick back up.
     /// </remarks>
-    private async Task TriggerReconnectAsync()
+    private async Task TriggerReconnectAsync(IPeekWorkerClient? expectedClient = null, Process? expectedProcess = null)
     {
         if (_stateSubject.Value == ConnectionState.Stopped) return;
 
@@ -249,6 +248,13 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
 
         try
         {
+            // Check the failure source after taking the guard: an old ping or queued exit
+            // notification must never tear down a replacement connection.
+            if (_lifetimeCts.IsCancellationRequested ||
+                (expectedClient is not null && !ReferenceEquals(expectedClient, _client)) ||
+                (expectedProcess is not null && !ReferenceEquals(expectedProcess, _workerProcess)))
+                return;
+
             SetState(ConnectionState.Reconnecting);
             await TearDownStackAsync().ConfigureAwait(false);
 
@@ -405,7 +411,7 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
             .Subscribe(state =>
             {
                 _logger.LogWarning("Worker transport faulted - scheduling reconnect");
-                _ = TriggerReconnectAsync();
+                _ = TriggerReconnectAsync(expectedClient: client);
             });
 
         await TearDownStackAsync().ConfigureAwait(false);
@@ -430,10 +436,10 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
         catch (Exception ex) { _logger.LogDebug(ex, "Disposing the transport-state subscription failed"); }
         _transportStateSub = null;
 
+        _client = null;
         try { _channel?.Dispose(); }
         catch (Exception ex) { _logger.LogDebug(ex, "Disposing the RPC channel failed"); }
         _channel = null;
-        _client = null;
 
         var transport = _transport;
         _transport = null;
@@ -471,17 +477,20 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
             // StartingWorker/Connecting/Reconnecting: a cycle is already running, leave it be.
             if (_stateSubject.Value != ConnectionState.Ready) continue;
 
+            var probedClient = _client;
+            if (probedClient is null) continue;
+
             try
             {
                 using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
                 timeoutCts.CancelAfter(_options.WatchdogTimeout);
 
-                var alive = await Client.Automation.PingAsync(timeoutCts.Token).ConfigureAwait(false);
+                var alive = await probedClient.Automation.PingAsync(timeoutCts.Token).ConfigureAwait(false);
 
                 if (!alive)
                 {
                     _logger.LogWarning("Worker watchdog ping returned false");
-                    await TriggerReconnectAsync().ConfigureAwait(false);
+                    await TriggerReconnectAsync(expectedClient: probedClient).ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
@@ -491,7 +500,7 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Worker watchdog ping failed - triggering reconnect");
-                await TriggerReconnectAsync().ConfigureAwait(false);
+                await TriggerReconnectAsync(expectedClient: probedClient).ConfigureAwait(false);
             }
         }
 

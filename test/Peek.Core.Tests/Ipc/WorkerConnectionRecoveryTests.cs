@@ -20,6 +20,50 @@ namespace Peek.Core.Tests.Ipc;
 /// </remarks>
 public sealed class WorkerConnectionRecoveryTests
 {
+    [Fact]
+    public async Task Stale_failure_notifications_do_not_replace_a_healthy_client()
+    {
+        var options = new WorkerConnectionOptions
+        {
+            PipeName = $"peek-stale-notification-{Guid.NewGuid():N}",
+            ManageWorkerProcess = false,
+            WorkerStartupDelay = TimeSpan.Zero,
+            ConnectTimeout = TimeSpan.FromSeconds(2),
+            WatchdogInterval = TimeSpan.FromHours(1),
+        };
+        using var server = new System.IO.Pipes.NamedPipeServerStream(
+            options.PipeName, System.IO.Pipes.PipeDirection.InOut, 1,
+            System.IO.Pipes.PipeTransmissionMode.Byte, System.IO.Pipes.PipeOptions.Asynchronous);
+        await using var connection = new WorkerConnection(options, NullLoggerFactory.Instance);
+        var accepted = server.WaitForConnectionAsync();
+        await connection.StartAsync();
+        await accepted.WaitAsync(TimeSpan.FromSeconds(5));
+        var healthyClient = connection.Client;
+
+        // Deliver failures from a retired generation after the replacement is Ready.
+        // Invoking the callback directly makes the ordering deterministic.
+        var reconnect = typeof(WorkerConnection).GetMethod("TriggerReconnectAsync",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var oldClient = new PeekWorkerClient(null!, null!, null!, null!, null!, null!);
+        using var oldProcess = new System.Diagnostics.Process();
+        await ((Task)reconnect.Invoke(connection, new object?[] { oldClient, null })!);
+        await ((Task)reconnect.Invoke(connection, new object?[] { null, oldProcess })!);
+
+        Assert.Equal(ConnectionState.Ready, connection.CurrentState);
+        Assert.Same(healthyClient, connection.Client);
+
+        // Ignoring a stale notification must also release the recovery guard.
+        server.Disconnect();
+        var nextAccepted = server.WaitForConnectionAsync();
+        await ((Task)reconnect.Invoke(connection, new object?[] { healthyClient, null })!);
+        await nextAccepted.WaitAsync(TimeSpan.FromSeconds(5));
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(5);
+        while (connection.CurrentState != ConnectionState.Ready && DateTime.UtcNow < deadline)
+            await Task.Delay(10);
+        Assert.Equal(ConnectionState.Ready, connection.CurrentState);
+        Assert.NotSame(healthyClient, connection.Client);
+    }
+
     private static WorkerConnectionOptions UnreachableWorker() => new()
     {
         // Nothing ever listens here.

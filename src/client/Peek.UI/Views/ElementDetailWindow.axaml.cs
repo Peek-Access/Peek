@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace Peek.UI.Views;
 
@@ -21,5 +22,10 @@ public partial class ElementDetailWindow : Window
             Close();
             e.Handled = true;
         }
+    }
+
+    private void Button_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Close();
     }
 }

@@ -436,3 +436,4 @@ FodyWeavers.xsd
 # macOS
 .DS_Store
 /dist/recovery-validation/worker
+/dist/repro-release/worker

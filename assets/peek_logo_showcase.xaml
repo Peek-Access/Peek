@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<Viewbox xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns="https://github.com/avaloniaui" Stretch="Uniform" Name="input">
+    <Canvas UseLayoutRounding="False" Width="512.0" Height="512.0">
+        <Canvas.Clip>
+            <RectangleGeometry Rect="0.0,0.0,512.0,512.0"/>
+        </Canvas.Clip>
+        <Path>
+            <Path.Fill>
+                <RadialGradientBrush Radius="0.55" Center="0.5,0.46" GradientOrigin="0.5,0.46">
+                    <GradientStop Color="#ff0f3d22" Offset="0.0"/>
+                    <GradientStop Color="#ff081c10" Offset="1.0"/>
+                </RadialGradientBrush>
+            </Path.Fill>
+            <Path.Data>
+                <PathGeometry Figures="M 120 8 L 392 8 A 112 112 0 0 1 504 120 L 504 392 A 112 112 0 0 1 392 504 L 120 504 A 112 112 0 0 1 8 392 L 8 120 A 112 112 0 0 1 120 8 z" FillRule="NonZero"/>
+            </Path.Data>
+        </Path>
+        <Ellipse Canvas.Left="26.0" Canvas.Top="108.0" Width="460.0" Height="280.0" Opacity="0.18" Fill="#ff27ff72"/>
+        <Path Fill="#ff27ff72">
+            <Path.Data>
+                <PathGeometry Figures="M 66 248 C 66 170 152 150 256 150 C 360 150 446 170 446 248 C 446 326 360 346 256 346 C 152 346 66 326 66 248 Z" FillRule="NonZero"/>
+            </Path.Data>
+        </Path>
+        <Ellipse Canvas.Left="184.0" Canvas.Top="176.0" Width="144.0" Height="144.0" Fill="#ff081c10"/>
+        <Path Fill="#ff27ff72">
+            <Path.Data>
+                <PathGeometry Figures="m 195.203 427.199 q 0 2.1875 -0.82031 4.34765 q -0.82031 2.13282 -2.54297 3.82813 q -1.72265 1.69531 -4.40234 2.76172 q -2.67969 1.03906 -6.39844 1.03906 h -4.42969 V 452 h -4.86718 v -35.7383 h 10.0625 q 2.65234 0 5.08593 0.60156 q 2.4336 0.57422 4.26563 1.88672 q 1.85937 1.3125 2.95312 3.39062 q 1.09375 2.07813 1.09375 5.0586 z m -5.05859 0.21875 q 0 -3.44531 -2.26953 -5.27735 q -2.24219 -1.83203 -6.28906 -1.83203 h -4.97657 v 14.7109 h 4.53907 q 4.32031 0 6.64453 -1.88672 q 2.35156 -1.88672 2.35156 -5.71484 z M 242.023 452 h -20.3164 v -35.7383 h 20.3164 v 4.10156 h -15.4492 v 11.0742 h 14.8476 v 4.10156 h -14.8476 v 12.3047 h 15.4492 z m 48.7891 0 h -20.3164 v -35.7383 h 20.3164 v 4.10156 h -15.4492 v 11.0742 h 14.8477 v 4.10156 h -14.8477 v 12.3047 h 15.4492 z m 51.6055 0 h -6.125 l -13.3711 -17.5273 V 452 h -4.86718 v -35.7383 h 4.86718 v 16.5977 l 13.0977 -16.5977 h 5.76953 l -14.1094 16.9805 z" FillRule="NonZero"/>
+            </Path.Data>
+        </Path>
+    </Canvas>
+</Viewbox>

@@ -14,19 +14,10 @@ public partial class AboutViewModel : ViewModelBase
     public string RepoUrl => "https://github.com/Peek-Access/Peek";
     public string LicenseUrl => "https://www.gnu.org/licenses/gpl-3.0.en.html";
 
-    /// <summary>Not exhaustive - the libraries most worth crediting by name, not every transitive package.</summary>
+    /// <summary>Key dependencies and their installed binary versions.</summary>
     public IReadOnlyList<string> ThirdPartyLibraries { get; } =
-    [
-        "Avalonia UI",
-        "Pipboy.Avalonia",
-        "AsyncNavigation",
-        "ReactiveUI",
-        "LibVLCSharp",
-        "Irihi.Lingua",
-        "Microsoft.Windows.CsWin32",
-        "PiperSharp",
-        "Sdcb.SimdPaddleOCR",
-    ];
+        DependencyVersions.GetLibraries(AppContext.BaseDirectory,
+            Environment.GetEnvironmentVariable("Peek_WORKER_PATH"));
 
     [ReactiveCommand]
     private void OpenRepo() => OpenUrl(RepoUrl);

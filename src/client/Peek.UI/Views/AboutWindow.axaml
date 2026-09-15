@@ -13,9 +13,11 @@
     d:DesignWidth="420"
     x:DataType="{x:Type vm:AboutViewModel}"
     CanResize="False"
+    ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Peek.UI/Assets/peek-icon.ico"
     SizeToContent="Height"
-    WindowStartupLocation="CenterOwner"
+    SystemDecorations="BorderOnly"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Window.Styles>
         <Style Selector="Button.linkBtn">
@@ -34,11 +36,11 @@
         <StackPanel Margin="24" Spacing="14">
 
             <StackPanel HorizontalAlignment="Center" Spacing="8">
-                <Image
+                <ContentControl
                     Width="72"
                     Height="72"
                     HorizontalAlignment="Center"
-                    Source="avares://Peek.UI/Assets/peek-logo.png" />
+                    ContentTemplate="{DynamicResource PeekLogo}" />
                 <TextBlock
                     HorizontalAlignment="Center"
                     FontSize="20"
@@ -118,7 +120,10 @@
                                 BorderBrush="{DynamicResource PipboyBorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="{DynamicResource PipboyCornerRadiusPill}">
-                                <TextBlock FontSize="10" Foreground="{DynamicResource PipboyTextDimBrush}" Text="{Binding}" />
+                                <TextBlock
+                                    FontSize="10"
+                                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                                    Text="{Binding}" />
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

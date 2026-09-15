@@ -7,13 +7,18 @@
     xmlns:prodatagrid="clr-namespace:Pipboy.Avalonia.ProDataGrid;assembly=Pipboy.Avalonia.ProDataGrid"
     RequestedThemeVariant="Default">
     <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
-    <Application.Resources />
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Resources/Icons.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
     <Application.DataTemplates />
 
     <Application.Styles>
         <pipboy:PipboyTheme />
         <pipboy:PipboyFxTheme />
         <prodatagrid:PipboyProDataGridTheme />
-        <!--<SimpleTheme />-->
     </Application.Styles>
 </Application>

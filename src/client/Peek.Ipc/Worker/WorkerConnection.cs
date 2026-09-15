@@ -24,6 +24,7 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
 
     private NamedPipeTransport? _transport;
     private WorkerRpcChannel? _channel;
+    private WorkerRpcChannel? _retiredChannel;
     private PeekWorkerClient? _client;
     private IDisposable? _transportStateSub;
 
@@ -256,7 +257,7 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
                 return;
 
             SetState(ConnectionState.Reconnecting);
-            await TearDownStackAsync().ConfigureAwait(false);
+            await TearDownStackAsync(disposeRetired: false).ConfigureAwait(false);
 
             if (_options.ManageWorkerProcess)
             {
@@ -367,7 +368,7 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
                         "Worker connect attempt {Attempt}/{Max} failed - retrying in {Delay}ms",
                         attempt, _options.ConnectAttemptsPerCycle, _options.ReconnectDelay.TotalMilliseconds);
 
-                    await TearDownStackAsync().ConfigureAwait(false);
+                    await TearDownStackAsync(disposeRetired: false).ConfigureAwait(false);
 
                     await Task.Delay(_options.ReconnectDelay, ct).ConfigureAwait(false);
                 }
@@ -414,7 +415,14 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
                 _ = TriggerReconnectAsync(expectedClient: client);
             });
 
-        await TearDownStackAsync().ConfigureAwait(false);
+        await TearDownStackAsync(disposeRetired: false).ConfigureAwait(false);
+
+        if (_retiredChannel is not null)
+        {
+            _retiredChannel.SetReplacement(channel);
+            _retiredChannel.Dispose();
+            _retiredChannel = null;
+        }
 
         _transport = transport;
         _channel = channel;
@@ -430,16 +438,23 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
     /// on the stream.</c>). Letting that escape would abort recovery before it had rebuilt
     /// anything, leaving the connection dead for the session.
     /// </summary>
-    private async Task TearDownStackAsync()
+    private async Task TearDownStackAsync(bool disposeRetired = true)
     {
         try { _transportStateSub?.Dispose(); }
         catch (Exception ex) { _logger.LogDebug(ex, "Disposing the transport-state subscription failed"); }
         _transportStateSub = null;
 
         _client = null;
+        var channel = _channel;
+        _channel = null;
+        if (channel is not null)
+        {
+            _retiredChannel?.Dispose();
+            _retiredChannel = channel;
+            channel.Retire();
+        }
         try { _channel?.Dispose(); }
         catch (Exception ex) { _logger.LogDebug(ex, "Disposing the RPC channel failed"); }
-        _channel = null;
 
         var transport = _transport;
         _transport = null;
@@ -451,6 +466,12 @@ public sealed class WorkerConnection(WorkerConnectionOptions options,
 
             try { transport.Dispose(); }
             catch (Exception ex) { _logger.LogDebug(ex, "Disposing the transport failed"); }
+        }
+
+        if (disposeRetired)
+        {
+            _retiredChannel?.Dispose();
+            _retiredChannel = null;
         }
     }
 

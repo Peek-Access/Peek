@@ -10,15 +10,6 @@
   </p>
 </div>
 
-## Why Peek
-
- Most screen readers give you the words on screen. Peek gives you the machine itself — the windows, processes, and UI structure behind every control, not just what's spoken aloud. Every setting exists because someone needed to reach further into their computer, not because a checklist demanded it.
-
-It's local-first, and built to keep growing rather than ship-and-forget — if you use it every day and
-something's missing, that's a bug, not a limitation.
-
-**[Read the user guide →](docs/USER_GUIDE.md)** — shortcuts, speech setup, and how to drive
-Peek by keyboard.
 
 ## Features
 

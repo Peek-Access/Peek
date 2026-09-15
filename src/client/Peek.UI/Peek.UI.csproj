@@ -35,7 +35,6 @@
 	</PackageReference>
 	<PackageReference Include="AsyncNavigation" />
 	<PackageReference Include="Pipboy.Avalonia" />
-	<PackageReference Include="Avalonia.Themes.Simple" />
   </ItemGroup>
 
   <ItemGroup>

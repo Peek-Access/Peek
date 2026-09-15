@@ -21,6 +21,11 @@ public sealed class WorkerRpcChannel : IDisposable
     private readonly ConcurrentDictionary<int, PendingWorkerCall> _pending = new();
     private readonly Signal<RpcResponse> _responseSubject = new();
     private readonly IDisposable _lineSubscription;
+    private WorkerRpcChannel? _replacement;
+    private int _retiring;
+    private int _disposed;
+    private readonly TaskCompletionSource<WorkerRpcChannel> _replacementReady =
+        new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public WorkerRpcChannel(
         IPipeTransport transport,
@@ -42,6 +47,10 @@ public sealed class WorkerRpcChannel : IDisposable
         TimeSpan? timeout = null,
         CancellationToken ct = default)
     {
+        var replacement = await GetReplacementAsync(ct).ConfigureAwait(false);
+        if (replacement is not null)
+            return await replacement.CallAsync(method, @params, timeout, ct).ConfigureAwait(false);
+
         var id = Interlocked.Increment(ref _nextId);
 
         var request = new RpcRequest
@@ -73,7 +82,21 @@ public sealed class WorkerRpcChannel : IDisposable
 
         try
         {
-            await _transport.SendLineAsync(json, ct).ConfigureAwait(false);
+            try
+            {
+                await _transport.SendLineAsync(json, ct).ConfigureAwait(false);
+            }
+            catch (Exception) when (Volatile.Read(ref _retiring) != 0)
+            {
+                var replacementChannel = await _replacementReady.Task.WaitAsync(ct).ConfigureAwait(false);
+                return await replacementChannel.CallAsync(method, @params, timeout, ct).ConfigureAwait(false);
+            }
+            var completed = await Task.WhenAny(pending.Task, _replacementReady.Task).ConfigureAwait(false);
+            if (completed == _replacementReady.Task)
+            {
+                var replacementChannel = await _replacementReady.Task.ConfigureAwait(false);
+                return await replacementChannel.CallAsync(method, @params, timeout, ct).ConfigureAwait(false);
+            }
             return await pending.Task.ConfigureAwait(false);
         }
         finally
@@ -99,6 +122,16 @@ public sealed class WorkerRpcChannel : IDisposable
         JsonElement? @params = null,
         [EnumeratorCancellation] CancellationToken ct = default)
     {
+        var replacement = await GetReplacementAsync(ct).ConfigureAwait(false);
+        if (replacement is not null)
+        {
+            await foreach (var result in replacement.CallStreamingAsync(method, @params, ct).ConfigureAwait(false))
+                yield return result;
+            yield break;
+        }
+        if (Volatile.Read(ref _retiring) != 0 || Volatile.Read(ref _disposed) != 0)
+            throw new IOException("Worker RPC channel was replaced while the worker was recovering.");
+
         var id = Interlocked.Increment(ref _nextId);
         var channel = Channel.CreateUnbounded<RpcResponse>(new UnboundedChannelOptions
         {
@@ -196,8 +229,31 @@ public sealed class WorkerRpcChannel : IDisposable
         _pending.Clear();
     }
 
+    internal void Retire()
+    {
+        if (Interlocked.Exchange(ref _retiring, 1) != 0) return;
+    }
+
+    internal void SetReplacement(WorkerRpcChannel replacement)
+    {
+        Interlocked.Exchange(ref _replacement, replacement);
+        _replacementReady.TrySetResult(replacement);
+    }
+
+    private async Task<WorkerRpcChannel?> GetReplacementAsync(CancellationToken ct)
+    {
+        var replacement = Volatile.Read(ref _replacement);
+        if (replacement is not null) return replacement;
+        if (Volatile.Read(ref _retiring) == 0 && Volatile.Read(ref _disposed) == 0) return null;
+        if (Volatile.Read(ref _disposed) != 0)
+            throw new IOException("Worker RPC channel was disposed.");
+        return await _replacementReady.Task.WaitAsync(ct).ConfigureAwait(false);
+    }
+
     public void Dispose()
     {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+        _replacementReady.TrySetException(new IOException("Worker RPC channel was disposed."));
         _lineSubscription.Dispose();
         _responseSubject.OnCompleted();
         _responseSubject.Dispose();

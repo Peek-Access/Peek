@@ -24,9 +24,9 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.333" />
-    <PackageVersion Include="Pipboy.Avalonia" Version="1.1.5-beta-preview.16" />
-    <PackageVersion Include="Pipboy.Avalonia.Fx" Version="1.1.5-beta-preview.16" />
-    <PackageVersion Include="Pipboy.Avalonia.ProDataGrid" Version="1.0.2-beta-preview.16" />
+    <PackageVersion Include="Pipboy.Avalonia" Version="1.1.5-beta-preview.17" />
+    <PackageVersion Include="Pipboy.Avalonia.Fx" Version="1.1.5-beta-preview.17" />
+    <PackageVersion Include="Pipboy.Avalonia.ProDataGrid" Version="1.0.2-beta-preview.17" />
     <PackageVersion Include="ProDataGrid" Version="12.1.0.4" />
     <PackageVersion Include="ReactiveUI" Version="24.2.0" />
     <PackageVersion Include="ReactiveUI.Primitives" Version="7.5.0" />

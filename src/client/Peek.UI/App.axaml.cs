@@ -188,6 +188,7 @@ public partial class App : Application
         // singleton (also injected into SettingsViewModel) - resolving it here rather than
         // constructing a separate instance means the picker UI and this startup restore
         // always agree on the current color.
+        PipboyThemeManager.Instance.SetPaletteStrategy(PipboyPaletteStrategy.AccessibleContrast);
         var colorPicker = sp.GetRequiredService<ColorPickerViewModel>();
         if (ColorModel.TryParse(settingsService.Current.Appearance.ThemeColor, out var themeColor))
         {

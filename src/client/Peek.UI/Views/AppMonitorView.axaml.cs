@@ -1,4 +1,5 @@
 using AsyncNavigation.Abstractions;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Peek.Core.ViewModels;
@@ -30,6 +31,18 @@ public partial class AppMonitorView : UserControl, IView
     {
         base.OnInitialized();
         TryAttachViewModel();
+    }
+
+    // AsyncNavigation caches this view and detaches/reattaches it on navigation rather than
+    // recreating it (see MainRegion's default caching) - ProDataGrid's row gridlines have been
+    // observed staying invisible after such a reattach with no further action from the user,
+    // even though their IsVisible/Fill state looks correct. Forcing a repaint on reattach is a
+    // pragmatic workaround for what looks like a stale-render rather than a stale-state issue.
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        Grid.InvalidateArrange();
+        Grid.InvalidateVisual();
     }
 
     private void ApplyColumnLayout(double width)

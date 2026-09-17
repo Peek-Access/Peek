@@ -16,7 +16,10 @@
     <UserControl.Resources>
         <converters:DiskSizeConverter x:Key="DiskSizeConverter" />
     </UserControl.Resources>
-    <Grid Margin="18,16" RowDefinitions="Auto,Auto,*" RowSpacing="14">
+    <Grid
+        Margin="18,16"
+        RowDefinitions="Auto,Auto,*"
+        RowSpacing="14">
 
         <StackPanel
             Grid.Row="0"
@@ -33,9 +36,11 @@
                 TextWrapping="Wrap" />
         </StackPanel>
 
-        <!--  WrapPanel, not a horizontal StackPanel: at a docked strip's narrow width this
-              toolbar (plus its trailing help text) has too much content to fit on one line -
-              a StackPanel would let it overflow past the page instead of wrapping.  -->
+        <!--
+            WrapPanel, not a horizontal StackPanel: at a docked strip's narrow width this
+            toolbar (plus its trailing help text) has too much content to fit on one line -
+            a StackPanel would let it overflow past the page instead of wrapping.
+        -->
         <Border
             Grid.Row="1"
             Padding="14,12"
@@ -44,61 +49,73 @@
             BorderThickness="1"
             CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
             <WrapPanel Orientation="Horizontal">
-            <Button
-                Margin="0,0,10,4"
-                Command="{Binding RefreshCommand}"
-                Content="{Translate {x:Static i18n:LanguageManager+Keys.Common_Refresh}}"
-                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_RefreshTooltip}}" />
-            <Button
-                Margin="0,0,10,4"
-                Command="{Binding LaunchCommand}"
-                Content="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Launch}}"
-                IsEnabled="{Binding SelectedApp.CanLaunch}"
-                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_LaunchTooltip}}" />
-            <TextBlock
-                Margin="0,0,0,4"
-                VerticalAlignment="Center"
-                FontSize="11"
-                Foreground="{DynamicResource PipboyTextDimBrush}"
-                IsVisible="{Binding IsLoading}"
-                Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Loading}}" />
+                <Button
+                    Margin="0,0,10,4"
+                    Command="{Binding RefreshCommand}"
+                    Content="{Translate {x:Static i18n:LanguageManager+Keys.Common_Refresh}}"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_RefreshTooltip}}" />
+                <Button
+                    Margin="0,0,10,4"
+                    Command="{Binding LaunchCommand}"
+                    Content="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Launch}}"
+                    IsEnabled="{Binding SelectedApp.CanLaunch}"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_LaunchTooltip}}" />
+                <TextBlock
+                    Margin="0,0,0,4"
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                    IsVisible="{Binding IsLoading}"
+                    Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Loading}}" />
             </WrapPanel>
         </Border>
 
-        <DataGrid
-            Name="Grid"
+        <!--
+            Pipboy.Avalonia.ProDataGrid's theme deliberately zeroes DataGridBorderThickness/
+            DataGridBorderBrush (flat design) - it expects the DataGrid's outer border to
+            come from a wrapping Border like this one, not from the control itself.
+        -->
+        <Border
             Grid.Row="2"
-            AutoGenerateColumns="False"
-            CanUserReorderColumns="True"
-            CanUserResizeColumns="True"
-            CanUserSortColumns="True"
-            DoubleTapped="OnRowDoubleTapped"
-            GridLinesVisibility="Horizontal"
-            HeadersVisibility="Column"
-            IsReadOnly="True"
-            ItemsSource="{Binding Apps}"
-            RowHeight="24"
-            SelectedItem="{Binding SelectedApp}"
-            SelectionMode="Single">
+            Padding="1"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            ClipToBounds="True"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
+            <DataGrid
+                Name="Grid"
+                AutoGenerateColumns="False"
+                CanUserReorderColumns="True"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True"
+                DoubleTapped="OnRowDoubleTapped"
+                GridLinesVisibility="Horizontal"
+                HeadersVisibility="Column"
+                IsReadOnly="True"
+                ItemsSource="{Binding Apps}"
+                RowHeight="30"
+                SelectedItem="{Binding SelectedApp}"
+                SelectionMode="Single">
 
-            <DataGrid.Columns>
-                <DataGridTextColumn
-                    Width="2.5*"
-                    Binding="{Binding Name}"
-                    Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Name}}" />
-                <DataGridTextColumn
-                    Width="1*"
-                    Binding="{Binding Version}"
-                    Header="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Version}}" />
-                <DataGridTextColumn
-                    Width="1.5*"
-                    Binding="{Binding Publisher}"
-                    Header="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Publisher}}" />
-                <DataGridTextColumn
-                    Width="1*"
-                    Binding="{Binding EstimatedSizeKb, Converter={StaticResource DiskSizeConverter}}"
-                    Header="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_DiskUsage}}" />
-            </DataGrid.Columns>
-        </DataGrid>
+                <DataGrid.Columns>
+                    <DataGridTextColumn
+                        Width="2.5*"
+                        Binding="{Binding Name}"
+                        Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Name}}" />
+                    <DataGridTextColumn
+                        Width="1*"
+                        Binding="{Binding Version}"
+                        Header="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Version}}" />
+                    <DataGridTextColumn
+                        Width="1.5*"
+                        Binding="{Binding Publisher}"
+                        Header="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Publisher}}" />
+                    <DataGridTextColumn
+                        Width="1*"
+                        Binding="{Binding EstimatedSizeKb, Converter={StaticResource DiskSizeConverter}}"
+                        Header="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_DiskUsage}}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
     </Grid>
 </UserControl>

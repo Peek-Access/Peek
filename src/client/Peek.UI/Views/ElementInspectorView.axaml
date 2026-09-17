@@ -81,6 +81,7 @@
             Classes="hierarchical"
             DoubleTapped="OnRowDoubleTapped"
             GridLinesVisibility="Horizontal"
+            HorizontalGridLinesBrush="{DynamicResource DataGridGridLinesBrush}"
             HeadersVisibility="Column"
             HierarchicalRowsEnabled="True"
             IsReadOnly="True"

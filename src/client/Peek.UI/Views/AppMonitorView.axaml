@@ -74,6 +74,7 @@
             CanUserSortColumns="True"
             DoubleTapped="OnRowDoubleTapped"
             GridLinesVisibility="Horizontal"
+            HorizontalGridLinesBrush="{DynamicResource DataGridGridLinesBrush}"
             HeadersVisibility="Column"
             IsReadOnly="True"
             ItemsSource="{Binding Apps}"

@@ -46,29 +46,29 @@
             BorderThickness="1"
             CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
             <WrapPanel Orientation="Horizontal">
-            <Button
-                Margin="0,0,10,4"
-                Command="{Binding RefreshCommand}"
-                Content="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindows}}"
-                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindowsTooltip}}" />
-            <Button
-                Margin="0,0,10,4"
-                Command="{Binding AnalyzeSelectedWindowCommand}"
-                Content="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindow}}"
-                IsEnabled="{Binding !ScreenAnalysis.IsAnalyzing}"
-                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindowTooltip}}" />
-            <Button
-                Margin="0,0,10,4"
-                Command="{Binding StopAnalysisCommand}"
-                Content="{Translate {x:Static i18n:LanguageManager+Keys.Ai_Stop}}"
-                IsVisible="{Binding ScreenAnalysis.IsAnalyzing}" />
-            <TextBlock
-                Margin="0,0,0,4"
-                VerticalAlignment="Center"
-                FontSize="11"
-                Foreground="{DynamicResource PipboyTextDimBrush}"
-                IsVisible="{Binding IsLoading}"
-                Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Loading}}" />
+                <Button
+                    Margin="0,0,10,4"
+                    Command="{Binding RefreshCommand}"
+                    Content="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindows}}"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindowsTooltip}}" />
+                <Button
+                    Margin="0,0,10,4"
+                    Command="{Binding AnalyzeSelectedWindowCommand}"
+                    Content="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindow}}"
+                    IsEnabled="{Binding !ScreenAnalysis.IsAnalyzing}"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindowTooltip}}" />
+                <Button
+                    Margin="0,0,10,4"
+                    Command="{Binding StopAnalysisCommand}"
+                    Content="{Translate {x:Static i18n:LanguageManager+Keys.Ai_Stop}}"
+                    IsVisible="{Binding ScreenAnalysis.IsAnalyzing}" />
+                <TextBlock
+                    Margin="0,0,0,4"
+                    VerticalAlignment="Center"
+                    FontSize="11"
+                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                    IsVisible="{Binding IsLoading}"
+                    Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Loading}}" />
             </WrapPanel>
         </Border>
 
@@ -81,7 +81,6 @@
             Classes="hierarchical"
             DoubleTapped="OnRowDoubleTapped"
             GridLinesVisibility="Horizontal"
-            HorizontalGridLinesBrush="{DynamicResource DataGridGridLinesBrush}"
             HeadersVisibility="Column"
             HierarchicalRowsEnabled="True"
             IsReadOnly="True"
@@ -90,6 +89,7 @@
             SelectionMode="Single"
             SelectionUnit="FullRow"
             UseLogicalScrollable="True">
+
 
             <DataGrid.Columns>
 

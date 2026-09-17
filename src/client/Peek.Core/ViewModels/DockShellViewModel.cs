@@ -1,7 +1,10 @@
+using System.Globalization;
 using AsyncNavigation.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Peek.Core.Abstractions;
+using Peek.Core.i18n;
 using Peek.Core.Services;
+using Peek.Core.Services.Speech;
 using Peek.Core.Settings;
 using ReactiveUI.SourceGenerators;
 
@@ -47,6 +50,7 @@ public partial class DockShellViewModel : ViewModelBase
     private readonly ISettingsService _settingsService;
     private readonly IRegionManager _regionManager;
     private readonly MonitorSwitchSoundPlayer _switchSoundPlayer;
+    private readonly IAccessibilitySpeechService _speechService;
 
     private string _currentViewName = MonitorViewNames[0];
 
@@ -69,6 +73,7 @@ public partial class DockShellViewModel : ViewModelBase
         _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
         _regionManager = serviceProvider.GetRequiredService<IRegionManager>();
         _switchSoundPlayer = serviceProvider.GetRequiredService<MonitorSwitchSoundPlayer>();
+        _speechService = serviceProvider.GetRequiredService<IAccessibilitySpeechService>();
 
         var shortcuts = _settingsService.Current.Keyboard.Shortcuts;
         NextShortcutGesture = shortcuts.GetValueOrDefault("DockMonitorNext", "PageDown");
@@ -83,7 +88,7 @@ public partial class DockShellViewModel : ViewModelBase
                     _currentViewName = name;
                     var index = Array.IndexOf(MonitorViewNames, name);
                     CurrentMonitorPosition = index < 0 ? 0 : index + 1;
-                    CurrentPageTitle = GetViewTitle(name);
+                    CurrentPageTitle = NavViewTitles.Resolve(name, ResolveUiCulture());
                 }
             };
         }
@@ -106,7 +111,11 @@ public partial class DockShellViewModel : ViewModelBase
 
     public Task NavigatePreviousAsync() => NavigateByOffsetAsync(-1);
 
-    public Task NavigateToSettingsAsync() => _regionManager.RequestNavigateAsync(RegionName, "SettingsView");
+    public async Task NavigateToSettingsAsync()
+    {
+        await _regionManager.RequestNavigateAsync(RegionName, "SettingsView");
+        AnnounceCurrentPage("SettingsView");
+    }
 
     private async Task NavigateByOffsetAsync(int offset)
     {
@@ -117,18 +126,35 @@ public partial class DockShellViewModel : ViewModelBase
             : ((currentIndex + offset) % MonitorViewNames.Length + MonitorViewNames.Length) % MonitorViewNames.Length;
 
         await _regionManager.RequestNavigateAsync(RegionName, MonitorViewNames[nextIndex]);
+        AnnounceCurrentPage(MonitorViewNames[nextIndex]);
 
         if (_settingsService.Current.DockShell.PageSwitchSoundEnabled)
             _ = _switchSoundPlayer.PlayAsync();
     }
 
-    private static string GetViewTitle(string viewName) => viewName switch
+    /// <summary>
+    /// Speaks the page PageUp/PageDown/Settings just switched to. Needed specifically for
+    /// this cycling path: unlike clicking a nav item, cycling never moves keyboard focus onto
+    /// anything - MainWindow itself holds focus throughout (see MainWindow.OnKeyDown) - so
+    /// SelfFocusAnnouncer never sees a focus change here to announce on its own.
+    /// </summary>
+    private void AnnounceCurrentPage(string viewName)
     {
-        "ScreenReaderView" => "Screen Reader",
-        "ElementInspectorView" => "Element Inspector",
-        "AppMonitorView" => "App Monitor",
-        "ProcessMonitorView" => "Process Monitor",
-        "SettingsView" => "Settings",
-        _ => viewName,
-    };
+        if (!_settingsService.Current.Accessibility.AnnounceOwnInterface) return;
+
+        var culture = SpeechStrings.ResolveCulture(_settingsService.Current.Localization);
+        _ = _speechService.AnnounceTextAsync(NavViewTitles.Resolve(viewName, culture), SpeechPriority.UserRequested);
+    }
+
+    private CultureInfo ResolveUiCulture()
+    {
+        try
+        {
+            return CultureInfo.GetCultureInfo(_settingsService.Current.Localization.UiLanguage);
+        }
+        catch (CultureNotFoundException)
+        {
+            return CultureInfo.InvariantCulture;
+        }
+    }
 }

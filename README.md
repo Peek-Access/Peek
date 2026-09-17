@@ -24,6 +24,25 @@
 - **App & Process monitors** — launch, inspect, and manage running software without leaving the keyboard
 - **Dockable shell** — pin Peek to a screen edge as your home base on screen: whenever things get disorienting elsewhere, it's the one region that never moves and is always there to come back to.
 
+## Accessibility & compliance
+
+Peek is a screen reader, so its own interface is held to the same bar it holds every other
+application to - including reading itself, not just what's underneath it. Peek targets:
+
+- **[EN 301 549](https://www.etsi.org/deliver/etsi_en/301500_301599/301549/03.02.01_60/en_301549v030201p.pdf) V3.2.1, Clause 11** ("Software") - the EU-harmonized ICT accessibility standard, applying **WCAG 2.1 Level AA** to native software via the [WCAG2ICT](https://www.w3.org/WAI/standards-guidelines/wcag/non-web-ict/) mapping (WCAG itself is written for the web; EN 301 549 Clause 11 is the non-web equivalent this project actually conforms to)
+- **ISO 9241-171** - international software-accessibility guidance, cross-checked alongside EN 301 549
+- **Germany's BFSG** (*Barrierefreiheitsstärkungsgesetz*, in force since 2025-06-28) and **BITV 2.0** (*Barrierefreie-Informationstechnik-Verordnung*), both of which point back to the same EN 301 549 clause above
+
+Every focusable control has a name, role, and state; every page identifies itself to assistive
+technology; focus is always visible at guaranteed contrast regardless of theme color; nothing
+requires a mouse; and Peek announces its *own* interface as you navigate it - the same
+follow-the-keyboard model it gives every other application - so it's usable standalone by someone
+who can't see it either.
+
+See [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) for the full conformance statement and
+[docs/FRAMEWORK-LIMITATIONS.md](docs/FRAMEWORK-LIMITATIONS.md) for the handful of gaps that live
+in the Avalonia framework or the third-party Pipboy theme rather than in Peek's own code.
+
 ## Open-source dependencies
 
 Peek is built on the following open-source projects:

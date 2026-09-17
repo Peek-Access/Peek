@@ -1,0 +1,23 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+    Supplemental focus-visible outline, merged after PipboyTheme in App.axaml so it wins on
+    an equal-specificity clash. WCAG 2.4.7 (Focus Visible) and 1.4.11 (Non-text Contrast, 3:1
+    minimum against the adjacent surface) both need a focus indicator that survives whatever
+    the active theme color happens to be - PipboyThemeManager lets the user pick their own
+    primary color (see App.axaml.cs), and a color-derived focus ring can drift below 3:1 for
+    some picked colors. #FFFFFF against PipboyBackgroundBrush/PipboySurfaceBrush (both very
+    dark in every observed theme color) comfortably clears 3:1 regardless of which primary
+    color is active.
+
+    This only sets BorderBrush/BorderThickness, so it depends on the control's own template
+    actually rendering a TemplateBinding'd border - true for every stock Avalonia control
+    template PipboyTheme reskins (Button, ToggleButton, CheckBox, ComboBox, TextBox, ListBox
+    items). A genuinely custom third-party control template that doesn't bind those properties
+    wouldn't visually pick this up - see docs/accessibility/FRAMEWORK-LIMITATIONS.md.
+  -->
+  <Style Selector="Button:focus-visible, ToggleButton:focus-visible, ComboBox:focus-visible, TextBox:focus-visible, CheckBox:focus-visible, RadioButton:focus-visible, ListBoxItem:focus-visible, TabItem:focus-visible">
+    <Setter Property="BorderBrush" Value="#FFFFFF" />
+    <Setter Property="BorderThickness" Value="2" />
+  </Style>
+</Styles>

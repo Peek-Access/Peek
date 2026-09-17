@@ -159,6 +159,15 @@
   <data name="ScreenReader_HistoryClear" xml:space="preserve">
     <value>Clear</value>
   </data>
+  <data name="ScreenReader_HistoryExpandCollapse" xml:space="preserve">
+    <value>Expand or collapse announcement history</value>
+  </data>
+  <data name="ScreenReader_SpeechActivity" xml:space="preserve">
+    <value>Speech activity</value>
+  </data>
+  <data name="ScreenReader_VoiceLabel" xml:space="preserve">
+    <value>Peek · Voice</value>
+  </data>
   <data name="ScreenReader_HistoryEmpty" xml:space="preserve">
     <value>Nothing announced yet</value>
   </data>
@@ -185,6 +194,9 @@
   </data>
   <data name="Dock_Settings" xml:space="preserve">
     <value>Settings</value>
+  </data>
+  <data name="Dock_HeaderLabel" xml:space="preserve">
+    <value>PEEK · DOCKED</value>
   </data>
   <data name="Dock_About" xml:space="preserve">
     <value>About Peek</value>
@@ -281,6 +293,9 @@
   </data>
   <data name="AppMonitor_HelpText" xml:space="preserve">
     <value>Select an app to hear its details · double-click or Enter to launch</value>
+  </data>
+  <data name="ProcessMonitor_HelpText" xml:space="preserve">
+    <value>Select a process to hear its details · Delete to end it, Ctrl+E to open its folder</value>
   </data>
   <data name="AppMonitor_Version" xml:space="preserve">
     <value>Version</value>
@@ -468,6 +483,12 @@
   <data name="Speech_UnlabeledElement" xml:space="preserve">
     <value>Unlabeled element</value>
   </data>
+  <data name="Speech_Ai_Disabled" xml:space="preserve">
+    <value>AI features are turned off in Settings.</value>
+  </data>
+  <data name="Speech_Ai_AnalysisFailed" xml:space="preserve">
+    <value>Sorry, the analysis failed: {0}</value>
+  </data>
   <data name="Speech_ShortcutFormat" xml:space="preserve">
     <value>shortcut {0}</value>
   </data>
@@ -596,6 +617,9 @@
   </data>
   <data name="Settings_Accessibility_HighlightFocused" xml:space="preserve">
     <value>Highlight the focused element on screen</value>
+  </data>
+  <data name="Settings_Accessibility_AnnounceOwnInterface" xml:space="preserve">
+    <value>Announce Peek's own interface as you navigate it (recommended if Peek is your only screen reader)</value>
   </data>
   <data name="Settings_Shell_StopSpeakingShortcut" xml:space="preserve">
     <value>Stop speaking</value>

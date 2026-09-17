@@ -101,10 +101,11 @@ public sealed partial class ScreenAnalysisService : ReactiveObject, IDisposable
         var localization = _settings.Current.Localization;
         var primaryLanguage = SpeechLanguageDetector.ToLanguageCode(
             string.IsNullOrWhiteSpace(localization.TtsLanguage) ? localization.UiLanguage : localization.TtsLanguage);
+        var culture = SpeechStrings.ResolveCulture(localization);
 
         if (!ai.Enabled)
         {
-            await FailAsync("AI features are turned off in Settings.", primaryLanguage).ConfigureAwait(false);
+            await FailAsync(SpeechStrings.Get("Speech_Ai_Disabled", culture), primaryLanguage).ConfigureAwait(false);
             return;
         }
 
@@ -232,7 +233,7 @@ public sealed partial class ScreenAnalysisService : ReactiveObject, IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Screen/window analysis failed");
-            var message = "Sorry, the analysis failed: " + ex.Message;
+            var message = SpeechStrings.Format("Speech_Ai_AnalysisFailed", culture, ex.Message);
             ErrorMessage = message;
             // Best-effort: the caller is already inside a catch block, and a broken TTS/
             // audio path here must not mask the real error above.

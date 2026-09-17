@@ -159,6 +159,15 @@
   <data name="ScreenReader_HistoryClear" xml:space="preserve">
     <value>Leeren</value>
   </data>
+  <data name="ScreenReader_HistoryExpandCollapse" xml:space="preserve">
+    <value>Ansageverlauf ein- oder ausklappen</value>
+  </data>
+  <data name="ScreenReader_SpeechActivity" xml:space="preserve">
+    <value>Sprachaktivität</value>
+  </data>
+  <data name="ScreenReader_VoiceLabel" xml:space="preserve">
+    <value>Peek · Stimme</value>
+  </data>
   <data name="ScreenReader_HistoryEmpty" xml:space="preserve">
     <value>Noch keine Ansagen</value>
   </data>
@@ -185,6 +194,9 @@
   </data>
   <data name="Dock_Settings" xml:space="preserve">
     <value>Einstellungen</value>
+  </data>
+  <data name="Dock_HeaderLabel" xml:space="preserve">
+    <value>PEEK · ANGEDOCKT</value>
   </data>
   <data name="Dock_About" xml:space="preserve">
     <value>Über Peek</value>
@@ -281,6 +293,9 @@
   </data>
   <data name="AppMonitor_HelpText" xml:space="preserve">
     <value>Eine App auswählen, um Details zu hören · Doppelklick oder Eingabetaste zum Starten</value>
+  </data>
+  <data name="ProcessMonitor_HelpText" xml:space="preserve">
+    <value>Einen Prozess auswählen, um Details zu hören · Entf zum Beenden, Strg+E zum Öffnen des Ordners</value>
   </data>
   <data name="AppMonitor_Version" xml:space="preserve">
     <value>Version</value>
@@ -465,6 +480,12 @@
   <data name="Speech_UnlabeledElement" xml:space="preserve">
     <value>Unbeschriftetes Element</value>
   </data>
+  <data name="Speech_Ai_Disabled" xml:space="preserve">
+    <value>KI-Funktionen sind in den Einstellungen deaktiviert.</value>
+  </data>
+  <data name="Speech_Ai_AnalysisFailed" xml:space="preserve">
+    <value>Die Analyse ist leider fehlgeschlagen: {0}</value>
+  </data>
   <data name="Speech_ShortcutFormat" xml:space="preserve">
     <value>Tastenkürzel {0}</value>
   </data>
@@ -593,6 +614,9 @@
   </data>
   <data name="Settings_Accessibility_HighlightFocused" xml:space="preserve">
     <value>Fokussiertes Element auf dem Bildschirm hervorheben</value>
+  </data>
+  <data name="Settings_Accessibility_AnnounceOwnInterface" xml:space="preserve">
+    <value>Peeks eigene Oberfläche beim Navigieren ansagen (empfohlen, wenn Peek Ihr einziger Screenreader ist)</value>
   </data>
   <data name="Settings_Shell_StopSpeakingShortcut" xml:space="preserve">
     <value>Sprachausgabe stoppen</value>

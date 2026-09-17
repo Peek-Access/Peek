@@ -10,6 +10,7 @@
     d:DesignHeight="900"
     d:DesignWidth="420"
     x:DataType="{x:Type vm:DockShellViewModel}"
+    AutomationProperties.Name="Peek"
     mc:Ignorable="d">
     <UserControl.Styles>
         <Style Selector="Button.dockHeaderBtn">
@@ -78,7 +79,7 @@
                     Foreground="{DynamicResource PipboyTextDimBrush}"
                     LetterSpacing="1"
                     Opacity="0.7"
-                    Text="PEEK · DOCKED" />
+                    Text="{Translate {x:Static i18n:LanguageManager+Keys.Dock_HeaderLabel}}" />
                 <Button
                     Grid.Column="5"
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_Settings}}"

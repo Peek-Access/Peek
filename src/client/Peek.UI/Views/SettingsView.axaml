@@ -13,6 +13,8 @@
     d:DesignHeight="600"
     d:DesignWidth="800"
     x:DataType="{x:Type vm:SettingsViewModel}"
+    AutomationProperties.LandmarkType="Form"
+    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_Settings}}"
     mc:Ignorable="d">
     <UserControl.Styles>
         <Style Selector="GroupBox">
@@ -101,6 +103,7 @@
                     <CheckBox Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_AnnounceOnFocus}}" IsChecked="{Binding AnnounceOnFocus}" />
                     <CheckBox Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_AnnounceOnHover}}" IsChecked="{Binding AnnounceOnHover}" />
                     <CheckBox Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_HighlightFocused}}" IsChecked="{Binding HighlightFocusedElement}" />
+                    <CheckBox Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_AnnounceOwnInterface}}" IsChecked="{Binding AnnounceOwnInterface}" />
                 </StackPanel>
             </GroupBox>
 

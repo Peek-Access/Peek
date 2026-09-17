@@ -52,3 +52,12 @@ Add the following to the shared Pipboy menu theme rather than adding a Peek-only
 
 On platforms where Avalonia uses a truly native menu, these visual styles may not be available;
 the Windows tray popup is the path relevant to this issue.
+
+## Accessibility: border token contrast
+
+The requested `Border: #254634` token computes to roughly 1.6-1.75:1 against the requested
+background/surface colors - well under the 3:1 WCAG 1.4.11 minimum for a UI component boundary
+that needs to be seen (a focus indicator, a required field's edge). Fine for a purely decorative
+divider; not safe to reuse for anything else. See `ACCESSIBILITY.md` and
+`FRAMEWORK-LIMITATIONS.md` for the full writeup and the client-side workaround
+(`Resources/AccessibilityFocus.axaml`) Peek carries until this is verified/fixed upstream.

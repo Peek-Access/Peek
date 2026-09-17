@@ -114,6 +114,8 @@ public partial class SettingsViewModel : ViewModelBase
     [Reactive]
     private bool _highlightFocusedElement;
     [Reactive]
+    private bool _announceOwnInterface;
+    [Reactive]
     private string _stopSpeakingShortcut = "";
 
     public IObservable<string?> DisplayLanguage => _linguaManager.GetObservable("Settings_Language");
@@ -189,6 +191,7 @@ public partial class SettingsViewModel : ViewModelBase
         _announceOnHover = settings.Accessibility.AnnounceOnHover;
         _announceOnFocus = settings.Accessibility.AnnounceOnFocus;
         _highlightFocusedElement = settings.Accessibility.HighlightFocusedElement;
+        _announceOwnInterface = settings.Accessibility.AnnounceOwnInterface;
         _stopSpeakingShortcut = settings.Keyboard.Shortcuts.GetValueOrDefault("StopSpeaking", "Ctrl+Alt+S");
 
         this.WhenAnyValue(x => x.CurrentCulture)
@@ -298,6 +301,8 @@ public partial class SettingsViewModel : ViewModelBase
             .Subscribe(v => _ = _settingsService.UpdateAsync(s => s.Accessibility.AnnounceOnFocus = v));
         this.WhenAnyValue(x => x.HighlightFocusedElement).Skip(1)
             .Subscribe(v => _ = _settingsService.UpdateAsync(s => s.Accessibility.HighlightFocusedElement = v));
+        this.WhenAnyValue(x => x.AnnounceOwnInterface).Skip(1)
+            .Subscribe(v => _ = _settingsService.UpdateAsync(s => s.Accessibility.AnnounceOwnInterface = v));
         this.WhenAnyValue(x => x.StopSpeakingShortcut).Skip(1)
             .Where(g => !string.IsNullOrWhiteSpace(g))
             .Subscribe(g => _ = _settingsService.UpdateAsync(s => s.Keyboard.Shortcuts["StopSpeaking"] = g));

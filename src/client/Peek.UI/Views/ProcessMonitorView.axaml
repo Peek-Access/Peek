@@ -10,6 +10,8 @@
     d:DesignHeight="680"
     d:DesignWidth="1000"
     x:DataType="{x:Type vm:ProcessMonitorViewModel}"
+    AutomationProperties.LandmarkType="Main"
+    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ProcessMonitor}}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <converters:MemorySizeConverter x:Key="MemorySizeConverter" />
@@ -27,7 +29,7 @@
             <TextBlock
                 FontSize="13"
                 Foreground="{DynamicResource PipboyTextDimBrush}"
-                Text="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_ShowSystemProcessesCheckbox}}"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_HelpText}}"
                 TextWrapping="Wrap" />
         </StackPanel>
 

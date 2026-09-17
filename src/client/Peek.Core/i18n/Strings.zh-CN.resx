@@ -159,6 +159,15 @@
   <data name="ScreenReader_HistoryClear" xml:space="preserve">
     <value>清空</value>
   </data>
+  <data name="ScreenReader_HistoryExpandCollapse" xml:space="preserve">
+    <value>展开或折叠朗读历史</value>
+  </data>
+  <data name="ScreenReader_SpeechActivity" xml:space="preserve">
+    <value>语音活动</value>
+  </data>
+  <data name="ScreenReader_VoiceLabel" xml:space="preserve">
+    <value>Peek · 语音</value>
+  </data>
   <data name="ScreenReader_HistoryEmpty" xml:space="preserve">
     <value>暂无播报内容</value>
   </data>
@@ -185,6 +194,9 @@
   </data>
   <data name="Dock_Settings" xml:space="preserve">
     <value>设置</value>
+  </data>
+  <data name="Dock_HeaderLabel" xml:space="preserve">
+    <value>PEEK · 已停靠</value>
   </data>
   <data name="Dock_About" xml:space="preserve">
     <value>关于 Peek</value>
@@ -281,6 +293,9 @@
   </data>
   <data name="AppMonitor_HelpText" xml:space="preserve">
     <value>选择一个应用以听取其详情 · 双击或按回车启动</value>
+  </data>
+  <data name="ProcessMonitor_HelpText" xml:space="preserve">
+    <value>选择一个进程以听取其详情 · 按 Delete 结束进程，按 Ctrl+E 打开其所在文件夹</value>
   </data>
   <data name="AppMonitor_Version" xml:space="preserve">
     <value>版本</value>
@@ -465,6 +480,12 @@
   <data name="Speech_UnlabeledElement" xml:space="preserve">
     <value>未命名元素</value>
   </data>
+  <data name="Speech_Ai_Disabled" xml:space="preserve">
+    <value>AI 功能已在设置中关闭。</value>
+  </data>
+  <data name="Speech_Ai_AnalysisFailed" xml:space="preserve">
+    <value>抱歉，分析失败：{0}</value>
+  </data>
   <data name="Speech_ShortcutFormat" xml:space="preserve">
     <value>快捷键 {0}</value>
   </data>
@@ -593,6 +614,9 @@
   </data>
   <data name="Settings_Accessibility_HighlightFocused" xml:space="preserve">
     <value>在屏幕上高亮当前焦点元素</value>
+  </data>
+  <data name="Settings_Accessibility_AnnounceOwnInterface" xml:space="preserve">
+    <value>在你操作 Peek 自身界面时朗读它（如果 Peek 是你唯一的屏幕阅读器，建议开启）</value>
   </data>
   <data name="Settings_Shell_StopSpeakingShortcut" xml:space="preserve">
     <value>停止朗读</value>

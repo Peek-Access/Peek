@@ -90,6 +90,7 @@ public partial class App : Application
                 .AddSingleton<GlobalHotkeyService>()
                 .AddSingleton<FocusTracker>()
                 .AddSingleton<FocusAnnouncer>()
+                .AddSingleton<Peek.UI.Services.SelfFocusAnnouncer>()
                 .AddSingleton<AudioPlayer>()
                 .AddSingleton<IColorChangedNotify, MainWindow>(sp => sp.GetRequiredService<MainWindow>())
                 .AddSingleton<IPeekSelfWindow, MainWindow>(sp => sp.GetRequiredService<MainWindow>())
@@ -219,6 +220,13 @@ public partial class App : Application
         // so it must be running from startup, not from whenever a particular view happens to
         // be opened.
         sp.GetRequiredService<FocusAnnouncer>();
+
+        // Peek reading its own UI as the user tabs through it - see SelfFocusAnnouncer's own
+        // doc comment for why this is a separate mechanism from FocusAnnouncer above rather
+        // than just removing that one's own-process exclusion. App-lifetime for the same
+        // reason as FocusAnnouncer: it must work in every window Peek ever opens, not just
+        // whichever view happens to be navigated to right now.
+        sp.GetRequiredService<Peek.UI.Services.SelfFocusAnnouncer>();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -361,10 +369,22 @@ public partial class App : Application
         };
 
         var settingsItem = new NativeMenuItem("Settings...");
-        settingsItem.Click += (_, _) =>
+        settingsItem.Click += async (_, _) =>
         {
             ShowShellWindow();
-            _ = regionManager.RequestNavigateAsync(settingsRegionName, "SettingsView");
+            await regionManager.RequestNavigateAsync(settingsRegionName, "SettingsView");
+
+            // The native tray menu is outside Avalonia's own focus system, so opening
+            // Settings from it moves nothing Avalonia considers focused - SelfFocusAnnouncer
+            // never sees a change here to announce on its own (same reasoning as
+            // DockShellViewModel.AnnounceCurrentPage for PageUp/PageDown).
+            var settings = sp.GetRequiredService<ISettingsService>();
+            if (settings.Current.Accessibility.AnnounceOwnInterface)
+            {
+                var culture = SpeechStrings.ResolveCulture(settings.Current.Localization);
+                _ = sp.GetRequiredService<IAccessibilitySpeechService>()
+                    .AnnounceTextAsync(NavViewTitles.Resolve("SettingsView", culture), SpeechPriority.UserRequested);
+            }
         };
 
         var aboutItem = new NativeMenuItem("About Peek...");

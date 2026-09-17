@@ -10,6 +10,8 @@
     d:DesignHeight="680"
     d:DesignWidth="1000"
     x:DataType="{x:Type vm:ElementInspectorViewModel}"
+    AutomationProperties.LandmarkType="Main"
+    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ElementInspector}}"
     mc:Ignorable="d">
     <Grid
         Margin="18,16"

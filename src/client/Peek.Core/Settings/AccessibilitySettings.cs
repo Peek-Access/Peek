@@ -29,6 +29,15 @@ public sealed class AccessibilitySettings
     /// <summary>Draw the highlight box around the focused element too, not just hovered ones - useful for sighted-assistant and low-vision use.</summary>
     public bool HighlightFocusedElement { get; set; } = true;
 
+    /// <summary>
+    /// Announce whatever takes keyboard focus inside Peek's own windows (see
+    /// SelfFocusAnnouncer) - Peek reading its own Settings screen, not just every other
+    /// application. On by default so Peek is usable standalone; a user pairing Peek with
+    /// another always-on screen reader can turn this off to avoid hearing every control
+    /// named twice.
+    /// </summary>
+    public bool AnnounceOwnInterface { get; set; } = true;
+
     public void Validate()
     {
         if (HoverThrottleMs < 0) HoverThrottleMs = 0;

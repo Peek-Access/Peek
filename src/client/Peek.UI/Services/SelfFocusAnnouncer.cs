@@ -12,6 +12,7 @@ using Peek.Core.Services.Speech;
 using Peek.Core.Settings;
 using Peek.Ipc.Connection;
 using Peek.Ipc.Worker;
+using ReactiveUI;
 using ReactiveUI.Primitives;
 using ReactiveUI.Primitives.Signals;
 using AvaloniaToggleState = Avalonia.Automation.Provider.ToggleState;
@@ -66,6 +67,12 @@ public sealed class SelfFocusAnnouncer : IDisposable
 
         _subscription = _focusChanged
             .Throttle(TimeSpan.FromMilliseconds(Math.Max(1, _settings.Current.Accessibility.FocusThrottleMs)))
+            // Throttle's default scheduler is not the UI thread, but Describe() below reads
+            // the focused Control's AutomationPeer, which - unlike everything FocusAnnouncer
+            // touches - is a live Avalonia object with UI-thread affinity. Without this hop
+            // back, ControlAutomationPeer.CreatePeerForElement throws
+            // "The calling thread cannot access this object because a different thread owns it."
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Select(control => Signal.FromAsync(ct => AnnounceAsync(control, ct)))
             .Switch()
             .Subscribe(

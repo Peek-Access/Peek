@@ -528,6 +528,18 @@
   <data name="Speech_MainWindow_Unpinned" xml:space="preserve">
     <value>已取消置顶</value>
   </data>
+  <data name="Speech_MainWindow_Minimized" xml:space="preserve">
+    <value>窗口已最小化</value>
+  </data>
+  <data name="Speech_MainWindow_Maximized" xml:space="preserve">
+    <value>窗口已最大化</value>
+  </data>
+  <data name="Speech_MainWindow_Restored" xml:space="preserve">
+    <value>窗口已还原</value>
+  </data>
+  <data name="Speech_MainWindow_HiddenToTray" xml:space="preserve">
+    <value>Peek 已隐藏到托盘，仍在后台运行</value>
+  </data>
   <data name="Speech_Window_Opened" xml:space="preserve">
     <value>新窗口</value>
   </data>

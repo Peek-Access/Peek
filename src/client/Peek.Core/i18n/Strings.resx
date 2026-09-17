@@ -531,6 +531,18 @@
   <data name="Speech_MainWindow_Unpinned" xml:space="preserve">
     <value>Window unpinned</value>
   </data>
+  <data name="Speech_MainWindow_Minimized" xml:space="preserve">
+    <value>Window minimized</value>
+  </data>
+  <data name="Speech_MainWindow_Maximized" xml:space="preserve">
+    <value>Window maximized</value>
+  </data>
+  <data name="Speech_MainWindow_Restored" xml:space="preserve">
+    <value>Window restored</value>
+  </data>
+  <data name="Speech_MainWindow_HiddenToTray" xml:space="preserve">
+    <value>Peek hidden to the tray, still running in the background</value>
+  </data>
   <data name="Speech_Window_Opened" xml:space="preserve">
     <value>New window</value>
   </data>

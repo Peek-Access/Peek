@@ -5,7 +5,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:Peek.UI.Converters"
     xmlns:i18n="using:Peek.Core.i18n"
     xmlns:uiviews="using:Peek.UI.Views"
     xmlns:views="using:Peek.Views"
@@ -18,9 +17,6 @@
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Peek.UI/Assets/peek-icon.ico"
     mc:Ignorable="d">
-    <Window.Resources>
-        <converters:WindowStateIsMaximizedConverter x:Key="WindowStateIsMaximizedConverter" />
-    </Window.Resources>
     <Window.Styles>
         <!--  Flat, borderless title-bar buttons (About).  -->
         <Style Selector="Button.titleBarIconBtn">
@@ -57,22 +53,6 @@
         </Style>
         <Style Selector="ToggleButton.titleBarIconBtn:checked TextBlock.pinGlyph">
             <Setter Property="Text" Value="⚑" />
-        </Style>
-        <!--  Maximize/Restore: name, tooltip and glyph all describe the action a click will
-              take (native window buttons work the same way), not the current window state.  -->
-        <Style Selector="ToggleButton.maximizeRestoreBtn">
-            <Setter Property="AutomationProperties.Name" Value="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Maximize}}" />
-            <Setter Property="ToolTip.Tip" Value="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Maximize}}" />
-        </Style>
-        <Style Selector="ToggleButton.maximizeRestoreBtn:checked">
-            <Setter Property="AutomationProperties.Name" Value="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Restore}}" />
-            <Setter Property="ToolTip.Tip" Value="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Restore}}" />
-        </Style>
-        <Style Selector="TextBlock.maximizeGlyph">
-            <Setter Property="Text" Value="□" />
-        </Style>
-        <Style Selector="ToggleButton.maximizeRestoreBtn:checked TextBlock.maximizeGlyph">
-            <Setter Property="Text" Value="❐" />
         </Style>
     </Window.Styles>
     <Grid
@@ -139,12 +119,27 @@
                     <TextBlock FontSize="13" Text="─" />
                 </Button>
 
-                <ToggleButton
-                    Classes="titleBarIconBtn maximizeRestoreBtn"
+                <!--  Two separate buttons, not one toggle whose name/tooltip changes with
+                      state: AutomationProperties.Name only has ever been set as a plain
+                      attribute elsewhere in this app, so that's what a screen reader is known
+                      to pick up here too - see MainWindow.axaml.cs for which one is IsVisible.  -->
+                <Button
+                    Name="MaximizeButton"
+                    Classes="titleBarIconBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Maximize}}"
                     Click="OnMaximizeRestoreClick"
-                    IsChecked="{Binding #Self.WindowState, Converter={StaticResource WindowStateIsMaximizedConverter}}">
-                    <TextBlock Classes="maximizeGlyph" FontSize="13" />
-                </ToggleButton>
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Maximize}}">
+                    <TextBlock FontSize="13" Text="□" />
+                </Button>
+                <Button
+                    Name="RestoreButton"
+                    Classes="titleBarIconBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Restore}}"
+                    Click="OnMaximizeRestoreClick"
+                    IsVisible="False"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Restore}}">
+                    <TextBlock FontSize="13" Text="❐" />
+                </Button>
 
                 <Button
                     Classes="titleBarIconBtn"

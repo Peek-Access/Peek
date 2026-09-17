@@ -14,9 +14,9 @@
     actually rendering a TemplateBinding'd border - true for every stock Avalonia control
     template PipboyTheme reskins (Button, ToggleButton, CheckBox, ComboBox, TextBox, ListBox
     items). A genuinely custom third-party control template that doesn't bind those properties
-    wouldn't visually pick this up - see docs/accessibility/FRAMEWORK-LIMITATIONS.md.
+    wouldn't visually pick this up - see docs/FRAMEWORK-LIMITATIONS.md.
   -->
-  <Style Selector="Button:focus-visible, ToggleButton:focus-visible, ComboBox:focus-visible, TextBox:focus-visible, CheckBox:focus-visible, RadioButton:focus-visible, ListBoxItem:focus-visible, TabItem:focus-visible">
+  <Style Selector="Button:focus-visible, ToggleButton:focus-visible, ComboBox:focus-visible, TextBox:focus-visible, CheckBox:focus-visible, RadioButton:focus-visible, ListBoxItem:focus-visible, TabItem:focus-visible, Slider:focus-visible, NumericUpDown:focus-visible, ToggleSwitch:focus-visible">
     <Setter Property="BorderBrush" Value="#FFFFFF" />
     <Setter Property="BorderThickness" Value="2" />
   </Style>

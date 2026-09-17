@@ -7,6 +7,7 @@ using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using Microsoft.Extensions.Logging;
 using Peek.Core.Services.Speech;
 using Peek.Core.Settings;
@@ -96,7 +97,16 @@ public sealed class SelfFocusAnnouncer : IDisposable
 
         try
         {
-            if (Describe(control) is { } element)
+            // .ObserveOn(RxSchedulers.MainThreadScheduler) in the constructor is meant to
+            // guarantee this call is already on the UI thread - confirmed (via
+            // Peek.UI.Tests.SelfFocusAnnouncerTests, an Avalonia.Headless test) that it does
+            // not reliably do so, so this checks explicitly rather than trusting it: a
+            // cross-thread call into ControlAutomationPeer.CreatePeerForElement throws.
+            var element = Dispatcher.UIThread.CheckAccess()
+                ? Describe(control)
+                : await Dispatcher.UIThread.InvokeAsync(() => Describe(control));
+
+            if (element is not null)
                 await _speechService.AnnounceAsync(element, SpeechPriority.Ambient, ct).ConfigureAwait(false);
         }
         catch (OperationCanceledException)

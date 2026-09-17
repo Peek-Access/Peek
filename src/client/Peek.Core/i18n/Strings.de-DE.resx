@@ -528,6 +528,18 @@
   <data name="Speech_MainWindow_Unpinned" xml:space="preserve">
     <value>Anheften aufgehoben</value>
   </data>
+  <data name="Speech_MainWindow_Minimized" xml:space="preserve">
+    <value>Fenster minimiert</value>
+  </data>
+  <data name="Speech_MainWindow_Maximized" xml:space="preserve">
+    <value>Fenster maximiert</value>
+  </data>
+  <data name="Speech_MainWindow_Restored" xml:space="preserve">
+    <value>Fenster wiederhergestellt</value>
+  </data>
+  <data name="Speech_MainWindow_HiddenToTray" xml:space="preserve">
+    <value>Peek in die Taskleiste verschoben, läuft im Hintergrund weiter</value>
+  </data>
   <data name="Speech_Window_Opened" xml:space="preserve">
     <value>Neues Fenster</value>
   </data>

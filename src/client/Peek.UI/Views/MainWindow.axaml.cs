@@ -71,6 +71,13 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
 
     private void OnAboutClick(object? sender, RoutedEventArgs e) => ShowAbout();
 
+    private void OnMinimizeClick(object? sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+    private void OnMaximizeRestoreClick(object? sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+    private void OnCloseClick(object? sender, RoutedEventArgs e) => Close();
+
     /// <summary>
     /// Speaks the new pinned state so a screen-reader user - who can't see the button's
     /// checked-state color/glyph change - still knows whether the toggle just took effect.
@@ -158,7 +165,9 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
         WindowLayout.RowDefinitions[0].Height = isDocked
             ? new GridLength(0)
             : new GridLength(NormalTitleBarHeight);
-        WindowDecorations = isDocked ? WindowDecorations.BorderOnly : WindowDecorations.Full;
+        // BorderOnly in both modes: WindowDecorations.Full (native min/max/close) broke Tab
+        // navigation in normal window mode - see TitleBarButtons for the app-drawn replacements.
+        WindowDecorations = WindowDecorations.BorderOnly;
         ExtendClientAreaToDecorationsHint = true;
     }
 
@@ -200,17 +209,20 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
 
     private void OnOpenedOrActivated(object? sender, EventArgs e)
     {
-        if (_dockShellViewModel is null) return;
-        var handle = TryGetPlatformHandle()?.Handle ?? 0;
-        if (handle != 0)
-            _dockShellViewModel.ApplyDocking(handle);
+        if (_dockShellViewModel is not null)
+        {
+            var handle = TryGetPlatformHandle()?.Handle ?? 0;
+            if (handle != 0)
+                _dockShellViewModel.ApplyDocking(handle);
+        }
 
         // Avalonia's own keyboard focus is independent of the OS's foreground-window
-        // concept - clicking empty space inside the dock strip (nothing Focusable there)
-        // leaves NO element focused, so OnKeyDown below never fires for PageUp/PageDown at
-        // all even though Win32 correctly reports this as the foreground window. Focusing
-        // the Window itself here guarantees it holds focus by default whenever it's
-        // activated, so the shortcut works without first clicking a specific control.
+        // concept - clicking empty space (nothing Focusable there) leaves NO element
+        // focused, so Tab navigation has nothing to start cycling from and GotFocusEvent
+        // never fires for SelfFocusAnnouncer to announce. Previously this only ran in
+        // docked mode (needed there for PageUp/PageDown, see OnKeyDown) - normal window
+        // mode never focused anything either, silently breaking Tab navigation and
+        // self-reading until the user happened to click a specific control first.
         Focus();
     }
 

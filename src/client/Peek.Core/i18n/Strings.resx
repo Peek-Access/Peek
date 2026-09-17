@@ -204,6 +204,18 @@
   <data name="MainWindow_Pin" xml:space="preserve">
     <value>Keep window on top</value>
   </data>
+  <data name="MainWindow_Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="MainWindow_Maximize" xml:space="preserve">
+    <value>Maximize</value>
+  </data>
+  <data name="MainWindow_Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="MainWindow_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
   <data name="Settings_Shell_Mode" xml:space="preserve">
     <value>Shell mode</value>
   </data>

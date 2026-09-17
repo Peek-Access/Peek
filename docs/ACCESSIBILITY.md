@@ -1,8 +1,13 @@
 # Accessibility conformance
 
 Peek is a screen reader, so its own interface is a compliance target, not just the thing that
-reads other apps' UIs. This covers which standards Peek is built against, what that means in
-practice, and what's outside Peek's control.
+reads other apps' UIs. This covers which standards Peek's own interface is built against, what
+that means in practice, and what's outside Peek's control.
+
+This is a statement about Peek's own UI, not a certification of Peek as a screen reader - no
+such standard exists for assistive technology products themselves. WCAG and EN 301 549 govern
+the software a screen reader reads, not the reading tool. See the "How it works" section of the
+root README for what Peek's actual reading mechanism is and why.
 
 ## Standards
 
@@ -37,7 +42,7 @@ re-targeted yet; follow-up once the 2.2 WCAG2ICT mapping is final.
   a process, drag-to-dock) has a keyboard equivalent, editable in Settings → Keyboard Shortcuts
   (WCAG 2.1.1). Modal windows close on Escape (WCAG 2.1.2). `MainWindow` uses
   `WindowDecorations.BorderOnly` in both shell modes - `WindowDecorations.Full` (native title
-  bar) silently broke Tab navigation in normal window mode; see FRAMEWORK-LIMITATIONS.md.
+  bar) silently broke Tab navigation in normal window mode.
 - **Focus is always visible**, independent of theme color - `Resources/AccessibilityFocus.axaml`
   guarantees a high-contrast outline (WCAG 2.4.7, 1.4.11) on top of whatever the theme does.
 - **Status messages don't require focus to be heard.** Announcements, errors, and AI narration
@@ -73,11 +78,6 @@ of relying on a focus event that never fires.
 On by default (Settings → Accessibility → "Announce Peek's own interface"), so Peek is usable
 standalone. Turn it off if pairing Peek with another always-on screen reader, to avoid hearing
 every control named twice.
-
-## Outside Peek's control
-
-See [FRAMEWORK-LIMITATIONS.md](FRAMEWORK-LIMITATIONS.md) for gaps in Avalonia or the
-`Pipboy.Avalonia` theme, tracked so a dependency bump can be checked against them.
 
 ## Verifying this
 

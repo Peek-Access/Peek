@@ -6,42 +6,43 @@
   />
   <h1 align="center">Peek</h1>
   <p align="center">
-  Not just a screen reader — a way to see your screen, however you need to.
+  Another accessibility tool for Windows.
   </p>
 </div>
 
 
-## Features
+## What it is
 
-- **Follows your keyboard** — every control you Tab to, in any application, announced as you reach it; you don't have to be able to see where to point a mouse
-- **Follows your mouse** — hover any on-screen element to hear what it is, instantly, via native UI Automation
-- **Considered announcements, not a read-out** — role and state are only spoken when they add information ("Login, button" — not a recitation of every property), hover and focus are throttled and de-duplicated so fast mouse movement doesn't turn into noise, and a user-requested announcement always takes priority over ambient chatter — nothing queues up to talk over you after you've already moved on.
-- **Element Inspector** — browse the full UI tree of any window, not just what's under the cursor
-- **AI screen & window analysis** — ask an LLM (OpenAI, Anthropic, Gemini, OpenRouter, Ollama or your own endpoint) to describe what's on screen when accessibility metadata alone isn't enough
-- **OCR fallback** — reads text out of images and non-accessible UI when there's nothing else to go on
-- **Local, offline text-to-speech** — neural voices via Piper, no cloud dependency, no per-character billing
-- **Multi-language out of the box** — English, German, and Chinese, with automatic language detection per utterance
-- **App & Process monitors** — launch, inspect, and manage running software without leaving the keyboard
-- **Dockable shell** — pin Peek to a screen edge as your home base on screen: whenever things get disorienting elsewhere, it's the one region that never moves and is always there to come back to.
+Peek is a Windows accessibility tool. It follows keyboard focus and mouse hover across any
+application and announces what's there.
 
-## Accessibility & compliance
+## How it works
 
-Peek is a screen reader, so its own interface is held to the same bar it holds every other
-application to - including reading itself, not just what's underneath it. Peek targets:
+Peek's primary source of information is
+[Microsoft UI Automation](https://learn.microsoft.com/en-us/windows/win32/winauto/uiauto-uiautomationoverview) -
+the OS accessibility API, not a screenshot or the pixels on screen. A background worker process
+queries the focused or hovered element's name, role, state, and value from the accessibility
+tree; that's what gets spoken. 
 
-- **[EN 301 549](https://www.etsi.org/deliver/etsi_en/301500_301599/301549/03.02.01_60/en_301549v030201p.pdf) V3.2.1, Clause 11** ("Software") - the EU-harmonized ICT accessibility standard, applying **WCAG 2.1 Level AA** to native software via the [WCAG2ICT](https://www.w3.org/WAI/standards-guidelines/wcag/non-web-ict/) mapping (WCAG itself is written for the web; EN 301 549 Clause 11 is the non-web equivalent this project actually conforms to)
-- **ISO 9241-171** - international software-accessibility guidance, cross-checked alongside EN 301 549
-- **Germany's BFSG** (*Barrierefreiheitsstärkungsgesetz*, in force since 2025-06-28) and **BITV 2.0** (*Barrierefreie-Informationstechnik-Verordnung*), both of which point back to the same EN 301 549 clause above
+What actually gets said, and when, goes through a priority system: an ambient announcement
+(hover, focus) is dropped rather than queued if something more important is already speaking,
+so nothing talks over you after you've moved on. Speech itself runs on local neural voices
+(Piper) with Windows' built-in voices as an offline fallback. See
+[docs/SPEECH_STRATEGY.md](docs/SPEECH_STRATEGY.md) for the full arbitration and synthesis
+pipeline.
 
-Every focusable control has a name, role, and state; every page identifies itself to assistive
-technology; focus is always visible at guaranteed contrast regardless of theme color; nothing
-requires a mouse; and Peek announces its *own* interface as you navigate it - the same
-follow-the-keyboard model it gives every other application - so it's usable standalone by someone
-who can't see it either.
+OCR is a fallback, not the primary mechanism. It only runs when UI Automation confirms an
+element or an entire window exposes nothing usable - a real failure mode with some UI toolkits.
+See [docs/OCR_STRATEGY.md](docs/OCR_STRATEGY.md) for when it runs and why.
 
-See [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) for the full conformance statement and
-[docs/FRAMEWORK-LIMITATIONS.md](docs/FRAMEWORK-LIMITATIONS.md) for the handful of gaps that live
-in the Avalonia framework or the third-party Pipboy theme rather than in Peek's own code.
+
+## Accessibility
+
+Peek's own interface targets EN 301 549 V3.2.1 Clause 11 ("Software"), which applies WCAG 2.1
+Level AA to native software through the [WCAG2ICT](https://www.w3.org/WAI/standards-guidelines/wcag/non-web-ict/)
+mapping, cross-checked against ISO 9241-171. See [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md)
+
+
 
 ## Open-source dependencies
 

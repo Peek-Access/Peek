@@ -1,91 +1,85 @@
 # Accessibility gaps outside Peek's own code
 
-Items here can't be fixed by editing Peek's XAML/C# - they're either in the Avalonia framework
-itself or in the third-party `Pipboy.Avalonia` theme package Peek depends on for its whole visual
-language (see the "Open-source dependencies" table in the root README). Listed so they're tracked
-rather than silently accepted, and so a future dependency bump can be checked against this list.
+Items here live in the Avalonia framework or the third-party `Pipboy.Avalonia` theme, not in
+Peek's own XAML/C#. Tracked so they're not silently accepted, and so a dependency bump can be
+checked against this list.
 
 ## Avalonia (currently pinned to 12.1.2)
 
 1. **A bare `UserControl` only reports a generic "custom" automation role.**
    Fixed as of [PR #17480](https://github.com/AvaloniaUI/Avalonia/pull/17480) (Avalonia 11.3+,
-   so Peek's 12.1.2 has it) - before that fix, a `UserControl` had *no* automation peer at all
-   and was completely invisible to a screen reader. Peek is past the invisible case, but every
+   so Peek's 12.1.2 has it) - before that, a `UserControl` had no automation peer at all. Every
    `UserControl`-rooted view still needs an explicit `AutomationProperties.Name` (done - see
-   `ACCESSIBILITY.md`) because "custom" alone tells a screen-reader user nothing. Nothing further
-   to do here unless Avalonia adds a way to override the reported control type itself for
-   `UserControl` (it can be done per-instance via `AutomationProperties.ControlTypeOverride`,
-   which Peek doesn't currently need but is available if a future view needs a more specific
-   role than a landmark name provides).
+   ACCESSIBILITY.md), since "custom" alone tells a screen reader nothing. Nothing further to do
+   unless Avalonia adds a way to override the reported control type for `UserControl` itself
+   (per-instance override already exists via `AutomationProperties.ControlTypeOverride`, unused
+   by Peek so far).
 
 2. **Third-party custom controls get no automation peer unless they opt in.**
-   `Control.OnCreateAutomationPeer()` defaults to `NoneAutomationPeer` - correct and desirable
-   for purely decorative elements (a lot of Peek's own Borders/Ellipses/Panels benefit from this:
-   they're invisible to assistive tech by default, which is exactly what a screen reader should
-   see for non-interactive decoration), but it means any control that *is* meant to be
-   interactive must explicitly override it. Peek's own custom controls
-   (`AnnouncementWave`, `LoadingIndicator`, `HighlightBorder`) are all non-interactive
-   visualizations, so the default is correct for them and no override was added. Watch for this
-   if either Peek or a future Pipboy update introduces a genuinely interactive custom control -
-   it will silently be unreachable by keyboard/screen reader unless someone remembers to give it
-   a peer.
+   `Control.OnCreateAutomationPeer()` defaults to `NoneAutomationPeer` - correct for decorative
+   elements, but any genuinely interactive control must override it explicitly. Peek's own
+   custom controls (`AnnouncementWave`, `LoadingIndicator`, `HighlightBorder`) are all
+   non-interactive, so the default is fine there. Watch for this if a future control - Peek's or
+   Pipboy's - is interactive and doesn't override it; it will be unreachable by keyboard/screen
+   reader.
 
 3. **`ControlAutomationPeer` subscribes to its owner without ever detaching.**
    [Issue #22232](https://github.com/AvaloniaUI/Avalonia/issues/22232), open upstream. A minor
-   memory-leak-shaped bug, not a compliance blocker - noted here only so it isn't mistaken for
-   something Peek's own `SelfFocusAnnouncer` is doing wrong if it ever shows up in a profiler.
+   leak, not a compliance issue - noted so it isn't mistaken for a bug in `SelfFocusAnnouncer` if
+   it shows up in a profiler.
 
-4. **No cross-cutting "focus visual" mechanism.**
-   Unlike WPF's `FocusVisualStyle` (which auto-applies an adorner to any control), Avalonia
-   requires a `:focus-visible` style per control type. Peek supplies its own
-   (`Resources/AccessibilityFocus.axaml`) rather than depending on this existing for every
-   control Pipboy themes - see the Pipboy section below for why that file exists at all instead
-   of just fixing the theme's own focus style.
+4. **No cross-cutting focus-visual mechanism.**
+   Unlike WPF's `FocusVisualStyle`, Avalonia needs a `:focus-visible` style per control type.
+   Peek supplies its own (`Resources/AccessibilityFocus.axaml`) instead of relying on this
+   existing for every control Pipboy themes - see the Pipboy section for why.
 
-## Pipboy.Avalonia (theme, currently 1.1.4-beta) / Pipboy.Avalonia.ProDataGrid
+5. **`WindowDecorations.Full` + `ExtendClientAreaToDecorationsHint` breaks Tab navigation
+   (WCAG 2.1.1).** With native min/max/close decorations kept and the client area extended into
+   the title bar, Tab stopped moving focus at all in Peek's normal (non-docked) window. The raw
+   `WM_KEYDOWN` isn't being swallowed at the Win32 message level (Avalonia's own
+   `WindowImpl.AppWndProc` doesn't special-case decoration mode), so the break is somewhere
+   higher in Avalonia's focus/Tab-navigation layer - not root-caused further than that. Closest
+   upstream report: [issue #15593](https://github.com/AvaloniaUI/Avalonia/issues/15593) (a
+   different symptom, a crash rather than inert Tab, from the same
+   `ClearLogicalParent`/inherited-value-changed code path, labeled `by-design`). Workaround
+   shipped: `MainWindow` now uses `WindowDecorations.BorderOnly` in both shell modes, with
+   app-drawn minimize/maximize/restore/close buttons replacing the native ones
+   (`MainWindow.axaml`/`.axaml.cs`).
 
-Per this repo's existing convention (see `PIPBOY_THEME_ADJUSTMENTS.md`), visual/theme changes
-belong upstream in the theme package, not as Peek-local overrides, so every consumer of the theme
-benefits equally. The items below are additions to that request list, specifically for
-accessibility:
+## Pipboy.Avalonia (theme, currently 1.1.5-beta-preview.17) / Pipboy.Avalonia.ProDataGrid
 
-1. **The theme's border token fails WCAG 1.4.11 (Non-text Contrast).**
-   `PIPBOY_THEME_ADJUSTMENTS.md` requests `Border: #254634`. Checked against the WCAG
-   relative-luminance formula, `#254634` against the requested background (`#071810`) or surface
-   (`#0B2017`) computes to roughly **1.6-1.75:1** - well under the 3:1 minimum required for a UI
-   component boundary that's necessary to identify the component (a required input field's edge,
-   a focus indicator). It's fine for a purely decorative divider, which is most of its current
-   use in Peek, but it is not safe to reuse for anything that needs to actually be seen.
-   **Ask:** either raise this token's contrast, or keep it decorative-only and give focus/required
-   states their own token that's verified against 3:1 (the theme does define separate
-   `PipboyFocusBrush`/`PipboyBorderFocusBrush` resources for this - their actual color values
-   weren't inspectable from the compiled package and should be checked the same way).
+Both are developed alongside Peek (source at `github.com/NeverMorewd/Pipboy.Avalonia` and its
+`ProDataGrid` fork), so most items previously tracked here as upstream asks have since been
+fixed directly - see git history for what changed.
 
-2. **No confirmed accessible-contrast focus style ships with the theme for every control.**
-   Peek doesn't depend on the theme's own focus treatment being sufficient - see item 4 above and
-   `Resources/AccessibilityFocus.axaml`, which guarantees a 3:1+ outline independent of whatever
-   the theme does. **Ask:** if/when the theme's own focus contrast is verified and fixed, Peek's
-   local override becomes redundant and can be deleted - track that as a cleanup opportunity
-   rather than carrying both indefinitely.
+1. **No confirmed accessible-contrast focus style for every control.**
+   Peek doesn't rely on the theme's own focus treatment - `Resources/AccessibilityFocus.axaml`
+   guarantees a 3:1+ outline regardless. The underlying `PipboyFocusBrush`/`PipboyBorderFocusBrush`
+   color tokens do carry a WCAG-matching contrast floor now
+   (`PipboyColorPalette.ApplyContrastFloor`) under the `AccessibleContrast`/`HighContrast`
+   strategies - the one Peek selects at startup - but that's the color value, not proof every
+   control's template renders a visible ring with it. If that's ever verified across every
+   templated control, Peek's local override becomes redundant.
 
-3. **Custom Pipboy controls beyond re-templated built-ins weren't independently auditable.**
-   The theme's compiled DLL was checked for `AutomationPeer`/`AutomationProperties`/
-   `IsControlElement` references and found none - meaning Pipboy purely re-templates Avalonia's
-   *built-in* controls (Button, ToggleSwitch, ComboBox, ...) rather than introducing new control
-   classes, which is good: built-in automation peers survive a template swap regardless of the
-   visual skin. This could not be fully confirmed against the theme's actual source (only
-   available as a compiled NuGet package here), so this is a documented assumption, not a
-   verified fact. **Ask:** if Pipboy or ProDataGrid ever ships a genuinely new interactive
-   control class, it needs its own `AutomationPeer` override (see Avalonia item 2 above) or it
-   will be invisible to every screen reader, Peek's own self-reading included.
+2. **Custom Pipboy controls beyond re-templated built-ins: confirmed, not assumed.**
+   Both packages' full source was searched for `AutomationPeer`/`AutomationProperties`/
+   `IsControlElement` - zero references. Pipboy re-templates Avalonia's built-in controls
+   (Button, ToggleSwitch, ComboBox, ...) rather than introducing new control classes, so built-in
+   automation peers survive the visual skin unchanged. If Pipboy or ProDataGrid ever ships a
+   genuinely new interactive control class, it needs its own `AutomationPeer` override or it will
+   be invisible to every screen reader, Peek's own self-reading included.
 
-4. **Tray/context menu styling gap already tracked.**
-   Not accessibility-specific, but relevant to the same "ask upstream, don't patch locally"
-   principle - see `PIPBOY_THEME_ADJUSTMENTS.md`'s "Tray menu" section for the existing
-   `Separator`/`MenuItem` styling request.
+3. **ProDataGrid is currently pinned to a nightly build, not a stable release.**
+   A recycled `DataGridRow` skipped re-applying its gridline brush after being detached and
+   reattached (e.g. navigating away from a page and back), occasionally landing on a transient
+   `null` from the same `ClearLogicalParent` sequence as issue #15593 above, with nothing
+   correcting it afterward. Fixed upstream (`DataGrid.Template.cs`'s
+   `InitializeElementsAfterReattach`, re-running `EnsureGridLines()`), published as
+   `ProDataGrid 12.1.0.4-nightly.20260917.1`, which `Directory.Packages.props` currently pins.
+   Move to the next stable release once it includes this commit.
 
-## How to use this list
+## Using this list
 
-When bumping either dependency, check this file's numbered items against the new version's
-changelog/release notes. An item resolved upstream should be deleted here (and, for the
-`AccessibilityFocus.axaml` case, the local workaround removed) rather than left to accumulate.
+When bumping either dependency, check its numbered items against the new version's changelog. An
+item resolved upstream should be deleted here (and, for `AccessibilityFocus.axaml`, the local
+workaround removed) rather than left to accumulate.

@@ -1,11 +1,11 @@
 # Speech / Announcement Strategy
 
-How Peek decides *whether* to speak, *what* to say, *in which voice and language*, and how one
-announcement supersedes another - not a plain "read whatever the cursor touches" loop.
+How Peek decides whether to speak, what to say, in which voice and language, and how one
+announcement supersedes another.
 
-## Three ambient sources, one shared arbitration point
+## Three ambient sources, one arbitration point
 
-Three independent producers watch the desktop and each may want to speak:
+Three independent producers watch the desktop and may want to speak:
 
 | Source | Trigger | Settle throttle | Setting |
 | --- | --- | --- | --- |
@@ -13,19 +13,18 @@ Three independent producers watch the desktop and each may want to speak:
 | `FocusAnnouncer` | keyboard focus change | 120ms (`FocusThrottleMs`) | `AnnounceOnFocus` |
 | `WindowAnnouncer` | window opened/closed/activated | none | `WindowAnnouncement.Enabled` (off by default) |
 
-All three follow the same shape: `Where(setting enabled) -> Throttle(settle window) ->
-Select(query + speak) -> Switch()`. `Switch()` is what makes this an interruption model rather
-than a queue - as soon as a newer event arrives, the in-flight query/announcement for the
-previous one is cancelled outright rather than left to finish late. `ElementTracker` additionally
-de-duplicates via `HoverElementIdentityComparer` (worker `ElementId` when present, else
-hwnd+AutomationId+Name+ControlType+Rect) so a stationary cursor over one large control doesn't
-re-announce it, and `FocusAnnouncer` filters out Peek's own windows and anonymous full-screen
-containers (a maximized window's unnamed root pane, which some apps hand back as "focused" and
-which is meaningless both spoken and highlighted).
+All three follow the same shape: `Where(setting enabled) → Throttle(settle window) →
+Select(query + speak) → Switch()`. `Switch()` makes this an interruption model, not a queue - a
+newer event cancels the in-flight query/announcement for the previous one outright rather than
+letting it finish late. `ElementTracker` also de-duplicates via `HoverElementIdentityComparer`
+(worker `ElementId` when present, else hwnd+AutomationId+Name+ControlType+Rect), so a stationary
+cursor over one control doesn't re-announce it. `FocusAnnouncer` filters out Peek's own windows
+and anonymous full-screen containers (a maximized window's unnamed root pane, which some apps
+report as "focused" and which is meaningless spoken or highlighted).
 
-All three end up calling the same entry point,
-`IAccessibilitySpeechService.AnnounceAsync(element, SpeechPriority.Ambient)` /
-`AnnounceTextAsync(text, SpeechPriority.Ambient)` - the arbitration below is what they share.
+All three call the same entry point, `IAccessibilitySpeechService.AnnounceAsync(element,
+SpeechPriority.Ambient)` / `AnnounceTextAsync(text, SpeechPriority.Ambient)` - the arbitration
+below is shared.
 
 ## Priority: two classes, drop don't queue
 
@@ -33,15 +32,14 @@ All three end up calling the same entry point,
 enum SpeechPriority { Ambient, UserRequested }
 ```
 
-- **Ambient** - Peek volunteered this (hover/focus/window events). Cheap, constant, and about to
-  be superseded anyway.
+- **Ambient** - Peek volunteered this (hover/focus/window events), cheap and about to be
+  superseded anyway.
 - **UserRequested** - the answer to something the user explicitly did (AI element description,
-  AI screen/window analysis). Never dropped, and reserves the channel for as long as it runs.
+  AI screen/window analysis). Never dropped; reserves the channel for its duration.
 
-The rule is asymmetric on purpose: an ambient announcement that arrives while the channel is
-reserved is **dropped, not queued**. A queue would turn one interruption into a backlog - by the
-time a delayed "button, Save" got its turn, it would describe where the mouse was several
-seconds ago, which is worse than never saying it.
+Asymmetric on purpose: an ambient announcement arriving while the channel is reserved is dropped,
+not queued. A queue turns one interruption into a backlog - a delayed "button, Save" arriving
+several seconds late describes where the mouse was, not where it is.
 
 ```mermaid
 flowchart LR
@@ -52,19 +50,22 @@ flowchart LR
     F --> G[Reserves the channel for its duration]
 ```
 
-"Channel reserved" (`AccessibilitySpeechService.IsChannelReserved`) is true while either:
-- a `UserRequested` utterance is in flight (`_userUtteranceInFlight` counter), or
-- an **exclusive lease** is held (`BeginExclusive(reason, onStopRequested)`).
+In words: an ambient announcement is dropped if the channel is reserved, and otherwise speaks
+(superseding whatever was playing). A `UserRequested` announcement always speaks, superseding
+whatever was playing, and then reserves the channel for its own duration.
 
-The lease exists for multi-sentence streamed narration: `ScreenAnalysisService` holds one for
-the whole AI screen/window analysis, not per sentence, so an ambient hover landing in the gap
-between two streamed sentences can't cut the answer in half. The lease's `onStopRequested`
-callback is how the global "stop speaking" hotkey (`Ctrl+Alt+S`) can cancel an in-progress AI
-narration specifically, ahead of anything else.
+"Channel reserved" (`AccessibilitySpeechService.IsChannelReserved`) is true while either a
+`UserRequested` utterance is in flight (`_userUtteranceInFlight`), or an exclusive lease is held
+(`BeginExclusive(reason, onStopRequested)`).
 
-Regardless of priority, every new `SpeakAsync` call cancels whatever the *previous* call was
-doing (`_ttsCts` is swapped and the old one cancelled) before proceeding - this is what makes a
-second ambient announcement supersede a first one too, not just user-requested-over-ambient.
+The lease exists for multi-sentence streamed narration: `ScreenAnalysisService` holds one for the
+whole AI screen/window analysis, not per sentence, so an ambient hover landing between two
+streamed sentences can't cut the answer in half. `onStopRequested` is how the global stop-speaking
+hotkey (`Ctrl+Alt+S`) cancels in-progress AI narration specifically.
+
+Every new `SpeakAsync` call cancels whatever the previous call was doing (`_ttsCts` swapped and
+the old one cancelled) before proceeding, regardless of priority - a second ambient announcement
+supersedes a first one too, not just user-requested-over-ambient.
 
 ## Content: policy-shaped, not a property dump
 
@@ -78,24 +79,22 @@ second ambient announcement supersede a first one too, not just user-requested-o
 | `Detailed` | + Value (only if it differs from Name), keyboard shortcut |
 | `Verbose` | + Description |
 
-Role and state are only spoken when they add information - a redundant or empty value is
-dropped rather than announced as "blank". Only Peek's own scaffolding words ("button",
-"checked", "checkbox") are localized (via `SpeechStrings`/Lingua .resx); the element's own
-name/value, coming from the inspected app, is spoken exactly as-is.
+Role and state are spoken only when they add information; a redundant or empty value is dropped
+rather than announced as "blank." Only Peek's own scaffolding words ("button", "checked",
+"checkbox") are localized (`SpeechStrings`/Lingua .resx) - the inspected app's own name/value is
+spoken as-is.
 
 ## Language: per-utterance, not per-session
 
-`SpeechLanguageDetector.Segment(text, primaryLanguage)` walks the announced text character by
-character and tags each run as Chinese (Unicode CJK ranges) or the configured primary language;
-digits/punctuation/whitespace carry no signal of their own and inherit whichever language
-surrounds them, so a phone number embedded in an English sentence is read in English, and one
-embedded in a Chinese sentence in Chinese - never forced into the "wrong" language regardless of
-context.
+`SpeechLanguageDetector.Segment(text, primaryLanguage)` tags each character run as Chinese
+(Unicode CJK ranges) or the configured primary language; digits/punctuation/whitespace inherit
+whichever language surrounds them, so a phone number embedded in an English sentence reads in
+English, and one in a Chinese sentence in Chinese.
 
 `Settings.Localization.TtsLanguage` (falling back to `UiLanguage`, then English) is independent
-of the UI's own display language - reading the UI in one language and listening in another is a
-deliberate, supported combination. Each language run is sent to `Peek.Worker.Tts` with its own
-Piper voice (`SpeechSettings.VoiceIdByLanguage`: `en`/`de`/`zh` ship by default).
+of the UI's display language - reading the UI in one language and listening in another is a
+supported combination. Each language run goes to `Peek.Worker.Tts` with its own Piper voice
+(`SpeechSettings.VoiceIdByLanguage`: `en`/`de`/`zh` ship by default).
 
 ## Synthesis: neural first, Windows voices as a safety net
 
@@ -108,26 +107,26 @@ stateDiagram-v2
     Primary --> Primary: succeeds, or superseded (cancelled) - never counts as a failure
 ```
 
+In words: synthesis starts on Primary (Piper) and stays there as long as it succeeds or is only
+superseded by a newer utterance. A genuine Piper failure (not a cancellation) moves to Fallback
+(Windows voices), which stays active for a 2-minute cooldown before the next utterance retries
+Piper.
+
 - **Primary**: `PiperTtsService` - local, offline neural voices (Piper/onnxruntime), one voice
-  model per language, downloaded on first use (the one place "local-first" means "local after a
-  one-time fetch," not fully offline from install).
-- **Fallback**: `SapiTtsService` - Windows' own built-in voices, so a fresh install with no
-  network still speaks immediately. Matches the requested language prefix against installed
-  Windows voices; if none is installed for that language, the OS default voice is used instead
-  (which may be a different language than requested - the SAPI voice pack actually installed is
-  what decides this, not Peek).
-- `FallbackTtsService` only demotes to the fallback engine on a genuine synthesis failure - a
-  cancellation (the utterance being superseded by a newer one, which happens constantly during
-  normal use) is explicitly not treated as failure, so ordinary interruption traffic can never
-  trip the 2-minute Piper cooldown.
+  model per language, downloaded on first use.
+- **Fallback**: `SapiTtsService` - Windows' built-in voices, so a fresh offline install still
+  speaks immediately. Matches the requested language prefix against installed Windows voices; if
+  none is installed, the OS default voice is used (which may be a different language, decided by
+  what's installed, not by Peek).
+- `FallbackTtsService` only demotes on a genuine synthesis failure - a cancellation (an utterance
+  superseded by a newer one, routine during normal use) is explicitly not a failure, so ordinary
+  interruption traffic can't trip the 2-minute Piper cooldown.
 
 Playback is a single shared `LibVLC` `MediaPlayer` (`AudioPlayer`): only one clip plays at a
-time by construction, and `Stop()` is the supersession mechanism - interrupting an announcement
-is "stop the player, start the next clip," never a mix or a queue.
+time, and `Stop()` is the supersession mechanism - never a mix or a queue.
 
-Every spoken utterance's text (not audio) is appended to `AnnouncementHistoryService`'s
-capped transcript (`AnnouncementHistory.MaxCharacters`), so a user can review or copy what was
-just read instead of relying on memory.
+Every spoken utterance's text (not audio) is appended to `AnnouncementHistoryService`'s capped
+transcript, so a user can review or copy what was just read.
 
 ## End-to-end
 
@@ -146,24 +145,26 @@ flowchart TD
     Player --> History[AnnouncementHistoryService]
 ```
 
-## Findings (not fixed, flagging as requested)
+In words, left to right: hover, focus, window-lifecycle, and user-requested AI announcements all
+feed the same priority/channel-reserved gate. What gets through is shaped by verbosity, split
+into per-language runs, and sent to Piper; a genuine Piper failure falls back to Windows voices
+for a 2-minute cooldown. Either engine's output goes to the shared audio player, and every
+utterance is logged to the announcement history.
 
-1. **Cancelled-by-supersession looks like an error in the client-side log.** A worker RPC
+## Open findings
+
+1. **A cancelled-by-supersession call looks like an error in the client log.** A worker RPC
    cancelled server-side comes back as `RpcResponse.Failure(..., RpcErrorCodes.Timeout,
    "Cancelled")`, which `RpcResponseExtensions.ThrowIfError` turns into a plain
-   `WorkerRpcException` on the client - not an `OperationCanceledException`. Since
-   `AccessibilitySpeechService.SpeakAsync` only treats a real `OperationCanceledException` as
-   the expected "superseded by a newer announcement" case, this specific path falls through to
-   the generic `catch (Exception ex) { _logger.LogError(...) }` and logs an ERROR for what is
-   completely routine traffic (any fast hover/focus interruption). Not incorrect behavior, just
-   log noise that could mask a real failure - worth having `WorkerRpcException` (or the catch in
-   `SpeakAsync`) distinguish this specific error code and treat it as the benign case it is.
-2. **`_ttsCts` swap in `AccessibilitySpeechService.SpeakAsync` isn't synchronized.** `ElementTracker`'s
-   hover pipeline and `FocusAnnouncer`'s focus pipeline are two independent Rx subscriptions with
-   their own `Switch()`, so nothing prevents both from calling `SpeakAsync` at genuinely the same
-   moment (e.g. focus changes via Tab right as the mouse settles on a different element). The
-   read-modify-cancel-dispose sequence on `_ttsCts` has no lock around it; two concurrent callers
-   could read the same `oldCts` and both cancel/dispose it, or one caller's new
-   `CancellationTokenSource` could be silently overwritten and orphaned (a small leak, not a
-   crash) before ever being observed. Low severity and not seen in a crash report so far, but
-   worth a lock or `Interlocked.Exchange` around the swap if it ever does surface.
+   `WorkerRpcException`, not an `OperationCanceledException`. `AccessibilitySpeechService.SpeakAsync`
+   only treats a real `OperationCanceledException` as the expected supersession case, so this
+   path falls into the generic `catch (Exception ex)` and logs an ERROR for routine traffic (any
+   fast hover/focus interruption). Not incorrect, just noise that could mask a real failure -
+   worth having the catch (or `WorkerRpcException`) recognize this error code as benign.
+2. **The `_ttsCts` swap in `SpeakAsync` isn't synchronized.** `ElementTracker`'s hover pipeline
+   and `FocusAnnouncer`'s focus pipeline are independent Rx subscriptions, each with its own
+   `Switch()`, so nothing prevents both from calling `SpeakAsync` at the same moment (e.g. focus
+   changes via Tab right as the mouse settles). The read-modify-cancel-dispose sequence on
+   `_ttsCts` has no lock; two concurrent callers could cancel/dispose the same `oldCts`, or one
+   caller's new `CancellationTokenSource` could be silently orphaned - a small leak, not a crash.
+   Not seen in a crash report, but worth a lock or `Interlocked.Exchange` if it surfaces.

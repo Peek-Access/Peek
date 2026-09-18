@@ -94,6 +94,16 @@ public partial class MainViewModel : ViewModelBase, IDisposable
         var text = SpeechStrings.Get(isPinned ? "Speech_MainWindow_Pinned" : "Speech_MainWindow_Unpinned", culture);
         _ = _speechService.AnnounceTextAsync(text, SpeechPriority.UserRequested);
     }
+
+    /// <summary>Same reasoning as <see cref="AnnouncePinStateChanged"/>, generalized: the
+    /// title-bar minimize/maximize/restore/close buttons change window state a screen-reader
+    /// user can't see happen, so MainWindow speaks it through here after making the change.</summary>
+    public void AnnounceWindowStateChange(string speechKey)
+    {
+        var culture = SpeechStrings.ResolveCulture(_settingsService.Current.Localization);
+        var text = SpeechStrings.Get(speechKey, culture);
+        _ = _speechService.AnnounceTextAsync(text, SpeechPriority.UserRequested);
+    }
     public async Task InitializeAsync()
     {
 

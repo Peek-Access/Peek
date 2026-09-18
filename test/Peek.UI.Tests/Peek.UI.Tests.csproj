@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Peek.UI.Tests</RootNamespace>
+    <!-- See Peek.Core.Tests.csproj for why: xunit.v3 runs through the Microsoft.Testing.Platform
+         runner rather than classic VSTest, per the repo-root global.json. -->
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- xunit.v3 pinned to 3.2.2, not this repo's usual 4.0.1 (see Peek.Core.Tests.csproj):
+         Avalonia.Headless.XUnit 12.1.2 was compiled against xunit.v3.extensibility.core 3.2.2
+         and throws MissingMethodException at discovery time against the 4.x one 4.0.1 pulls in. -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.0" />
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
+    <!-- SelfFocusAnnouncer listens to Avalonia's own GotFocusEvent and reads a live
+         AutomationPeer - neither is fakeable without a real (if windowless) Avalonia UI
+         thread, hence Headless rather than plain xunit fakes. -->
+    <PackageReference Include="Avalonia.Headless" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Headless.XUnit" Version="12.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\client\Peek.UI\Peek.UI.csproj" />
+  </ItemGroup>
+
+</Project>

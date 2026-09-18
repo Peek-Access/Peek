@@ -67,7 +67,7 @@
         <Grid
             Name="TitleBarButtons"
             Grid.Row="0"
-            Margin="10,0,200,0"
+            Margin="10,0,10,0"
             ColumnDefinitions="*,Auto"
             WindowDecorationProperties.ElementRole="User">
 
@@ -107,6 +107,46 @@
                     Click="OnAboutClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}">
                     <TextBlock FontSize="13" Text="ⓘ" />
+                </Button>
+
+                <!--  Native min/max/close are gone now that both shells use BorderOnly (see
+                      ApplyShellChrome) - these replace them.  -->
+                <Button
+                    Classes="titleBarIconBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Minimize}}"
+                    Click="OnMinimizeClick"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Minimize}}">
+                    <TextBlock FontSize="13" Text="─" />
+                </Button>
+
+                <!--  Two separate buttons, not one toggle whose name/tooltip changes with
+                      state: AutomationProperties.Name only has ever been set as a plain
+                      attribute elsewhere in this app, so that's what a screen reader is known
+                      to pick up here too - see MainWindow.axaml.cs for which one is IsVisible.  -->
+                <Button
+                    Name="MaximizeButton"
+                    Classes="titleBarIconBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Maximize}}"
+                    Click="OnMaximizeRestoreClick"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Maximize}}">
+                    <TextBlock FontSize="13" Text="□" />
+                </Button>
+                <Button
+                    Name="RestoreButton"
+                    Classes="titleBarIconBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Restore}}"
+                    Click="OnMaximizeRestoreClick"
+                    IsVisible="False"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Restore}}">
+                    <TextBlock FontSize="13" Text="❐" />
+                </Button>
+
+                <Button
+                    Classes="titleBarIconBtn"
+                    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Close}}"
+                    Click="OnCloseClick"
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Close}}">
+                    <TextBlock FontSize="13" Text="✕" />
                 </Button>
             </StackPanel>
         </Grid>

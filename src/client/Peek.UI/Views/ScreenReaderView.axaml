@@ -11,6 +11,8 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:DataType="{x:Type vm:ScreenReaderViewModel}"
+    AutomationProperties.LandmarkType="Main"
+    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ScreenReader}}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <converters:ConnectionStateIsReadyConverter x:Key="ConnectionStateIsReadyConverter" />

@@ -5,7 +5,9 @@
     xmlns:i18n="using:Peek.Core.i18n"
     xmlns:views="using:Peek.UI.Views"
     xmlns:vm="using:Peek.Core.ViewModels"
-    x:DataType="{x:Type vm:AnnouncementViewModel}">
+    x:DataType="{x:Type vm:AnnouncementViewModel}"
+    AutomationProperties.LandmarkType="ContentInfo"
+    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryHeader}}">
     <UserControl.Styles>
         <Style Selector="Button.announcementAction">
             <Setter Property="Padding" Value="7,3" />
@@ -45,7 +47,7 @@
                     <Button
                         Classes="announcementAction"
                         Command="{Binding ToggleExpandedCommand}"
-                        AutomationProperties.Name="Expand or collapse announcement history">
+                        AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryExpandCollapse}}">
                         <TextBlock FontSize="16" Text="⌄" />
                     </Button>
                 </StackPanel>
@@ -56,7 +58,7 @@
                 HorizontalAlignment="Stretch"
                 Height="82"
                 IsSpeaking="{Binding IsSpeaking}"
-                AutomationProperties.Name="Speech activity" />
+                AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_SpeechActivity}}" />
 
             <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
                 <TextBlock
@@ -70,7 +72,7 @@
                     Grid.Column="1"
                     FontSize="11"
                     Foreground="{DynamicResource PipboyTextDimBrush}"
-                    Text="Peek · Voice"
+                    Text="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_VoiceLabel}}"
                     VerticalAlignment="Center" />
             </Grid>
 

@@ -1,4 +1,5 @@
 using AsyncNavigation.Abstractions;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Peek.Core.ViewModels;
@@ -30,6 +31,15 @@ public partial class ProcessMonitorView : UserControl, IView
     {
         base.OnInitialized();
         TryAttachViewModel();
+    }
+
+    // See AppMonitorView's identical override - same cached-view reattach, same observed
+    // stale-render workaround.
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        Grid.InvalidateArrange();
+        Grid.InvalidateVisual();
     }
 
     private void ApplyColumnLayout(double width)

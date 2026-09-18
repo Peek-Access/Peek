@@ -7,7 +7,8 @@
     xmlns:i18n="using:Peek.Core.i18n"
     xmlns:views="Peek.UI.Views"
     xmlns:vm="using:Peek.Core.ViewModels"
-    x:DataType="vm:MainViewModel">
+    x:DataType="vm:MainViewModel"
+    AutomationProperties.Name="Peek">
     <UserControl.Resources>
         <converters:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
         <converters:ConnectionStateIsReadyConverter x:Key="ConnectionStateIsReadyConverter" />
@@ -47,7 +48,9 @@
             Background="{DynamicResource PipboySurfaceBrush}"
             BorderBrush="{DynamicResource PipboyBorderBrush}"
             BorderThickness="1"
-            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}"
+            AutomationProperties.LandmarkType="Navigation"
+            AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_Section}}">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top" Spacing="1">
                     <StackPanel

@@ -10,6 +10,8 @@
     d:DesignHeight="680"
     d:DesignWidth="1000"
     x:DataType="{x:Type vm:ProcessMonitorViewModel}"
+    AutomationProperties.LandmarkType="Main"
+    AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ProcessMonitor}}"
     mc:Ignorable="d">
     <UserControl.Resources>
         <converters:MemorySizeConverter x:Key="MemorySizeConverter" />
@@ -27,7 +29,7 @@
             <TextBlock
                 FontSize="13"
                 Foreground="{DynamicResource PipboyTextDimBrush}"
-                Text="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_ShowSystemProcessesCheckbox}}"
+                Text="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_HelpText}}"
                 TextWrapping="Wrap" />
         </StackPanel>
 
@@ -69,46 +71,56 @@
             </WrapPanel>
         </Border>
 
-        <DataGrid
-            Name="Grid"
+        <!--  Pipboy.Avalonia.ProDataGrid's theme deliberately zeroes DataGridBorderThickness/
+              DataGridBorderBrush (flat design) - it expects the DataGrid's outer border to
+              come from a wrapping Border like this one, not from the control itself.  -->
+        <Border
             Grid.Row="2"
-            AutoGenerateColumns="False"
-            CanUserReorderColumns="True"
-            CanUserResizeColumns="True"
-            CanUserSortColumns="True"
-            GridLinesVisibility="Horizontal"
-            HeadersVisibility="Column"
-            IsReadOnly="True"
-            ItemsSource="{Binding Processes}"
-            RowHeight="24"
-            SelectedItem="{Binding SelectedProcess}"
-            SelectionMode="Single">
+            Padding="1"
+            BorderBrush="{DynamicResource PipboyBorderBrush}"
+            BorderThickness="1"
+            ClipToBounds="True"
+            CornerRadius="{DynamicResource PipboyCornerRadiusPanel}">
+            <DataGrid
+                Name="Grid"
+                AutoGenerateColumns="False"
+                CanUserReorderColumns="True"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="True"
+                GridLinesVisibility="Horizontal"
+                HeadersVisibility="Column"
+                IsReadOnly="True"
+                ItemsSource="{Binding Processes}"
+                RowHeight="30"
+                SelectedItem="{Binding SelectedProcess}"
+                SelectionMode="Single">
 
-            <DataGrid.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Command="{Binding KillCommand}" Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_EndProcessMenu}}" />
-                    <MenuItem Command="{Binding OpenFolderCommand}" Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_OpenFolderMenu}}" />
-                </ContextMenu>
-            </DataGrid.ContextMenu>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{Binding KillCommand}" Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_EndProcessMenu}}" />
+                        <MenuItem Command="{Binding OpenFolderCommand}" Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_OpenFolderMenu}}" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
 
-            <DataGrid.Columns>
-                <DataGridTextColumn
-                    Width="2*"
-                    Binding="{Binding Name}"
-                    Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_ProcessName}}" />
-                <DataGridTextColumn
-                    Width="0.7*"
-                    Binding="{Binding Id}"
-                    Header="PID" />
-                <DataGridTextColumn
-                    Width="1*"
-                    Binding="{Binding MemoryBytes, Converter={StaticResource MemorySizeConverter}}"
-                    Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_Memory}}" />
-                <DataGridTextColumn
-                    Width="2.5*"
-                    Binding="{Binding Description}"
-                    Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Description}}" />
-            </DataGrid.Columns>
-        </DataGrid>
+                <DataGrid.Columns>
+                    <DataGridTextColumn
+                        Width="2*"
+                        Binding="{Binding Name}"
+                        Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_ProcessName}}" />
+                    <DataGridTextColumn
+                        Width="0.7*"
+                        Binding="{Binding Id}"
+                        Header="PID" />
+                    <DataGridTextColumn
+                        Width="1*"
+                        Binding="{Binding MemoryBytes, Converter={StaticResource MemorySizeConverter}}"
+                        Header="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_Memory}}" />
+                    <DataGridTextColumn
+                        Width="2.5*"
+                        Binding="{Binding Description}"
+                        Header="{Translate {x:Static i18n:LanguageManager+Keys.Field_Description}}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
     </Grid>
 </UserControl>

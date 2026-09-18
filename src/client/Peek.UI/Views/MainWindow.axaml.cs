@@ -48,10 +48,23 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
         base.OnPropertyChanged(change);
         if (change.Property == WindowStateProperty || change.Property == IsVisibleProperty)
             UpdateMinimizedOrHiddenFlag();
+        if (change.Property == WindowStateProperty)
+            UpdateMaximizeRestoreButtons();
     }
 
     private void UpdateMinimizedOrHiddenFlag() =>
         _isMinimizedOrHidden = WindowState == WindowState.Minimized || !IsVisible;
+
+    // Swaps which of the two buttons is visible/tab-reachable rather than changing one
+    // button's Content/AutomationProperties.Name/ToolTip at runtime - IsVisible toggling
+    // this way already removes a control from the Tab order elsewhere in this window
+    // (PinButton, TitleBarButtons), so it's a proven mechanism, not a new one.
+    private void UpdateMaximizeRestoreButtons()
+    {
+        bool isMaximized = WindowState == WindowState.Maximized;
+        MaximizeButton.IsVisible = !isMaximized;
+        RestoreButton.IsVisible = isMaximized;
+    }
 
     public void ChangeColor(ColorModel colorModel)
     {
@@ -71,6 +84,27 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
 
     private void OnAboutClick(object? sender, RoutedEventArgs e) => ShowAbout();
 
+    private void OnMinimizeClick(object? sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+        Announce("Speech_MainWindow_Minimized");
+    }
+
+    private void OnMaximizeRestoreClick(object? sender, RoutedEventArgs e)
+    {
+        bool willMaximize = WindowState != WindowState.Maximized;
+        WindowState = willMaximize ? WindowState.Maximized : WindowState.Normal;
+        Announce(willMaximize ? "Speech_MainWindow_Maximized" : "Speech_MainWindow_Restored");
+    }
+
+    private void OnCloseClick(object? sender, RoutedEventArgs e)
+    {
+        // Announce before Close(), not after: OnClosing hides the window rather than
+        // destroying it, but speaking here doesn't depend on that detail either way.
+        Announce("Speech_MainWindow_HiddenToTray");
+        Close();
+    }
+
     /// <summary>
     /// Speaks the new pinned state so a screen-reader user - who can't see the button's
     /// checked-state color/glyph change - still knows whether the toggle just took effect.
@@ -84,6 +118,14 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
     {
         if (DataContext is MainViewModel viewModel)
             viewModel.AnnouncePinStateChanged(PinButton.IsChecked == true);
+    }
+
+    /// <summary>Same reasoning as <see cref="OnPinClick"/> - minimize/maximize/restore/close
+    /// change window state a screen-reader user can't see happen.</summary>
+    private void Announce(string speechKey)
+    {
+        if (DataContext is MainViewModel viewModel)
+            viewModel.AnnounceWindowStateChange(speechKey);
     }
 
     /// <summary>
@@ -158,7 +200,9 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
         WindowLayout.RowDefinitions[0].Height = isDocked
             ? new GridLength(0)
             : new GridLength(NormalTitleBarHeight);
-        WindowDecorations = isDocked ? WindowDecorations.BorderOnly : WindowDecorations.Full;
+        // BorderOnly in both modes: WindowDecorations.Full (native min/max/close) broke Tab
+        // navigation in normal window mode - see TitleBarButtons for the app-drawn replacements.
+        WindowDecorations = WindowDecorations.BorderOnly;
         ExtendClientAreaToDecorationsHint = true;
     }
 
@@ -200,17 +244,20 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
 
     private void OnOpenedOrActivated(object? sender, EventArgs e)
     {
-        if (_dockShellViewModel is null) return;
-        var handle = TryGetPlatformHandle()?.Handle ?? 0;
-        if (handle != 0)
-            _dockShellViewModel.ApplyDocking(handle);
+        if (_dockShellViewModel is not null)
+        {
+            var handle = TryGetPlatformHandle()?.Handle ?? 0;
+            if (handle != 0)
+                _dockShellViewModel.ApplyDocking(handle);
+        }
 
         // Avalonia's own keyboard focus is independent of the OS's foreground-window
-        // concept - clicking empty space inside the dock strip (nothing Focusable there)
-        // leaves NO element focused, so OnKeyDown below never fires for PageUp/PageDown at
-        // all even though Win32 correctly reports this as the foreground window. Focusing
-        // the Window itself here guarantees it holds focus by default whenever it's
-        // activated, so the shortcut works without first clicking a specific control.
+        // concept - clicking empty space (nothing Focusable there) leaves NO element
+        // focused, so Tab navigation has nothing to start cycling from and GotFocusEvent
+        // never fires for SelfFocusAnnouncer to announce. Previously this only ran in
+        // docked mode (needed there for PageUp/PageDown, see OnKeyDown) - normal window
+        // mode never focused anything either, silently breaking Tab navigation and
+        // self-reading until the user happened to click a specific control first.
         Focus();
     }
 

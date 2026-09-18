@@ -27,7 +27,10 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
     <PackageReference Include="Pipboy.Avalonia.Fx" />
     <PackageReference Include="Pipboy.Avalonia.ProDataGrid" />
-    <PackageReference Include="ProDataGrid" />
+    <!-- NoWarn: the nightly build's version core matches the last stable release (both
+         12.1.0.4), so NuGet's downgrade check sees the "-nightly.*" suffix as lower than the
+         transitive floor Pipboy.Avalonia.ProDataGrid declares (>= 12.1.0.4) and errors out. -->
+    <PackageReference Include="ProDataGrid" NoWarn="NU1605" />
     <PackageReference Include="ReactiveUI.Avalonia" />
 	<PackageReference Include="ReactiveUI.SourceGenerators">
 	  <PrivateAssets>all</PrivateAssets>

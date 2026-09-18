@@ -16,20 +16,6 @@
 Peek is a Windows accessibility tool. It follows keyboard focus and mouse hover across any
 application and announces what's there.
 
-## How it works
-
-Peek's primary source of information is
-[Microsoft UI Automation](https://learn.microsoft.com/en-us/windows/win32/winauto/uiauto-uiautomationoverview) -
-the OS accessibility API, not a screenshot or the pixels on screen. A background worker process
-queries the focused or hovered element's name, role, state, and value from the accessibility
-tree; that's what gets spoken. 
-
-What actually gets said, and when, goes through a priority system: an ambient announcement
-(hover, focus) is dropped rather than queued if something more important is already speaking,
-so nothing talks over you after you've moved on. Speech itself runs on local neural voices
-(Piper) with Windows' built-in voices as an offline fallback. See
-[docs/SPEECH_STRATEGY.md](docs/SPEECH_STRATEGY.md) for the full arbitration and synthesis
-pipeline.
 
 OCR is a fallback, not the primary mechanism. It only runs when UI Automation confirms an
 element or an entire window exposes nothing usable - a real failure mode with some UI toolkits.
@@ -40,13 +26,12 @@ See [docs/OCR_STRATEGY.md](docs/OCR_STRATEGY.md) for when it runs and why.
 
 Peek's own interface targets EN 301 549 V3.2.1 Clause 11 ("Software"), which applies WCAG 2.1
 Level AA to native software through the [WCAG2ICT](https://www.w3.org/WAI/standards-guidelines/wcag/non-web-ict/)
-mapping, cross-checked against ISO 9241-171. See [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md)
+mapping, cross-checked against ISO 9241-171.
 
 
 
 ## Open-source dependencies
 
-Peek is built on the following open-source projects:
 
 | Project | License |
 | --- | --- |

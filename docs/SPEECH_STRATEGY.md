@@ -50,6 +50,10 @@ flowchart LR
     F --> G[Reserves the channel for its duration]
 ```
 
+In words: an ambient announcement is dropped if the channel is reserved, and otherwise speaks
+(superseding whatever was playing). A `UserRequested` announcement always speaks, superseding
+whatever was playing, and then reserves the channel for its own duration.
+
 "Channel reserved" (`AccessibilitySpeechService.IsChannelReserved`) is true while either a
 `UserRequested` utterance is in flight (`_userUtteranceInFlight`), or an exclusive lease is held
 (`BeginExclusive(reason, onStopRequested)`).
@@ -103,6 +107,11 @@ stateDiagram-v2
     Primary --> Primary: succeeds, or superseded (cancelled) - never counts as a failure
 ```
 
+In words: synthesis starts on Primary (Piper) and stays there as long as it succeeds or is only
+superseded by a newer utterance. A genuine Piper failure (not a cancellation) moves to Fallback
+(Windows voices), which stays active for a 2-minute cooldown before the next utterance retries
+Piper.
+
 - **Primary**: `PiperTtsService` - local, offline neural voices (Piper/onnxruntime), one voice
   model per language, downloaded on first use.
 - **Fallback**: `SapiTtsService` - Windows' built-in voices, so a fresh offline install still
@@ -135,6 +144,12 @@ flowchart TD
     Sapi --> Player
     Player --> History[AnnouncementHistoryService]
 ```
+
+In words, left to right: hover, focus, window-lifecycle, and user-requested AI announcements all
+feed the same priority/channel-reserved gate. What gets through is shaped by verbosity, split
+into per-language runs, and sent to Piper; a genuine Piper failure falls back to Windows voices
+for a 2-minute cooldown. Either engine's output goes to the shared audio player, and every
+utterance is logged to the announcement history.
 
 ## Open findings
 

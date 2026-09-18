@@ -51,7 +51,7 @@ non-profit/charitable organizations:
 - Guidance on deployment and configuration (including AI provider and TTS setup)
 - Usage training and onboarding support for staff or end users
 
-**Scope and limits:**
+### Scope and limits
 
 - This is goodwill support, not a contractual service — it's provided as
   maintainer time allows, with no guaranteed response time or outcome.

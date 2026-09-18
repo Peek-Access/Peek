@@ -60,6 +60,15 @@ flowchart TD
     KnownBad -- no --> Suggest3[SuggestOcr]
 ```
 
+In words, top to bottom: `DoNotRun` if the preference is `Disabled`; otherwise `RunOnDemand` if
+the user explicitly asked. Past that, if the preference is `ManualOnly`, it's `DoNotRun` when
+UIA already has meaningful content and `SuggestOcr` when it doesn't. Otherwise, with no UIA
+available at all, a recent unchanged scan means `DoNotRun`; failing that, `SuggestOcr` if the
+preference is `SuggestOnly`, else `RunAutomatically`. If UIA *is* available but came back thin
+(empty name/value/text), a known-problematic app that isn't currently speaking and isn't a
+recent unchanged scan gets `RunAutomatically`; every other thin-UIA case gets `SuggestOcr`.
+Non-thin UIA content always means `DoNotRun` - UIA already answered.
+
 `OcrDecisionContext` carries the signals: whether UI Automation was queryable at all, whether
 what it returned was actually useful, whether the current app is on `KnownProblematicApplications`,
 whether the user explicitly asked, whether the screen changed enough to justify a re-scan, time
@@ -68,9 +77,11 @@ since the last run, whether TTS is speaking, and `OcrUserPreference` (`Automatic
 
 ## Two live paths
 
-**1. User-requested, via AI.** `ElementDescriptionService.DescribeAsync`, wired to the
-`DescribeFocusedElement` shortcut (`Ctrl+Alt+D`, an AI "describe this" command, not plain OCR),
-always sets `UserExplicitlyRequested = true`.
+### 1. User-requested, via AI
+
+`ElementDescriptionService.DescribeAsync`, wired to the `DescribeFocusedElement` shortcut
+(`Ctrl+Alt+D`, an AI "describe this" command, not plain OCR), always sets
+`UserExplicitlyRequested = true`.
 
 ```mermaid
 sequenceDiagram
@@ -95,6 +106,11 @@ sequenceDiagram
     Desc->>Speech: AnnounceTextAsync(description, UserRequested)
 ```
 
+In sequence: the shortcut hands the focused element to `ElementDescriptionService`, which asks
+the decision engine for `RunOnDemand` (or `DoNotRun` if AI is disabled), captures a screenshot
+and runs OCR on it, sends the UIA facts plus the OCR text plus the user's command to the LLM,
+and speaks whatever the model returns at `UserRequested` priority.
+
 OCR text on this path is never spoken on its own - it's appended as a fact ("Text recognized on
 screen via OCR (may contain recognition errors): ...") into the LLM prompt alongside the UIA
 element description (`ContextAggregator.BuildMessages`); the model's answer is what's spoken.
@@ -102,10 +118,11 @@ element description (`ContextAggregator.BuildMessages`); the model's answer is w
 `ScreenAnalysisService` ("AI screen & window analysis") is a separate pipeline: it sends the
 screenshot straight to a vision-capable LLM and never touches OCR.
 
-**2. Ambient, tied directly to the decision engine.** `OcrFallbackAnnouncer` is called by both
-`ElementTracker` (hover) and `FocusAnnouncer` (keyboard focus) before they announce a
-`SemanticElement`'s empty UIA content. Unlike path 1, the recognized text is spoken directly with
-no LLM, so it works with AI turned off.
+### 2. Ambient, tied directly to the decision engine
+
+`OcrFallbackAnnouncer` is called by both `ElementTracker` (hover) and `FocusAnnouncer` (keyboard
+focus) before they announce a `SemanticElement`'s empty UIA content. Unlike path 1, the
+recognized text is spoken directly with no LLM, so it works with AI turned off.
 
 ```mermaid
 sequenceDiagram
@@ -138,6 +155,12 @@ sequenceDiagram
         FB->>Speech: AnnounceTextAsync(suggestion message, Ambient)
     end
 ```
+
+In sequence: a hover or focus with no name/value reaches `OcrFallbackAnnouncer`, which - unless
+the app is already known-problematic - probes the window's children to check whether it's
+opaque, then asks the decision engine for a verdict. `RunAutomatically` captures a screenshot,
+runs OCR, and speaks the recognized text; `SuggestOcr` speaks a suggestion message instead;
+anything else speaks nothing and falls back to the plain UIA announcement.
 
 Two signals feed this, deliberately not one:
 
@@ -208,6 +231,11 @@ sequenceDiagram
         FB->>Speech: AnnounceTextAsync(that line's text, Ambient) - or nothing, if no line is under the point
     end
 ```
+
+In sequence: with a scan already cached, the mouse settling at a new point (still the same UIA
+window) checks for a fresh scan, finds which cached line's box the point falls in, and speaks
+that line only if it's different from the last one spoken - otherwise it stays silent rather
+than repeating itself.
 
 The first announcement for a newly-opaque window is also position-aware: `ElementTracker` tracks
 the latest raw mouse position independently and hands it to the initial `TryAnnounceAsync` call,

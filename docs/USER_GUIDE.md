@@ -6,7 +6,7 @@ Peek reads the screen out loud. This page covers day-to-day use.
 
 Peek can follow your keyboard, your mouse, or both. Both are on by default, independently.
 
-| | What it does | Who it's for |
+| Tracking | What it does | Who it's for |
 | --- | --- | --- |
 | **Focus tracking** | Announces whatever takes keyboard focus, in any application | Keyboard navigation, including without being able to see the screen |
 | **Hover tracking** | Announces whatever is under the mouse pointer | Low-vision use, or sighted accessibility checks |
@@ -52,17 +52,21 @@ Docked mode pins Peek to a screen edge; normal mode is an ordinary window. Switc
 
 ## Speech
 
-**Voices.** Piper neural voices, running locally. The first time a voice is needed it
-downloads; until then Peek speaks with the Windows built-in voices, so it works offline from
-first launch.
+### Voices
 
-**Languages.** UI language and speech language are set separately (**Settings → Language**,
-**Settings → Speech**) - read the interface in one language, listen in another. Chinese text is
-detected automatically and always spoken in Mandarin; everything else follows the speech
-setting.
+Piper neural voices, running locally. The first time a voice is needed it downloads; until then
+Peek speaks with the Windows built-in voices, so it works offline from first launch.
 
-**Verbosity** (**Settings → Speech**) controls how much detail each announcement carries, from
-just the name up to name, role, state, value, shortcut, and description.
+### Languages
+
+UI language and speech language are set separately (**Settings → Language**, **Settings →
+Speech**) - read the interface in one language, listen in another. Chinese text is detected
+automatically and always spoken in Mandarin; everything else follows the speech setting.
+
+### Verbosity
+
+**Settings → Speech** controls how much detail each announcement carries, from just the name up
+to name, role, state, value, shortcut, and description.
 
 ## AI descriptions
 
@@ -76,7 +80,7 @@ turned on explicitly as a separate consent.
 
 ## Where Peek keeps things
 
-| | Path |
+| Item | Path |
 | --- | --- |
 | Settings | `%LOCALAPPDATA%\Peek\settings.json` |
 | Logs | `%LOCALAPPDATA%\Peek\logs\` |
@@ -88,19 +92,25 @@ Crash reports never leave your machine. Attaching the newest one helps if you fi
 
 ## If something goes wrong
 
-**Peek isn't speaking.** Check the connection dot on the Screen Reader page - if it's dark,
-the worker process isn't running; restart Peek. If it's lit but nothing speaks, check the logs
-folder: a first run with no network is the usual cause, and Peek should have fallen back to
-Windows voices.
+### Peek isn't speaking
 
-**Peek isn't announcing what I focus.** For other applications, check **Settings → Screen
-reading → Announce whatever takes keyboard focus**. Peek's own interface has a separate switch
-in the same section, **Announce Peek's own interface** (on by default - turn it off if you're
-already running another always-on screen reader alongside Peek).
+Check the connection dot on the Screen Reader page - if it's dark, the worker process isn't
+running; restart Peek. If it's lit but nothing speaks, check the logs folder: a first run with
+no network is the usual cause, and Peek should have fallen back to Windows voices.
 
-**Everything is announced twice.** You likely have both focus and hover tracking on, with the
-mouse resting over what you're navigating. Turn off hover tracking.
+### Peek isn't announcing what I focus
 
-**Windows warns about an unrecognized app when installing.** The installer isn't code-signed
-yet. Choose "More info" then "Run anyway," or verify the download against the `SHA256SUMS.txt`
-published with the release.
+For other applications, check **Settings → Screen reading → Announce whatever takes keyboard
+focus**. Peek's own interface has a separate switch in the same section, **Announce Peek's own
+interface** (on by default - turn it off if you're already running another always-on screen
+reader alongside Peek).
+
+### Everything is announced twice
+
+You likely have both focus and hover tracking on, with the mouse resting over what you're
+navigating. Turn off hover tracking.
+
+### Windows warns about an unrecognized app when installing
+
+The installer isn't code-signed yet. Choose "More info" then "Run anyway," or verify the
+download against the `SHA256SUMS.txt` published with the release.

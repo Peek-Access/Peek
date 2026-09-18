@@ -3,6 +3,7 @@
     align="center"
     src="logo.png"
     width="250"
+    alt="Peek logo"
   />
   <h1 align="center">Peek</h1>
   <p align="center">

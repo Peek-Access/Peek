@@ -11,8 +11,10 @@ Peek can follow your keyboard, your mouse, or both. Both are on by default, inde
 | **Focus tracking** | Announces whatever takes keyboard focus, in any application | Keyboard navigation, including without being able to see the screen |
 | **Hover tracking** | Announces whatever is under the mouse pointer | Low-vision use, or sighted accessibility checks |
 
-Both are in **Settings → Screen reading**. If you navigate by keyboard, turn hover tracking
-off, or a stray mouse movement will interrupt what you're listening to.
+Both are in **Settings → Screen reading**, along with an option to highlight the focused
+element on screen (for low-vision use, or for sighted-checking what Peek is currently tracking).
+If you navigate by keyboard, turn hover tracking off, or a stray mouse movement will interrupt
+what you're listening to.
 
 ## Keyboard shortcuts
 
@@ -92,9 +94,9 @@ folder: a first run with no network is the usual cause, and Peek should have fal
 Windows voices.
 
 **Peek isn't announcing what I focus.** For other applications, check **Settings → Screen
-reading → Announce whatever takes keyboard focus**. Peek's own interface has a separate switch,
-**Settings → Accessibility → Announce Peek's own interface** (on by default - turn it off if
-you're already running another always-on screen reader alongside Peek).
+reading → Announce whatever takes keyboard focus**. Peek's own interface has a separate switch
+in the same section, **Announce Peek's own interface** (on by default - turn it off if you're
+already running another always-on screen reader alongside Peek).
 
 **Everything is announced twice.** You likely have both focus and hover tracking on, with the
 mouse resting over what you're navigating. Turn off hover tracking.

@@ -10,13 +10,13 @@
     versioning yet.
   -->
   <PropertyGroup>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Product>Peek</Product>
-    <Company>NeverMorewd</Company>
-    <Authors>NeverMorewd</Authors>
-    <Description>A screen reader for Windows</Description>
-    <Copyright>Copyright (C) 2026 NeverMorewd</Copyright>
-    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <Company>Peek-Access</Company>
+    <Authors>Peek-Access</Authors>
+    <Description>Another accessibility tool for Windows.</Description>
+    <Copyright>Copyright (C) 2026 Peek-Access</Copyright>
+    <PackageLicenseExpression>GPL-3.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Peek-Access/Peek</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Peek-Access/Peek</RepositoryUrl>
   </PropertyGroup>

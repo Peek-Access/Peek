@@ -48,8 +48,8 @@ jobs:
         run: dotnet restore Peek.slnx
 
       # Debug rather than Release: Peek.Integration.Tests launches the real Peek.Worker.exe
-      # out of bin/net10.0 (see TestPaths.FindWorkerExecutable), so the worker has to be
-      # built before the tests run either way - and a Debug worker keeps its Debug-level
+      # out of bin/net10.0/worker (see TestPaths.FindWorkerExecutable), so the worker has to
+      # be built before the tests run either way - and a Debug worker keeps its Debug-level
       # logging, which is what makes a CI failure diagnosable from the log alone.
       - name: Build
         run: dotnet build Peek.slnx -c Debug --no-restore

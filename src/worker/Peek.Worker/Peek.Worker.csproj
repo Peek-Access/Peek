@@ -22,14 +22,21 @@
          in a self-contained publish - out of the package. -->
     <PredefinedCulturesOnly>false</PredefinedCulturesOnly>
     <!--
-      Co-locate dev builds with Peek.Desktop's own output (also forced to
-      ..\..\..\bin\, see Peek.Desktop.csproj) so WorkerConnection - which resolves
-      Peek.Worker.exe next to its own executable - finds it in a plain `dotnet
-      build`/F5 dev loop, not just in a published/packaged layout. The literal
-      "net10.0" folder name (this project actually targets net10.0-windows) is
-      intentional: it must match Peek.Desktop's resolved output folder exactly.
+      Land dev builds under Peek.Desktop's own output (also forced to ..\..\..\bin\,
+      see Peek.Desktop.csproj) in a "worker" subfolder - matching
+      WorkerConnectionOptions.WorkerExecutablePath's default of "worker\Peek.Worker.exe" -
+      so a plain `dotnet build`/F5 dev loop finds the worker the same way a
+      published/packaged layout does, not just in a happy-path published test.
+      This must NOT be the same folder as Peek.Desktop's: the two exes' central package
+      management scopes (src/client vs src/worker) can and do pin different versions of
+      a shared dependency (e.g. SkiaSharp - Avalonia.Skia pins one version for the
+      client, the worker pins its own), and a shared flat output directory only has
+      room for one physical copy of any given assembly name, so the two would silently
+      clobber each other. The literal "net10.0" folder name (this project actually
+      targets net10.0-windows) is intentional: it must match Peek.Desktop's resolved
+      output folder exactly.
     -->
-    <OutputPath>..\..\..\bin\net10.0\</OutputPath>
+    <OutputPath>..\..\..\bin\net10.0\worker\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 

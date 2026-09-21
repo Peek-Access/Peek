@@ -4,10 +4,13 @@ internal static class TestPaths
 {
     /// <summary>
     /// Finds the repo root by walking up from the test assembly looking for
-    /// Peek.slnx, then locates a built Peek.Worker.exe - preferring the shared
-    /// flat output folder a whole-solution build produces (bin/net10.0/, see
-    /// Peek.Worker.csproj's OutputPath override), falling back to the project's
-    /// own per-configuration output directory for a partial/project-only build.
+    /// Peek.slnx, then locates a built Peek.Worker.exe - preferring the "worker"
+    /// subfolder under the shared flat output a whole-solution build produces
+    /// (bin/net10.0/worker/, see Peek.Worker.csproj's OutputPath override - it must stay
+    /// out of Peek.Desktop's own bin/net10.0/, since the two projects' central package
+    /// management scopes can pin different versions of a shared dependency), falling
+    /// back to the project's own per-configuration output directory for a
+    /// partial/project-only build.
     /// </summary>
     public static string FindWorkerExecutable()
     {
@@ -19,7 +22,7 @@ internal static class TestPaths
 
         var candidates = new[]
         {
-            Path.Combine(repoRoot, "bin", "net10.0", "Peek.Worker.exe"),
+            Path.Combine(repoRoot, "bin", "net10.0", "worker", "Peek.Worker.exe"),
             Path.Combine(repoRoot, "src", "worker", "Peek.Worker", "bin", "Debug", "net10.0-windows", "Peek.Worker.exe"),
             Path.Combine(repoRoot, "src", "worker", "Peek.Worker", "bin", "Release", "net10.0-windows", "Peek.Worker.exe"),
         };

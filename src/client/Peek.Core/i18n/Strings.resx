@@ -60,6 +60,9 @@
   <data name="Settings_Ocr_Preference" xml:space="preserve">
     <value>When to run OCR</value>
   </data>
+  <data name="Settings_Ocr_ChangeThreshold" xml:space="preserve">
+    <value>Re-scan sensitivity (how much the screen must change)</value>
+  </data>
   <data name="Settings_Ai_Header" xml:space="preserve">
     <value>AI</value>
   </data>

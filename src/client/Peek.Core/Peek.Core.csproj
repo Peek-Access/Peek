@@ -54,6 +54,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Peek.Ipc\Peek.Ipc.csproj" />
+    <!-- Peek.Worker.Screenshot is pure, platform-neutral logic (no GDI/System.Drawing
+         dependency) - same category as Peek.Worker.Tts, which Peek.Core.Tests already
+         references directly for the same reason. OcrFallbackAnnouncer uses its
+         IImageSimilarityAlgorithm to decide whether an already-scanned window's content
+         changed enough to justify a re-scan (see docs/OCR_STRATEGY.md, finding 8) - in
+         Peek.Core's own process, not over the worker RPC pipe, so this is a normal in-process
+         dependency, not a client/worker boundary crossing. -->
+    <ProjectReference Include="..\..\worker\Peek.Worker.Screenshot\Peek.Worker.Screenshot.csproj" />
   </ItemGroup>
 
 </Project>

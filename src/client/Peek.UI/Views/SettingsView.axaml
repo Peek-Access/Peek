@@ -345,6 +345,30 @@
                         AutomationProperties.LabeledBy="{Binding #OcrPreferenceLabel}"
                         ItemsSource="{Binding OcrPreferenceOptions}"
                         SelectedItem="{Binding OcrPreference}" />
+
+                    <TextBlock
+                        x:Name="OcrScreenChangeThresholdLabel"
+                        Margin="0,10,0,4"
+                        FontSize="12"
+                        Opacity="0.6"
+                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ocr_ChangeThreshold}}" />
+                    <StackPanel Orientation="Horizontal">
+                        <Slider
+                            x:Name="OcrScreenChangeThresholdSlider"
+                            Width="200"
+                            VerticalAlignment="Center"
+                            AutomationProperties.LabeledBy="{Binding #OcrScreenChangeThresholdLabel}"
+                            IsSnapToTickEnabled="True"
+                            Maximum="0.10"
+                            Minimum="0.002"
+                            TickFrequency="0.002"
+                            Value="{Binding OcrScreenChangeThreshold}" />
+                        <TextBlock
+                            Width="40"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Text="{Binding #OcrScreenChangeThresholdSlider.Value, StringFormat={}{0:P1}}" />
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
 

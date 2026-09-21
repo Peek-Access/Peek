@@ -18,6 +18,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.0" />
     <PackageReference Include="xunit.v3" Version="4.0.1" />
+    <!-- Only for generating synthetic test images (drawn shapes, not real window capture) in
+         GrayscaleDownsampleSimilarityAlgorithmTests - the algorithm under test has no
+         System.Drawing dependency of its own, only this test project does. -->
+    <PackageReference Include="System.Drawing.Common" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +31,10 @@
          thing that should be pinned by fast unit tests rather than only exercised by
          launching a real worker. -->
     <ProjectReference Include="..\..\src\worker\Peek.Worker.Tts\Peek.Worker.Tts.csproj" />
+    <!-- Same reasoning: IImageSimilarityAlgorithm is pure, platform-neutral logic, worth
+         pinning directly rather than only via ScreenshotFingerprintTests (which needs a real
+         worker process and a real window). -->
+    <ProjectReference Include="..\..\src\worker\Peek.Worker.Screenshot\Peek.Worker.Screenshot.csproj" />
   </ItemGroup>
 
 </Project>

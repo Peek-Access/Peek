@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Peek.Worker.Contracts.Screenshot;
 
@@ -7,10 +8,12 @@ namespace Peek.Worker.Screenshot.Windows;
 
 public sealed class WindowsScreenshotService : IScreenshotService
 {
+    private readonly IImageSimilarityAlgorithm _similarity;
     private readonly ILogger<WindowsScreenshotService> _logger;
 
-    public WindowsScreenshotService(ILogger<WindowsScreenshotService> logger)
+    public WindowsScreenshotService(IImageSimilarityAlgorithm similarity, ILogger<WindowsScreenshotService> logger)
     {
+        _similarity = similarity;
         _logger = logger;
     }
 
@@ -37,16 +40,38 @@ public sealed class WindowsScreenshotService : IScreenshotService
         Task.Run(() =>
         {
             ct.ThrowIfCancellationRequested();
+            using var bitmap = CaptureWindowBitmap(hwnd);
+            return Encode(bitmap);
+        }, ct);
 
-            if (!NativeMethods.GetWindowRect(hwnd, out var rect))
-                throw new InvalidOperationException($"GetWindowRect failed for handle 0x{hwnd:X}.");
+    public Task<ScreenshotFingerprintResult> CaptureFingerprintAsync(nint hwnd, CancellationToken ct = default) =>
+        Task.Run(() =>
+        {
+            ct.ThrowIfCancellationRequested();
+            using var bitmap = CaptureWindowBitmap(hwnd);
+            var bgraPixels = ExtractBgraPixels(bitmap);
+            var fingerprint = _similarity.ComputeFingerprint(bgraPixels, bitmap.Width, bitmap.Height);
+            return new ScreenshotFingerprintResult { Fingerprint = fingerprint };
+        }, ct);
 
-            var width = rect.Right - rect.Left;
-            var height = rect.Bottom - rect.Top;
-            if (width <= 0 || height <= 0)
-                throw new InvalidOperationException($"Window 0x{hwnd:X} has an empty rect.");
+    /// <summary>
+    /// Shared by <see cref="CaptureWindowAsync"/> and <see cref="CaptureFingerprintAsync"/> -
+    /// both need the exact same pixels, just encoded differently afterwards, and the capture
+    /// itself (not the encoding) is the expensive part (PrintWindow/CopyFromScreen).
+    /// </summary>
+    private Bitmap CaptureWindowBitmap(nint hwnd)
+    {
+        if (!NativeMethods.GetWindowRect(hwnd, out var rect))
+            throw new InvalidOperationException($"GetWindowRect failed for handle 0x{hwnd:X}.");
 
-            using var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+        var width = rect.Right - rect.Left;
+        var height = rect.Bottom - rect.Top;
+        if (width <= 0 || height <= 0)
+            throw new InvalidOperationException($"Window 0x{hwnd:X} has an empty rect.");
+
+        var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+        try
+        {
             using (var graphics = Graphics.FromImage(bitmap))
             {
                 var hdc = graphics.GetHdc();
@@ -72,8 +97,14 @@ public sealed class WindowsScreenshotService : IScreenshotService
                 }
             }
 
-            return Encode(bitmap);
-        }, ct);
+            return bitmap;
+        }
+        catch
+        {
+            bitmap.Dispose();
+            throw;
+        }
+    }
 
     private static ScreenshotResult Encode(Bitmap bitmap)
     {
@@ -85,5 +116,40 @@ public sealed class WindowsScreenshotService : IScreenshotService
             Width = bitmap.Width,
             Height = bitmap.Height,
         };
+    }
+
+    /// <summary>
+    /// Raw BGRA8888 bytes for <see cref="IImageSimilarityAlgorithm.ComputeFingerprint"/> - via
+    /// <see cref="Bitmap.LockBits"/> rather than a per-pixel <see cref="Bitmap.GetPixel"/> loop,
+    /// which is well known to be slow enough to matter at full window resolution (this can run
+    /// against a 1000x1000+ image every few seconds while a window is hovered).
+    /// </summary>
+    private static byte[] ExtractBgraPixels(Bitmap bitmap)
+    {
+        var rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+        var data = bitmap.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        try
+        {
+            var rowBytes = bitmap.Width * 4;
+            var pixels = new byte[rowBytes * bitmap.Height];
+
+            if (data.Stride == rowBytes)
+            {
+                Marshal.Copy(data.Scan0, pixels, 0, pixels.Length);
+            }
+            else
+            {
+                // Stride can exceed rowBytes (row padding for alignment) - copy row by row
+                // rather than assuming a tightly-packed buffer.
+                for (var y = 0; y < bitmap.Height; y++)
+                    Marshal.Copy(data.Scan0 + y * data.Stride, pixels, y * rowBytes, rowBytes);
+            }
+
+            return pixels;
+        }
+        finally
+        {
+            bitmap.UnlockBits(data);
+        }
     }
 }

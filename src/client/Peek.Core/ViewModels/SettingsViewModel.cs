@@ -50,6 +50,8 @@ public partial class SettingsViewModel : ViewModelBase
     [Reactive]
     private OcrUserPreference _ocrPreference;
     [Reactive]
+    private double _ocrScreenChangeThreshold;
+    [Reactive]
     private bool _aiEnabled;
     [Reactive]
     private string _aiProvider = "ollama";
@@ -161,6 +163,7 @@ public partial class SettingsViewModel : ViewModelBase
         _germanVoiceId = settings.Speech.VoiceIdByLanguage.GetValueOrDefault("de", "de_DE-thorsten-medium");
         _chineseVoiceId = settings.Speech.VoiceIdByLanguage.GetValueOrDefault("zh", "zh_CN-huayan-medium");
         _ocrPreference = settings.Ocr.Preference;
+        _ocrScreenChangeThreshold = settings.Ocr.ScreenChangeThreshold;
         _aiEnabled = settings.Ai.Enabled;
         _aiProvider = settings.Ai.Provider;
         var activeAiCredentials = settings.Ai.Providers.GetValueOrDefault(_aiProvider) ?? new LlmProviderCredentials();
@@ -221,6 +224,8 @@ public partial class SettingsViewModel : ViewModelBase
             .Subscribe(v => _ = _settingsService.UpdateAsync(s => s.Speech.VoiceIdByLanguage["zh"] = v));
         this.WhenAnyValue(x => x.OcrPreference).Skip(1)
             .Subscribe(p => _ = _settingsService.UpdateAsync(s => s.Ocr.Preference = p));
+        this.WhenAnyValue(x => x.OcrScreenChangeThreshold).Skip(1)
+            .Subscribe(v => _ = _settingsService.UpdateAsync(s => s.Ocr.ScreenChangeThreshold = v));
         this.WhenAnyValue(x => x.AiEnabled).Skip(1)
             .Subscribe(e => _ = _settingsService.UpdateAsync(s => s.Ai.Enabled = e));
         this.WhenAnyValue(x => x.AiProvider).Skip(1)

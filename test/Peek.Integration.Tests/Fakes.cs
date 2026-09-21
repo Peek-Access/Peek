@@ -47,8 +47,8 @@ internal sealed class FakeHighlightService : IHighlightService
     public void Hide() { }
     public void Resume() { }
     public void Reset() { }
-    public void UpdateLocation(Rectangle rect) => UpdatedLocations.Add(rect);
-    public Task UpdateLocationAsync(Rectangle rect) => Task.CompletedTask;
+    public void UpdateLocation(Rectangle rect, nint? targetHwnd = null) => UpdatedLocations.Add(rect);
+    public Task UpdateLocationAsync(Rectangle rect, nint? targetHwnd = null) => Task.CompletedTask;
     public void Clear() { }
     public void UpdateColorsRandomly() { }
     public Task StartBreathAsync(CancellationToken cancellationToken) => Task.CompletedTask;

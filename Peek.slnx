@@ -11,6 +11,7 @@
   <Project Path="src/worker/Peek.Worker.Tts/Peek.Worker.Tts.csproj" />
   <Project Path="src/worker/Peek.Worker.Tts.Windows/Peek.Worker.Tts.Windows.csproj" />
   <Project Path="src/worker/Peek.Worker.Ocr/Peek.Worker.Ocr.csproj" />
+  <Project Path="src/worker/Peek.Worker.Screenshot/Peek.Worker.Screenshot.csproj" />
   <Project Path="src/worker/Peek.Worker.Screenshot.Windows/Peek.Worker.Screenshot.Windows.csproj" />
   <Project Path="src/worker/Peek.Worker.SystemMonitor.Windows/Peek.Worker.SystemMonitor.Windows.csproj" />
   <Project Path="src/worker/Peek.Worker.Llm/Peek.Worker.Llm.csproj" />

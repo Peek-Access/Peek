@@ -188,4 +188,23 @@ public class OcrFallbackAnnouncerTests
     {
         Assert.Equal("Extracting text, one moment...", OcrFallbackAnnouncer.FormatExtractingMessage(windowName));
     }
+
+    [Fact]
+    public void Content_changed_message_names_the_window()
+    {
+        Assert.Equal("Weixin changed, reading again...", OcrFallbackAnnouncer.FormatContentChangedMessage("Weixin"));
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Content_changed_message_falls_back_to_a_generic_phrasing_when_the_window_has_no_name(string? windowName)
+    {
+        Assert.Equal("Content changed, reading again...", OcrFallbackAnnouncer.FormatContentChangedMessage(windowName));
+    }
+
+    // Fingerprint similarity itself (ComputeChangeRatio, ComputeFingerprint) is no longer
+    // OcrFallbackAnnouncer's own logic - it's Peek.Worker.Screenshot.IImageSimilarityAlgorithm,
+    // injected here instead. See GrayscaleDownsampleSimilarityAlgorithmTests for its coverage.
 }

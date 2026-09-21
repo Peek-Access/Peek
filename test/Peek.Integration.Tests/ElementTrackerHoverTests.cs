@@ -10,6 +10,7 @@ using Peek.Core.Settings;
 using Peek.Core.Services.Speech;
 using Peek.Ipc.Worker;
 using Peek.Ipc.Connection;
+using Peek.Worker.Screenshot;
 using Xunit;
 
 namespace Peek.Integration.Tests;
@@ -64,6 +65,7 @@ public sealed class ElementTrackerHoverTests
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddSingleton<WindowEnumerator>();
         services.AddSingleton<IOcrDecisionService, DefaultOcrDecisionService>();
+        services.AddSingleton<IImageSimilarityAlgorithm, GrayscaleDownsampleSimilarityAlgorithm>();
         services.AddSingleton<OcrFallbackAnnouncer>();
         var provider = services.BuildServiceProvider();
 
@@ -114,6 +116,7 @@ public sealed class ElementTrackerHoverTests
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddSingleton<WindowEnumerator>();
         services.AddSingleton<IOcrDecisionService, DefaultOcrDecisionService>();
+        services.AddSingleton<IImageSimilarityAlgorithm, GrayscaleDownsampleSimilarityAlgorithm>();
         services.AddSingleton<OcrFallbackAnnouncer>();
         var provider = services.BuildServiceProvider();
 
@@ -168,6 +171,7 @@ public sealed class ElementTrackerHoverTests
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddSingleton<WindowEnumerator>();
         services.AddSingleton<IOcrDecisionService, DefaultOcrDecisionService>();
+        services.AddSingleton<IImageSimilarityAlgorithm, GrayscaleDownsampleSimilarityAlgorithm>();
         services.AddSingleton<OcrFallbackAnnouncer>();
         var provider = services.BuildServiceProvider();
 
@@ -227,6 +231,7 @@ public sealed class ElementTrackerHoverTests
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddSingleton<WindowEnumerator>();
         services.AddSingleton<IOcrDecisionService, DefaultOcrDecisionService>();
+        services.AddSingleton<IImageSimilarityAlgorithm, GrayscaleDownsampleSimilarityAlgorithm>();
         services.AddSingleton<OcrFallbackAnnouncer>();
         var provider = services.BuildServiceProvider();
 
@@ -281,6 +286,7 @@ public sealed class ElementTrackerHoverTests
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddSingleton<WindowEnumerator>();
         services.AddSingleton<IOcrDecisionService, DefaultOcrDecisionService>();
+        services.AddSingleton<IImageSimilarityAlgorithm, GrayscaleDownsampleSimilarityAlgorithm>();
         services.AddSingleton<OcrFallbackAnnouncer>();
         var provider = services.BuildServiceProvider();
 
@@ -336,6 +342,7 @@ public sealed class ElementTrackerHoverTests
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddSingleton<WindowEnumerator>();
         services.AddSingleton<IOcrDecisionService, DefaultOcrDecisionService>();
+        services.AddSingleton<IImageSimilarityAlgorithm, GrayscaleDownsampleSimilarityAlgorithm>();
         services.AddSingleton<OcrFallbackAnnouncer>();
         var provider = services.BuildServiceProvider();
 
@@ -406,6 +413,7 @@ public sealed class ElementTrackerHoverTests
         services.AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
         services.AddSingleton<WindowEnumerator>();
         services.AddSingleton<IOcrDecisionService, DefaultOcrDecisionService>();
+        services.AddSingleton<IImageSimilarityAlgorithm, GrayscaleDownsampleSimilarityAlgorithm>();
         services.AddSingleton<OcrFallbackAnnouncer>();
         var provider = services.BuildServiceProvider();
 

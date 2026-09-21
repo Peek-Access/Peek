@@ -35,6 +35,7 @@ namespace Peek.Worker.Contracts.Rpc;
 [JsonSerializable(typeof(OcrStatus))]
 [JsonSerializable(typeof(RecognizeParams))]
 [JsonSerializable(typeof(ScreenshotResult))]
+[JsonSerializable(typeof(ScreenshotFingerprintResult))]
 [JsonSerializable(typeof(CaptureWindowParams))]
 [JsonSerializable(typeof(LlmMessage))]
 [JsonSerializable(typeof(LlmProviderConfig))]

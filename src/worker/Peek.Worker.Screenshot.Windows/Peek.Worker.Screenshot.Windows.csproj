@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Peek.Worker.Contracts\Peek.Worker.Contracts.csproj" />
+    <ProjectReference Include="..\Peek.Worker.Screenshot\Peek.Worker.Screenshot.csproj" />
   </ItemGroup>
 
 </Project>

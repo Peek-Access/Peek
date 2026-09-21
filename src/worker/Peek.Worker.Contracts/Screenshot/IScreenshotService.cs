@@ -10,4 +10,11 @@ public interface IScreenshotService
     Task<ScreenshotResult> CaptureDesktopAsync(CancellationToken ct = default);
 
     Task<ScreenshotResult> CaptureWindowAsync(nint hwnd, CancellationToken ct = default);
+
+    /// <summary>
+    /// A small downsampled grayscale sample of <paramref name="hwnd"/>'s current contents -
+    /// cheap enough to call every few seconds to check "did this window's content actually
+    /// change" without paying for a full-resolution capture or an OCR pass.
+    /// </summary>
+    Task<ScreenshotFingerprintResult> CaptureFingerprintAsync(nint hwnd, CancellationToken ct = default);
 }

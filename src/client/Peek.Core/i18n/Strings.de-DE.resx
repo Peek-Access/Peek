@@ -60,6 +60,9 @@
   <data name="Settings_Ocr_Preference" xml:space="preserve">
     <value>Wann OCR ausgeführt wird</value>
   </data>
+  <data name="Settings_Ocr_ChangeThreshold" xml:space="preserve">
+    <value>Empfindlichkeit für erneutes Scannen (wie stark sich der Bildschirm ändern muss)</value>
+  </data>
   <data name="Settings_Ai_Header" xml:space="preserve">
     <value>KI</value>
   </data>

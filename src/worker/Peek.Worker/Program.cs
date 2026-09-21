@@ -13,6 +13,7 @@ using Peek.Worker.Llm;
 using Peek.Worker.Ocr;
 using Peek.Worker.Options;
 using Peek.Worker.Rpc;
+using Peek.Worker.Screenshot;
 using Peek.Worker.Screenshot.Windows;
 using Peek.Worker.SystemMonitor.Windows;
 using Peek.Worker.Tts;
@@ -90,6 +91,7 @@ builder.Services.AddSingleton<ITtsService>(sp =>
         logger: sp.GetRequiredService<ILogger<FallbackTtsService>>());
 });
 builder.Services.AddSingleton<IOcrService, SimdPaddleOcrService>();
+builder.Services.AddSingleton<IImageSimilarityAlgorithm, GrayscaleDownsampleSimilarityAlgorithm>();
 builder.Services.AddSingleton<IScreenshotService, WindowsScreenshotService>();
 builder.Services.AddSingleton<ISystemMonitorService, WindowsSystemMonitorService>();
 // The worker is stateless with respect to AI settings (§17) - every llm.* RPC call

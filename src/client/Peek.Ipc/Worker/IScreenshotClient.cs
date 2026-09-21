@@ -11,4 +11,6 @@ public interface IScreenshotClient
     Task<ScreenshotResult> CaptureDesktopAsync(CancellationToken ct = default);
 
     Task<ScreenshotResult> CaptureWindowAsync(nint hwnd, CancellationToken ct = default);
+
+    Task<ScreenshotFingerprintResult> CaptureFingerprintAsync(nint hwnd, CancellationToken ct = default);
 }

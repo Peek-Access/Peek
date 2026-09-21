@@ -24,6 +24,7 @@ using Peek.Ipc.DependencyInjection;
 using Peek.UI.Indicators;
 using Peek.UI.Views;
 using Peek.Views;
+using Peek.Worker.Screenshot;
 using Pipboy.Avalonia;
 using ReactiveUI;
 using ReactiveUI.Primitives;
@@ -97,6 +98,7 @@ public partial class App : Application
                 .AddSingleton<ISpeechPolicy, StandardSpeechPolicy>()
                 .AddSingleton<IAccessibilitySpeechService, AccessibilitySpeechService>()
                 .AddSingleton<IOcrDecisionService, DefaultOcrDecisionService>()
+                .AddSingleton<IImageSimilarityAlgorithm, GrayscaleDownsampleSimilarityAlgorithm>()
                 .AddSingleton<OcrFallbackAnnouncer>()
                 .AddSingleton<IContextAggregator, ContextAggregator>()
                 .AddSingleton<IElementDescriptionService, ElementDescriptionService>()

@@ -234,6 +234,12 @@ public sealed class RpcRequestDispatcher
                 var result = await _screenshot.CaptureWindowAsync(p.Hwnd, ct).ConfigureAwait(false);
                 return ToElement(result, WorkerJsonContext.Default.ScreenshotResult);
             }
+            case "screenshot.captureFingerprint":
+            {
+                var p = RequireParams(request, WorkerJsonContext.Default.CaptureWindowParams);
+                var result = await _screenshot.CaptureFingerprintAsync(p.Hwnd, ct).ConfigureAwait(false);
+                return ToElement(result, WorkerJsonContext.Default.ScreenshotFingerprintResult);
+            }
             default:
                 throw new RpcMethodException(RpcErrorCodes.MethodNotFound, $"Unknown method '{request.Method}'");
         }

@@ -303,11 +303,11 @@ highlight path needs to vary position by at least one pixel to see it update.
    alone is enough to trigger a full read, but worth remembering next time a shipped default
    changes: accept that existing installs won't see it, or add a migration step keyed off a
    settings version. Also no Settings UI for this list yet, only `settings.json` by hand.
-4. **`ScreenChangedSignificantly` is never actually computed.** `OcrFallbackAnnouncer` always
-   passes the context's default (`false`), so a known-problematic window re-hovered after its
-   content changed (new chat messages) but within the 2-second `MinRerunInterval` reports stale,
-   cached text instead of re-scanning. Comparing the new screenshot's hash against the last one
-   (already computed once for the OCR service's own cache key) would catch this cheaply.
+4. ~~`ScreenChangedSignificantly` is never actually computed.~~ Superseded, not literally fixed:
+   that context field is still always `false` (`DefaultOcrDecisionService`'s 2-second
+   `MinRerunInterval` throttle only ever matters on a fresh hover-driven call anyway). What
+   actually closes this gap is finding 8's fix, below - a periodic fingerprint comparison that
+   triggers a re-scan on its own, independent of a new hover ever happening.
 5. **The opacity probe's depth (2), chrome exclusion list, and structural-container list are
    judgment calls, not exhaustive.** Two rounds of testing against real apps each turned up a
    distinct false positive (see the gotchas above), both fixed - but a different app could expose
@@ -326,9 +326,27 @@ highlight path needs to vary position by at least one pixel to see it update.
    which should match on an ordinary single-monitor/uniform-DPI setup, but per-monitor DPI
    scaling or a non-DPI-aware window could make them disagree by a scale factor - untested, since
    reproducing that needs actual mixed-DPI hardware.
-8. **A resized, scrolled, or re-rendered window invalidates the cached scan silently.** The
-   position-follow subscription has no way to know content moved since the last
-   `RunAndAnnounceAsync` - it keeps reporting stale line positions until the 30-second
-   `ScanCacheTtl` expires or a fresh hover-driven scan runs. Combined with finding 4, a window
-   with frequently-updating content (the chat-message case this feature targets) can drift out
-   of sync with the screen for up to 30 seconds.
+8. ~~A resized, scrolled, or re-rendered window invalidates the cached scan silently.~~ Fixed.
+   `OcrFallbackAnnouncer.MaybeRefreshOnScreenChangeAsync`, called from the position-follow
+   subscription, now periodically (throttled to once per `FingerprintCheckInterval`, 3s) captures
+   a small grayscale screenshot fingerprint (`screenshot.captureFingerprint`, a new cheap worker
+   RPC) and compares it against the one taken with the current scan. Both the fingerprint and
+   the comparison come from `Peek.Worker.Screenshot.IImageSimilarityAlgorithm` (default impl
+   `GrayscaleDownsampleSimilarityAlgorithm`) - a small, platform-neutral, DI-injected project
+   referenced by both the worker (which calls it server-side, over real captured pixels) and the
+   client (`OcrFallbackAnnouncer`, which calls it to compare two fingerprints already in hand) -
+   kept behind an interface specifically so the technique can be swapped later without touching
+   either caller, and so it can be pinned by unit tests against synthetic images
+   (`GrayscaleDownsampleSimilarityAlgorithmTests`) independent of a real worker process. Below
+   `OcrSettings.ScreenChangeThreshold` (default 0.01, empirically calibrated - see
+   `ScreenshotFingerprintTests`), the scan's freshness window just slides forward instead of
+   re-scanning; at or above it, a real re-scan runs and announces
+   `OcrFallbackAnnouncer.FormatContentChangedMessage` first, so the user knows why they're
+   hearing a re-read for a window they never left. This also fixes the original complaint behind
+   finding 8: previously, a window whose content never changed at all still silently fell back to
+   whole-window highlighting once `ScanCacheTtl` (30s) elapsed, since nothing had ever re-armed
+   it while hovering stayed inside one opaque window (every point resolves to the same UIA
+   element, so the hover-identity-change trigger that would normally start a fresh scan never
+   fires again on its own). Confirming "unchanged" now slides that same 30-second window forward
+   instead, so a genuinely static window never spuriously reverts to the big fallback box no
+   matter how long it's hovered.

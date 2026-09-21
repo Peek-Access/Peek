@@ -6,6 +6,7 @@ using Peek.Core.Settings;
 using Peek.Ipc.Worker;
 using Peek.Worker.Contracts.Automation;
 using Peek.Worker.Contracts.Ocr;
+using Peek.Worker.Screenshot;
 
 namespace Peek.Core.Services.Ocr;
 
@@ -61,6 +62,7 @@ public sealed class OcrFallbackAnnouncer
     private readonly WindowEnumerator _windowEnumerator;
     private readonly IAccessibilitySpeechService _speechService;
     private readonly ISettingsService _settings;
+    private readonly IImageSimilarityAlgorithm _similarity;
     private readonly ILogger<OcrFallbackAnnouncer> _logger;
 
     /// <summary>
@@ -68,16 +70,31 @@ public sealed class OcrFallbackAnnouncer
     /// (<see cref="TryAnnounceForPositionAsync"/>) before it's considered too stale to serve -
     /// at that point the caller falls silent rather than reading text that may no longer match
     /// what's on screen, until the next hover-driven <see cref="RunAndAnnounceAsync"/> refreshes
-    /// it. Position lookups themselves never trigger a re-scan - they're the cheap, frequent
-    /// path a mouse-follow subscription can call on every settled position without cost.
+    /// it. This is a backstop, not the primary freshness mechanism: while the user keeps
+    /// hovering an already-scanned window, <see cref="MaybeRefreshOnScreenChangeAsync"/> keeps
+    /// sliding this window forward every time it confirms the screenshot hasn't meaningfully
+    /// changed, so in practice this only fires if that periodic check itself stops running (the
+    /// user moved off the window, or every fingerprint capture is failing).
     /// </summary>
     private static readonly TimeSpan ScanCacheTtl = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// How often <see cref="MaybeRefreshOnScreenChangeAsync"/> is actually allowed to capture a
+    /// fresh fingerprint and compare it, independent of how often the position-follow
+    /// subscription that calls it fires (<c>HoverThrottleMs</c>, user-configurable and can be
+    /// much shorter). A fingerprint capture costs a real PrintWindow/CopyFromScreen call on the
+    /// worker, so this is what keeps a long, slow-moving hover from re-checking dozens of times
+    /// a second.
+    /// </summary>
+    private static readonly TimeSpan FingerprintCheckInterval = TimeSpan.FromSeconds(3);
 
     private readonly ConcurrentDictionary<nint, (bool IsOpaque, DateTime CheckedAtUtc)> _opacityCache = new();
 
     // Keyed by window, not by element: the throttle is "has this window's visible content
     // likely changed", not "have we scanned this exact sub-element before".
     private readonly ConcurrentDictionary<nint, DateTime> _lastRunByWindow = new();
+
+    private readonly ConcurrentDictionary<nint, DateTime> _lastFingerprintCheckByWindow = new();
 
     /// <summary>
     /// The most recent screenshot+OCR result per window, plus the screen rect it was captured
@@ -90,7 +107,16 @@ public sealed class OcrFallbackAnnouncer
     /// <summary>The line index last announced per window, so re-settling on the same line doesn't repeat it (mirrors ElementTracker's own hover de-duplication, but keyed by OCR line instead of UIA element identity, which never changes across an opaque window).</summary>
     private readonly ConcurrentDictionary<nint, int> _lastAnnouncedLineIndex = new();
 
-    private sealed record CachedScan(OcrResult Result, Rectangle WindowRect, DateTime CapturedAtUtc);
+    /// <summary>
+    /// <paramref name="Element"/> is kept alongside the scan (not just its Hwnd/Rect) because
+    /// <see cref="MaybeRefreshOnScreenChangeAsync"/> needs to hand a full <see cref="SemanticElement"/>
+    /// to a re-scan it triggers itself, from the cheap position-follow path that only ever
+    /// receives an hwnd and a point - it has no other way to reconstruct one.
+    /// <paramref name="Fingerprint"/> is null when the worker's own fingerprint capture failed
+    /// at scan time (best-effort - a missing baseline just means change-detection is skipped
+    /// until the next full scan provides one, not that the cache itself is invalid).
+    /// </summary>
+    private sealed record CachedScan(OcrResult Result, Rectangle WindowRect, SemanticElement Element, byte[]? Fingerprint, DateTime CapturedAtUtc);
 
     public OcrFallbackAnnouncer(
         IOcrDecisionService decisionService,
@@ -98,6 +124,7 @@ public sealed class OcrFallbackAnnouncer
         WindowEnumerator windowEnumerator,
         IAccessibilitySpeechService speechService,
         ISettingsService settings,
+        IImageSimilarityAlgorithm similarity,
         ILogger<OcrFallbackAnnouncer> logger)
     {
         _decisionService = decisionService;
@@ -105,6 +132,7 @@ public sealed class OcrFallbackAnnouncer
         _windowEnumerator = windowEnumerator;
         _speechService = speechService;
         _settings = settings;
+        _similarity = similarity;
         _logger = logger;
     }
 
@@ -224,7 +252,17 @@ public sealed class OcrFallbackAnnouncer
         return opaque;
     }
 
-    private async Task<bool> RunAndAnnounceAsync(SemanticElement element, SpeechPriority priority, Point? hoverPoint, CancellationToken ct)
+    private Task<bool> RunAndAnnounceAsync(SemanticElement element, SpeechPriority priority, Point? hoverPoint, CancellationToken ct) =>
+        ScanAndAnnounceAsync(element, priority, hoverPoint, FormatExtractingMessage(element.Name), ct);
+
+    /// <summary>
+    /// The actual screenshot+OCR round trip, shared by two callers with different reasons for
+    /// running it: <see cref="RunAndAnnounceAsync"/> (a fresh hover onto a not-yet-scanned
+    /// window) and <see cref="MaybeRefreshOnScreenChangeAsync"/> (a periodic fingerprint check
+    /// noticing an already-scanned window's content moved). They differ only in what gets
+    /// spoken up front while the round trip is in flight.
+    /// </summary>
+    private async Task<bool> ScanAndAnnounceAsync(SemanticElement element, SpeechPriority priority, Point? hoverPoint, string announceBeforeMessage, CancellationToken ct)
     {
         // Recorded before the call, not after: a slow/failed OCR attempt must still count as
         // "just tried" so a rapid string of hovers over the same unresponsive window doesn't
@@ -240,14 +278,15 @@ public sealed class OcrFallbackAnnouncer
             // by the real announcement below the moment it's ready (same "newer speech cancels
             // older" rule every other announcement already relies on) - no special handling needed
             // for the fast-OCR case where this gets cut off almost immediately.
-            await _speechService.AnnounceTextAsync(FormatExtractingMessage(element.Name), priority, ct).ConfigureAwait(false);
+            await _speechService.AnnounceTextAsync(announceBeforeMessage, priority, ct).ConfigureAwait(false);
 
             var screenshot = await _workerConnection.Client.Screenshot.CaptureWindowAsync(element.Hwnd, ct).ConfigureAwait(false);
             var result = await _workerConnection.Client.Ocr.RecognizeAsync(screenshot.ImageData, ct: ct).ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(result.Text)) return false;
 
             var windowRect = new Rectangle(element.Rect.Left, element.Rect.Top, element.Rect.Width, element.Rect.Height);
-            _scanCache[element.Hwnd] = new CachedScan(result, windowRect, DateTime.UtcNow);
+            var fingerprint = await TryCaptureFingerprintAsync(element.Hwnd, ct).ConfigureAwait(false);
+            _scanCache[element.Hwnd] = new CachedScan(result, windowRect, element, fingerprint, DateTime.UtcNow);
 
             var lineIndex = hoverPoint is { } p ? FindLineAt(result, windowRect, p) : -1;
             var text = lineIndex >= 0 ? result.Lines[lineIndex].Text : result.Text;
@@ -268,19 +307,96 @@ public sealed class OcrFallbackAnnouncer
     }
 
     /// <summary>
+    /// Best-effort: a fingerprint is only ever used to decide whether to re-scan, so a failed
+    /// capture just means that decision is skipped until the next opportunity, not that
+    /// anything else here should fail.
+    /// </summary>
+    private async Task<byte[]?> TryCaptureFingerprintAsync(nint hwnd, CancellationToken ct)
+    {
+        try
+        {
+            var result = await _workerConnection.Client.Screenshot.CaptureFingerprintAsync(hwnd, ct).ConfigureAwait(false);
+            return result.Fingerprint;
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Could not capture a screenshot fingerprint for hwnd={Hwnd:X}", hwnd);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// The throttled counterpart to <see cref="ScanAndAnnounceAsync"/> that actually notices a
+    /// scanned window's content changed, instead of relying on <see cref="ScanCacheTtl"/>'s
+    /// blind timer (which fires whether or not anything changed, and does nothing to trigger a
+    /// refresh - only to stop trusting the old one). Called from
+    /// <see cref="TryAnnounceForPositionAsync"/>, which only runs while the cursor is still
+    /// inside an already-scanned window - <see cref="ElementTracker"/>'s hover-identity-change
+    /// trigger (the only other thing that can start a re-scan) never fires again on its own
+    /// while hovering stays inside one opaque window, since every point in it resolves to the
+    /// same UIA element (see docs/OCR_STRATEGY.md, finding 8).
+    /// </summary>
+    /// <returns>True if a re-scan ran and spoke its own announcement - the caller should treat that as "handled" and skip its own line lookup, since it's working off data this call just replaced.</returns>
+    private async Task<bool> MaybeRefreshOnScreenChangeAsync(nint hwnd, CachedScan scan, Point screenPoint, SpeechPriority priority, CancellationToken ct)
+    {
+        var lastCheck = _lastFingerprintCheckByWindow.TryGetValue(hwnd, out var t) ? t : (DateTime?)null;
+        if (lastCheck is { } last && DateTime.UtcNow - last < FingerprintCheckInterval)
+            return false;
+
+        // Recorded before the capture, for the same reason _lastRunByWindow is: a slow/failed
+        // check must still count as "just tried" so the throttle above isn't defeated by one
+        // check that happens to still be in flight when the next position settles.
+        _lastFingerprintCheckByWindow[hwnd] = DateTime.UtcNow;
+
+        if (scan.Fingerprint is null) return false;
+
+        var current = await TryCaptureFingerprintAsync(hwnd, ct).ConfigureAwait(false);
+        if (current is null) return false;
+
+        var changeRatio = _similarity.ComputeChangeRatio(scan.Fingerprint, current);
+        var threshold = _settings.Current.Ocr.ScreenChangeThreshold;
+
+        if (changeRatio < threshold)
+        {
+            // Confirmed unchanged - slide the freshness window forward and adopt this
+            // fingerprint as the new baseline, so slow incremental drift (e.g. a log that
+            // scrolls a little on every check) still eventually crosses the threshold in a
+            // bounded number of checks instead of never being caught one small step at a time.
+            _scanCache[hwnd] = scan with { Fingerprint = current, CapturedAtUtc = DateTime.UtcNow };
+            return false;
+        }
+
+        _logger.LogInformation(
+            "OCR fallback: hwnd={Hwnd:X} screen changed (change={Change:P0} >= threshold={Threshold:P0}) - re-scanning",
+            hwnd, changeRatio, threshold);
+
+        return await ScanAndAnnounceAsync(
+            scan.Element, priority, screenPoint, FormatContentChangedMessage(scan.Element.Name), ct).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// The cheap, frequent counterpart to <see cref="RunAndAnnounceAsync"/>: called on every
     /// settled mouse position while hovering a window already confirmed opaque and scanned, so
     /// moving to a different line of on-screen text is announced the way moving to a different
-    /// UIA element normally would be - no screenshot, no OCR, just a lookup against the last
-    /// cached scan. Returns false (does nothing) if there's no fresh-enough scan to check
-    /// against yet, or the point isn't over any recognized line and nothing was previously
-    /// announced for this window - the hover-driven path (<see cref="TryAnnounceAsync"/>) owns
-    /// producing the first scan.
+    /// UIA element normally would be - ordinarily no screenshot, no OCR, just a lookup against
+    /// the last cached scan (the exception is <see cref="MaybeRefreshOnScreenChangeAsync"/>'s own
+    /// much-less-frequent fingerprint check, which is what keeps that cached scan honest for as
+    /// long as hovering continues - see its own remarks). Returns false (does nothing) if
+    /// there's no fresh-enough scan to check against yet, or the point isn't over any recognized
+    /// line and nothing was previously announced for this window - the hover-driven path
+    /// (<see cref="TryAnnounceAsync"/>) owns producing the first scan.
     /// </summary>
     public async Task<bool> TryAnnounceForPositionAsync(nint hwnd, Point screenPoint, SpeechPriority priority, CancellationToken ct)
     {
         if (!_scanCache.TryGetValue(hwnd, out var scan) || DateTime.UtcNow - scan.CapturedAtUtc > ScanCacheTtl)
             return false;
+
+        if (await MaybeRefreshOnScreenChangeAsync(hwnd, scan, screenPoint, priority, ct).ConfigureAwait(false))
+            return true;
 
         var lineIndex = FindLineAt(scan.Result, scan.WindowRect, screenPoint);
 
@@ -361,6 +477,17 @@ public sealed class OcrFallbackAnnouncer
         string.IsNullOrWhiteSpace(windowName)
             ? "Extracting text, one moment..."
             : $"Extracting text from {windowName}, one moment...";
+
+    /// <summary>
+    /// Exposed for tests. Spoken instead of <see cref="FormatExtractingMessage"/> when
+    /// <see cref="MaybeRefreshOnScreenChangeAsync"/> - not a fresh hover - is what triggered the
+    /// re-scan, so the user understands why they're hearing "reading again" for a window they
+    /// never left, rather than mistaking it for a stuck/repeating announcement.
+    /// </summary>
+    public static string FormatContentChangedMessage(string? windowName) =>
+        string.IsNullOrWhiteSpace(windowName)
+            ? "Content changed, reading again..."
+            : $"{windowName} changed, reading again...";
 
     /// <summary>
     /// Exposed for tests. A top-level Window's own Name is its title bar text, not "content" -

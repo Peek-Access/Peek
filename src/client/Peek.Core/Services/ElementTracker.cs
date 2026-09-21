@@ -439,7 +439,7 @@ public partial class ElementTracker : ReactiveObject, IDisposable
                 var highlightRect = _ocrFallback.TryGetLineScreenRect(info.Hwnd, _lastMousePosition, out var lineRect)
                     ? lineRect
                     : new System.Drawing.Rectangle(info.Rect.Left, info.Rect.Top, info.Rect.Width, info.Rect.Height);
-                _highlightService.UpdateLocation(highlightRect);
+                _highlightService.UpdateLocation(highlightRect, info.Hwnd);
 
                 // 2. Announcements, on a stream of their own (background, settle-debounced).
                 //    Fed from here rather than derived from the CurrentElement property so

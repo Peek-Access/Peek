@@ -29,7 +29,7 @@
     <PackageVersion Include="Pipboy.Avalonia.ProDataGrid" Version="1.0.2-beta-preview.17" />
     <PackageVersion Include="ProDataGrid" Version="12.1.0.4-nightly.20260917.1" />
     <PackageVersion Include="ReactiveUI" Version="24.2.0" />
-    <PackageVersion Include="ReactiveUI.Primitives" Version="7.5.0" />
+    <PackageVersion Include="ReactiveUI.Primitives" Version="8.0.0" />
     <PackageVersion Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="System.Reactive" Version="7.0.0" />

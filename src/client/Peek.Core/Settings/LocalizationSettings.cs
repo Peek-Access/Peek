@@ -1,9 +1,17 @@
+using Peek.Core.i18n;
+
 namespace Peek.Core.Settings;
 
 public sealed class LocalizationSettings
 {
-    /// <summary>BCP-47 culture name for the UI (e.g. "en-US", "zh-CN", "de-DE") - applied via ILinguaManager.UpdateCulture at startup.</summary>
-    public string UiLanguage { get; set; } = "en-US";
+    /// <summary>
+    /// BCP-47 culture name for the UI (e.g. "en-US", "zh-CN", "de-DE") - applied via
+    /// ILinguaManager.UpdateCulture at startup. Defaults to whichever of those Peek supports
+    /// best matches the Windows "Language &amp; region" setting (see
+    /// SystemLanguageResolver) so a fresh install starts in the system's language rather than
+    /// always English; a settings.json already on disk always wins over this default.
+    /// </summary>
+    public string UiLanguage { get; set; } = SystemLanguageResolver.ResolveDefaultUiLanguage();
 
     /// <summary>
     /// BCP-47 culture name for the primary/fallback spoken language - independent of

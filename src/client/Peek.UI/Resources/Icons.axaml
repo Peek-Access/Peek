@@ -192,10 +192,19 @@
         <PathGeometry Figures="M 8,6.5 L 8,13.5 L 14,10 Z" />
     </GeometryGroup>
 
-    <!--  AnnouncementView / DockAnnouncementView - history expand/collapse chevron.  -->
+    <!--
+        AnnouncementView / DockAnnouncementView - history expand/collapse chevron: two arms as
+        separate triangles, each fanning out from ONE shared, exactly-equal apex coordinate
+        (10,14) rather than each arm having its own distinct "tip" point a couple units apart
+        (an earlier version did that - two near-but-not-quite-matching tips left a visible
+        gap/crossing at the bottom instead of a clean point, reported as "the arrow doesn't
+        close" after actually looking at the rendered app). Sharing one literal coordinate
+        makes the two arms meet exactly by construction, not by hoping two independently
+        computed points land close enough.
+    -->
     <GeometryGroup x:Key="Icon.ChevronDown">
-        <PathGeometry Figures="M 4.9,5.1 L 3.1,6.9 L 9.1,12.9 L 10.9,11.1 Z" />
-        <PathGeometry Figures="M 15.1,5.1 L 16.9,6.9 L 10.9,12.9 L 9.1,11.1 Z" />
+        <PathGeometry Figures="M 10,14 L 3.1,8.9 L 4.9,7.1 Z" />
+        <PathGeometry Figures="M 10,14 L 16.9,8.9 L 15.1,7.1 Z" />
     </GeometryGroup>
 
     <!--  Settings - Accessibility section header (was the 👁 emoji).  -->

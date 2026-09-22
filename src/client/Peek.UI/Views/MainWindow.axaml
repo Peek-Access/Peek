@@ -128,7 +128,18 @@
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Minimize}}"
                     Click="OnMinimizeClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Minimize}}">
-                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.Minimize}" />
+                    <!--
+                        Viewbox, not Width/Height directly on the Path: Icon.Minimize's own
+                        bounding box (a thin 12x2 bar) is nowhere near square, and a Path
+                        forced into a square render box via its own Stretch="Uniform" does NOT
+                        center the leftover space evenly the way Viewbox does - confirmed by
+                        actually running the app: the bar rendered hugging the top of its box
+                        instead of sitting mid-height like every other title-bar icon. Viewbox
+                        is the reliable way to both scale-to-fit AND center.
+                    -->
+                    <Viewbox Width="13" Height="13" Stretch="Uniform">
+                        <Path Classes="icon" Data="{StaticResource Icon.Minimize}" />
+                    </Viewbox>
                 </Button>
 
                 <!--  Two separate buttons, not one toggle whose name/tooltip changes with

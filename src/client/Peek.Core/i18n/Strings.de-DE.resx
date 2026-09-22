@@ -52,7 +52,7 @@
     <value>Geschwindigkeit</value>
   </data>
   <data name="Settings_Speech_Preview" xml:space="preserve">
-    <value>▶  Vorschau</value>
+    <value>Vorschau</value>
   </data>
   <data name="Settings_Ocr_Header" xml:space="preserve">
     <value>OCR</value>
@@ -142,7 +142,7 @@
     <value>Verfolgung</value>
   </data>
   <data name="ScreenReader_Describe" xml:space="preserve">
-    <value>✎ Beschreiben</value>
+    <value>Beschreiben</value>
   </data>
   <data name="ScreenReader_DescribeTooltip" xml:space="preserve">
     <value>Nutzt das lokale LLM (Screenshot + OCR + UI-Automation-Kontext), um das Element unter dem Zeiger kurz zu erklären.</value>
@@ -175,10 +175,10 @@
     <value>Noch keine Ansagen</value>
   </data>
   <data name="ScreenReader_AnalyzeScreen" xml:space="preserve">
-    <value>🔍 Bildschirm analysieren</value>
+    <value>Bildschirm analysieren</value>
   </data>
   <data name="Inspector_AnalyzeWindow" xml:space="preserve">
-    <value>🔍 Fenster analysieren</value>
+    <value>Fenster analysieren</value>
   </data>
   <data name="Ai_ResultHeader" xml:space="preserve">
     <value>KI-Analyse</value>
@@ -274,7 +274,7 @@
     <value>Speichernutzung bei Prozessauswahl ansagen</value>
   </data>
   <data name="Common_Refresh" xml:space="preserve">
-    <value>⟳ Aktualisieren</value>
+    <value>Aktualisieren</value>
   </data>
   <data name="Common_Loading" xml:space="preserve">
     <value>Wird geladen…</value>
@@ -301,7 +301,7 @@
     <value>Registrierung der installierten Apps neu einlesen</value>
   </data>
   <data name="AppMonitor_Launch" xml:space="preserve">
-    <value>▶ Starten</value>
+    <value>Starten</value>
   </data>
   <data name="AppMonitor_LaunchTooltip" xml:space="preserve">
     <value>Die ausgewählte App starten</value>
@@ -325,10 +325,10 @@
     <value>Laufende Prozesse neu erfassen</value>
   </data>
   <data name="ProcessMonitor_EndProcessButton" xml:space="preserve">
-    <value>✕ Prozess beenden</value>
+    <value>Prozess beenden</value>
   </data>
   <data name="ProcessMonitor_OpenFolderButton" xml:space="preserve">
-    <value>📁 Ordner öffnen</value>
+    <value>Ordner öffnen</value>
   </data>
   <data name="ProcessMonitor_EndProcessMenu" xml:space="preserve">
     <value>Prozess beenden</value>
@@ -346,7 +346,7 @@
     <value>Arbeitsspeicher</value>
   </data>
   <data name="Inspector_RefreshWindows" xml:space="preserve">
-    <value>⟳ Fenster aktualisieren</value>
+    <value>Fenster aktualisieren</value>
   </data>
   <data name="Inspector_RefreshWindowsTooltip" xml:space="preserve">
     <value>Fenster der obersten Ebene neu erfassen und den zwischengespeicherten Automatisierungsbaum des Workers leeren</value>
@@ -361,7 +361,7 @@
     <value>wird geladen…</value>
   </data>
   <data name="Inspector_LoadFailed" xml:space="preserve">
-    <value>⚠ Laden der Unterelemente fehlgeschlagen - zum erneuten Versuch ein-/ausklappen</value>
+    <value>Laden der Unterelemente fehlgeschlagen - zum erneuten Versuch ein-/ausklappen</value>
   </data>
   <data name="Inspector_LoadFailedTooltip" xml:space="preserve">
     <value>Das Fenster/Element wurde möglicherweise während der Durchsuchung geschlossen, oder der Worker-Aufruf ist fehlgeschlagen. Durch erneutes Ein- und Ausklappen dieser Zeile wird es erneut versucht.</value>

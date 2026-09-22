@@ -48,7 +48,12 @@
                         Classes="announcementAction"
                         Command="{Binding ToggleExpandedCommand}"
                         AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryExpandCollapse}}">
-                        <TextBlock FontSize="16" Text="⌄" />
+                        <!--  Viewbox, not Width/Height on the Path - see MainWindow.axaml's
+                              minimize button for why a non-square icon needs this to actually
+                              center.  -->
+                        <Viewbox Width="16" Height="16" Stretch="Uniform">
+                            <Path Classes="icon" Data="{StaticResource Icon.ChevronDown}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                        </Viewbox>
                     </Button>
                 </StackPanel>
             </StackPanel>

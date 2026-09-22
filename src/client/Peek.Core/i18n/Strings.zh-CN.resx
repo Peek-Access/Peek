@@ -52,7 +52,7 @@
     <value>语速</value>
   </data>
   <data name="Settings_Speech_Preview" xml:space="preserve">
-    <value>▶  试听</value>
+    <value>试听</value>
   </data>
   <data name="Settings_Ocr_Header" xml:space="preserve">
     <value>OCR 文字识别</value>
@@ -142,7 +142,7 @@
     <value>跟踪</value>
   </data>
   <data name="ScreenReader_Describe" xml:space="preserve">
-    <value>✎ 描述</value>
+    <value>描述</value>
   </data>
   <data name="ScreenReader_DescribeTooltip" xml:space="preserve">
     <value>使用本地大模型（截图 + OCR + UI 自动化上下文）简要说明光标所在的元素。</value>
@@ -175,10 +175,10 @@
     <value>暂无播报内容</value>
   </data>
   <data name="ScreenReader_AnalyzeScreen" xml:space="preserve">
-    <value>🔍 分析屏幕</value>
+    <value>分析屏幕</value>
   </data>
   <data name="Inspector_AnalyzeWindow" xml:space="preserve">
-    <value>🔍 分析窗口</value>
+    <value>分析窗口</value>
   </data>
   <data name="Ai_ResultHeader" xml:space="preserve">
     <value>AI 分析</value>
@@ -274,7 +274,7 @@
     <value>选中进程时播报内存占用</value>
   </data>
   <data name="Common_Refresh" xml:space="preserve">
-    <value>⟳ 刷新</value>
+    <value>刷新</value>
   </data>
   <data name="Common_Loading" xml:space="preserve">
     <value>加载中…</value>
@@ -301,7 +301,7 @@
     <value>重新读取已安装应用的注册表</value>
   </data>
   <data name="AppMonitor_Launch" xml:space="preserve">
-    <value>▶ 启动</value>
+    <value>启动</value>
   </data>
   <data name="AppMonitor_LaunchTooltip" xml:space="preserve">
     <value>启动选中的应用</value>
@@ -325,10 +325,10 @@
     <value>重新枚举正在运行的进程</value>
   </data>
   <data name="ProcessMonitor_EndProcessButton" xml:space="preserve">
-    <value>✕ 结束进程</value>
+    <value>结束进程</value>
   </data>
   <data name="ProcessMonitor_OpenFolderButton" xml:space="preserve">
-    <value>📁 打开文件夹</value>
+    <value>打开文件夹</value>
   </data>
   <data name="ProcessMonitor_EndProcessMenu" xml:space="preserve">
     <value>结束进程</value>
@@ -346,7 +346,7 @@
     <value>内存</value>
   </data>
   <data name="Inspector_RefreshWindows" xml:space="preserve">
-    <value>⟳ 刷新窗口</value>
+    <value>刷新窗口</value>
   </data>
   <data name="Inspector_RefreshWindowsTooltip" xml:space="preserve">
     <value>重新枚举顶层窗口并清除后台的自动化树缓存</value>
@@ -361,7 +361,7 @@
     <value>加载中…</value>
   </data>
   <data name="Inspector_LoadFailed" xml:space="preserve">
-    <value>⚠ 子项加载失败 - 折叠并重新展开以重试</value>
+    <value>子项加载失败 - 折叠并重新展开以重试</value>
   </data>
   <data name="Inspector_LoadFailedTooltip" xml:space="preserve">
     <value>该窗口/元素可能在浏览过程中已关闭，或者后台调用失败。折叠并重新展开此行将重试。</value>

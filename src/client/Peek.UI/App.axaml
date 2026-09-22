@@ -20,6 +20,7 @@
         <pipboy:PipboyTheme />
         <pipboy:PipboyFxTheme />
         <prodatagrid:PipboyProDataGridTheme />
+        <StyleInclude Source="/Resources/IconStyles.axaml" />
         <!--  Merged last so it wins over the theme's own focus treatment - see the file's own doc comment.  -->
         <StyleInclude Source="/Resources/AccessibilityFocus.axaml" />
     </Application.Styles>

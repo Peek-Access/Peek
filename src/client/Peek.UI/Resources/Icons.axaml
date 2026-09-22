@@ -50,4 +50,269 @@
             </Canvas>
         </Viewbox>
     </DataTemplate>
+
+    <!--
+        Peek's icon set - every icon Peek draws anywhere (nav sidebar, title bar, dock strip
+        header, settings section headers, expand/collapse chevrons) is a geometry defined once
+        here and referenced by key, rather than an inline emoji/Unicode glyph typed directly
+        into each view. That's what makes this a single place to keep the whole icon set at one
+        visual weight instead of one view's font rendering it differently from another's.
+        <para>
+        All geometries share one 20x20 design grid so every icon lines up at any of the sizes
+        views actually use (13-20px normally, DPI-scaled) - consumers set Width/Height with
+        Stretch="Uniform" on the Path element rather than baking a fixed pixel size in here (see
+        Resources/IconStyles.axaml for the shared Path.icon style that sets Stretch).
+        </para>
+        <para>
+        Ring/hole shapes (a donut, or a solid mark sitting inside a hollow ring) use
+        FillRule="EvenOdd" and lean on a specific trick: a shape nested fully inside a ring's
+        hollow interior becomes a third overlapping subpath, so its point count goes ring-outer
+        (+1) + ring-inner-hole (+1) + itself (+1) = 3, odd, filled - the same parity math that
+        makes the ring's own donut shape hollow in the first place. Every such nested mark below
+        is kept strictly inside the inner ring radius specifically so this holds; letting one
+        cross into the ring's own band would parity-cancel and punch an unwanted gap in the
+        ring where it crosses (verified by hand for each icon below - see git history/PR
+        description for the coordinate math if one ever needs adjusting).
+        </para>
+    -->
+    <!--  Nav sidebar / ScreenReaderView header - concentric ring + center dot ("scan target").  -->
+    <GeometryGroup x:Key="Icon.ScreenReader" FillRule="EvenOdd">
+        <EllipseGeometry Center="10,10" RadiusX="8" RadiusY="8" />
+        <EllipseGeometry Center="10,10" RadiusX="5.6" RadiusY="5.6" />
+        <EllipseGeometry Center="10,10" RadiusX="1.8" RadiusY="1.8" />
+    </GeometryGroup>
+
+    <!--  Nav sidebar - magnifier: lens ring plus a diagonal handle kept outside the ring's own
+          radius so it doesn't parity-cancel a gap into the ring (see file header).  -->
+    <GeometryGroup x:Key="Icon.Inspector" FillRule="EvenOdd">
+        <EllipseGeometry Center="7.5,7.5" RadiusX="5.5" RadiusY="5.5" />
+        <EllipseGeometry Center="7.5,7.5" RadiusX="3.8" RadiusY="3.8" />
+        <PathGeometry Figures="M 12.4,10.6 L 10.6,12.4 L 16.6,18.4 L 18.4,16.6 Z" />
+    </GeometryGroup>
+
+    <!--  Nav sidebar - three stacked rows ("app list").  -->
+    <GeometryGroup x:Key="Icon.AppMonitor">
+        <RectangleGeometry Rect="3,4,14,3" />
+        <RectangleGeometry Rect="3,8.5,14,3" />
+        <RectangleGeometry Rect="3,13,14,3" />
+    </GeometryGroup>
+
+    <!--  Nav sidebar AND Settings' Process Monitor section header - same concept, same key, so
+          the two spots that mean "process monitor" can never drift into two different glyphs
+          the way ▦ (nav) vs 📋 (settings) had before.  -->
+    <GeometryGroup x:Key="Icon.ProcessMonitor">
+        <RectangleGeometry Rect="3,3,6,6" />
+        <RectangleGeometry Rect="11,3,6,6" />
+        <RectangleGeometry Rect="3,11,6,6" />
+        <RectangleGeometry Rect="11,11,6,6" />
+    </GeometryGroup>
+
+    <!--  Nav sidebar AND DockShellView header's Settings button - a gear: ring plus eight
+          teeth (axis-aligned N/E/S/W, diagonal NE/SE/SW/NW - the diagonal ones use symmetric
+          corner offsets rather than trig, same trick as Icon.Inspector's handle). Four teeth
+          alone (an earlier version of this icon) read as a compass/plus rather than a gear at
+          16px - verified by actually running the app and looking at the nav sidebar.  -->
+    <GeometryGroup x:Key="Icon.Settings" FillRule="EvenOdd">
+        <EllipseGeometry Center="10,10" RadiusX="6" RadiusY="6" />
+        <EllipseGeometry Center="10,10" RadiusX="4" RadiusY="4" />
+        <RectangleGeometry Rect="8.5,1.5,3,2.5" />
+        <RectangleGeometry Rect="8.5,16,3,2.5" />
+        <RectangleGeometry Rect="1.5,8.5,2.5,3" />
+        <RectangleGeometry Rect="16,8.5,2.5,3" />
+        <RectangleGeometry Rect="3.6,3.6,2.2,2.2" />
+        <RectangleGeometry Rect="14.2,3.6,2.2,2.2" />
+        <RectangleGeometry Rect="3.6,14.2,2.2,2.2" />
+        <RectangleGeometry Rect="14.2,14.2,2.2,2.2" />
+    </GeometryGroup>
+
+    <!--  MainWindow title bar - pin toggle, unpinned (hollow flag on a pole).  -->
+    <GeometryGroup x:Key="Icon.Pin" FillRule="EvenOdd">
+        <RectangleGeometry Rect="4.2,3,1.4,14" />
+        <RectangleGeometry Rect="5.6,3,9,5" />
+        <RectangleGeometry Rect="6.8,4.1,6.6,2.8" />
+    </GeometryGroup>
+
+    <!--  MainWindow title bar - pin toggle, pinned (solid flag).  -->
+    <GeometryGroup x:Key="Icon.PinFilled">
+        <RectangleGeometry Rect="4.2,3,1.4,14" />
+        <RectangleGeometry Rect="5.6,3,9,5" />
+    </GeometryGroup>
+
+    <!--  MainWindow title bar AND DockShellView header's About button - ring, dot and stem
+          ("i" in a circle).  -->
+    <GeometryGroup x:Key="Icon.Info" FillRule="EvenOdd">
+        <EllipseGeometry Center="10,10" RadiusX="8" RadiusY="8" />
+        <EllipseGeometry Center="10,10" RadiusX="6.4" RadiusY="6.4" />
+        <EllipseGeometry Center="10,6.3" RadiusX="1.3" RadiusY="1.3" />
+        <RectangleGeometry Rect="9,9,2,6" />
+    </GeometryGroup>
+
+    <GeometryGroup x:Key="Icon.Minimize">
+        <RectangleGeometry Rect="4,15,12,2" />
+    </GeometryGroup>
+
+    <GeometryGroup x:Key="Icon.Maximize" FillRule="EvenOdd">
+        <RectangleGeometry Rect="4,4,12,12" />
+        <RectangleGeometry Rect="5.6,5.6,8.8,8.8" />
+    </GeometryGroup>
+
+    <!--  Restore - a full square outline in front with a second square's top/right edges
+          peeking out behind it, deliberately non-overlapping with the front square (see file
+          header on why overlapping EvenOdd rings are avoided).  -->
+    <GeometryGroup x:Key="Icon.Restore" FillRule="EvenOdd">
+        <RectangleGeometry Rect="3,7,10,10" />
+        <RectangleGeometry Rect="4.4,8.4,7.2,7.2" />
+        <RectangleGeometry Rect="7,3,10,1.6" />
+        <RectangleGeometry Rect="15.4,3,1.6,10" />
+    </GeometryGroup>
+
+    <!--  MainWindow title bar - close (X), two diagonal bars wound the same direction so they
+          union solid instead of parity-cancelling a hole where they cross.  -->
+    <GeometryGroup x:Key="Icon.Close">
+        <PathGeometry Figures="M 5,3 L 3,5 L 15,17 L 17,15 Z" />
+        <PathGeometry Figures="M 17,5 L 15,3 L 3,15 L 5,17 Z" />
+    </GeometryGroup>
+
+    <!--  DockShellView header - previous/next monitor.  -->
+    <GeometryGroup x:Key="Icon.ChevronLeft">
+        <PathGeometry Figures="M 13,4 L 13,16 L 5,10 Z" />
+    </GeometryGroup>
+    <GeometryGroup x:Key="Icon.ChevronRight">
+        <PathGeometry Figures="M 6,4 L 6,16 L 15,10 Z" />
+    </GeometryGroup>
+
+    <!--  Settings' per-language voice preview buttons - a play triangle in a ring, deliberately
+          distinct from Icon.ChevronRight above even though both are "forward triangle" shapes:
+          one starts audio, the other navigates, and they show up close enough together (dock
+          header vs. settings) that reusing one glyph for both risked reading as the same
+          action.  -->
+    <GeometryGroup x:Key="Icon.Play" FillRule="EvenOdd">
+        <EllipseGeometry Center="10,10" RadiusX="8" RadiusY="8" />
+        <EllipseGeometry Center="10,10" RadiusX="6.8" RadiusY="6.8" />
+        <PathGeometry Figures="M 8,6.5 L 8,13.5 L 14,10 Z" />
+    </GeometryGroup>
+
+    <!--
+        AnnouncementView / DockAnnouncementView - history expand/collapse chevron: two arms as
+        separate triangles, each fanning out from ONE shared, exactly-equal apex coordinate
+        (10,14) rather than each arm having its own distinct "tip" point a couple units apart
+        (an earlier version did that - two near-but-not-quite-matching tips left a visible
+        gap/crossing at the bottom instead of a clean point, reported as "the arrow doesn't
+        close" after actually looking at the rendered app). Sharing one literal coordinate
+        makes the two arms meet exactly by construction, not by hoping two independently
+        computed points land close enough.
+    -->
+    <GeometryGroup x:Key="Icon.ChevronDown">
+        <PathGeometry Figures="M 10,14 L 3.1,8.9 L 4.9,7.1 Z" />
+        <PathGeometry Figures="M 10,14 L 16.9,8.9 L 15.1,7.1 Z" />
+    </GeometryGroup>
+
+    <!--  Settings - Accessibility section header (was the 👁 emoji).  -->
+    <GeometryGroup x:Key="Icon.Eye" FillRule="EvenOdd">
+        <EllipseGeometry Center="10,10" RadiusX="8" RadiusY="5" />
+        <EllipseGeometry Center="10,10" RadiusX="6.4" RadiusY="3.6" />
+        <EllipseGeometry Center="10,10" RadiusX="2" RadiusY="2" />
+    </GeometryGroup>
+
+    <!--  Settings - Localization section header (was 🌐).  -->
+    <GeometryGroup x:Key="Icon.Globe" FillRule="EvenOdd">
+        <EllipseGeometry Center="10,10" RadiusX="8" RadiusY="8" />
+        <EllipseGeometry Center="10,10" RadiusX="6.6" RadiusY="6.6" />
+        <RectangleGeometry Rect="3.4,9.3,13.2,1.4" />
+        <RectangleGeometry Rect="9.3,3.4,1.4,13.2" />
+    </GeometryGroup>
+
+    <!--  Settings - Appearance section header (was 🎨) - a swatch blob with paint-dot and
+          thumb-hole cutouts, echoing the color swatch grid the section actually shows.  -->
+    <GeometryGroup x:Key="Icon.Palette" FillRule="EvenOdd">
+        <PathGeometry Figures="M 7,2 L 13,2 L 17,6 L 17,12 L 13,17 L 7,17 L 3,13 L 3,7 Z" />
+        <EllipseGeometry Center="13,13" RadiusX="2.2" RadiusY="2.2" />
+        <EllipseGeometry Center="7,6" RadiusX="1.3" RadiusY="1.3" />
+        <EllipseGeometry Center="12,5" RadiusX="1.3" RadiusY="1.3" />
+        <EllipseGeometry Center="6,11" RadiusX="1.3" RadiusY="1.3" />
+    </GeometryGroup>
+
+    <!--  Settings - Speech section header (was 🔊).  -->
+    <GeometryGroup x:Key="Icon.Speaker">
+        <RectangleGeometry Rect="2,7,4,6" />
+        <PathGeometry Figures="M 6,7 L 11,3 L 11,17 L 6,13 Z" />
+    </GeometryGroup>
+
+    <!--  Settings - OCR section header (was 🔎) - a document with text lines, deliberately not
+          a magnifier so it can't be mistaken for Icon.Inspector above even though both sections
+          are about "reading what's on screen".  -->
+    <GeometryGroup x:Key="Icon.Ocr" FillRule="EvenOdd">
+        <RectangleGeometry Rect="3,2,14,16" />
+        <RectangleGeometry Rect="4.4,3.4,11.2,13.2" />
+        <RectangleGeometry Rect="6,6,8,1.6" />
+        <RectangleGeometry Rect="6,9.5,8,1.6" />
+        <RectangleGeometry Rect="6,13,5,1.6" />
+    </GeometryGroup>
+
+    <!--  Settings - AI section header (was 🤖) - a four-point spark/sparkle.  -->
+    <GeometryGroup x:Key="Icon.Ai">
+        <PathGeometry Figures="M 10,2 L 12.1,7.9 L 18,10 L 12.1,12.1 L 10,18 L 7.9,12.1 L 2,10 L 7.9,7.9 Z" />
+    </GeometryGroup>
+
+    <!--  Settings - Announcement History section header (was 📜) - a clock face.  -->
+    <GeometryGroup x:Key="Icon.History" FillRule="EvenOdd">
+        <EllipseGeometry Center="10,10" RadiusX="8" RadiusY="8" />
+        <EllipseGeometry Center="10,10" RadiusX="6.6" RadiusY="6.6" />
+        <RectangleGeometry Rect="9.3,5,1.4,5.5" />
+        <RectangleGeometry Rect="10,9.3,5,1.4" />
+    </GeometryGroup>
+
+    <!--  Settings - Window Announcement section header (was 🔔).  -->
+    <GeometryGroup x:Key="Icon.Bell">
+        <PathGeometry Figures="M 10,2 L 14,4 L 15,12 L 17,14 L 3,14 L 5,12 L 6,4 Z" />
+        <RectangleGeometry Rect="7,14,6,1.6" />
+        <EllipseGeometry Center="10,16.5" RadiusX="1.3" RadiusY="1.3" />
+    </GeometryGroup>
+
+    <!--  Settings - Shell (window/dock mode) section header (was 🖥) - a window frame with its
+          right edge filled solid, echoing the actual docked-strip feature this section
+          configures rather than a generic monitor glyph.  -->
+    <GeometryGroup x:Key="Icon.Shell" FillRule="EvenOdd">
+        <RectangleGeometry Rect="2,3,16,14" />
+        <RectangleGeometry Rect="3.4,4.4,12.2,11.2" />
+        <RectangleGeometry Rect="13.4,4.4,2.2,11.2" />
+    </GeometryGroup>
+
+    <!--  Settings - Process Monitor section header shares Icon.ProcessMonitor above with the
+          nav sidebar item - no separate key.  -->
+
+    <!--  ScreenReaderView's "Describe" button (was a "✎ " prefix baked directly into the
+          Strings*.resx translation, not a XAML glyph - see git history/PR description; moving
+          it here means the icon now survives translation instead of being retyped per
+          language) - a pencil.  -->
+    <GeometryGroup x:Key="Icon.Describe">
+        <PathGeometry Figures="M 5.9,15.9 L 4.1,14.1 L 13.1,5.1 L 14.9,6.9 Z" />
+        <PathGeometry Figures="M 13.1,5.1 L 14.9,6.9 L 17,3 Z" />
+    </GeometryGroup>
+
+    <!--  AppMonitorView/ProcessMonitorView's "Refresh" and ElementInspectorView's "Refresh
+          windows" buttons (both were a "⟳ " prefix baked into Strings*.resx) - a 270° ring,
+          leaving a gap rather than a full circle so it still reads as a loop/refresh glyph
+          rather than Icon.ScreenReader's full ring.  -->
+    <PathGeometry x:Key="Icon.Refresh" Figures="M 10,2.5 A 7.5,7.5 0 1 1 2.5,10 L 4.3,10 A 5.7,5.7 0 1 0 10,4.3 Z" />
+
+    <!--  ProcessMonitorView's "Open folder" button (was a "📁 " prefix baked into
+          Strings*.resx).  -->
+    <GeometryGroup x:Key="Icon.Folder">
+        <RectangleGeometry Rect="3,5,7,2" />
+        <RectangleGeometry Rect="3,7,14,9" />
+    </GeometryGroup>
+
+    <!--  ElementInspectorView's inline "failed to load children" row status (was a "⚠ " prefix
+          baked into Strings*.resx) - a triangle with the exclamation mark cut out
+          (EvenOdd), rather than drawn as a separate solid mark, since a mark added as a
+          fourth overlapping subpath here would sit inside the triangle's OWN filled interior
+          (not a hollow ring like Icon.Info's), so it would need the opposite parity trick:
+          odd-plus-one is even (unfilled) - already correctly a hole here, not something to
+          "fix" the way the file-header ring/hole note warns about.  -->
+    <GeometryGroup x:Key="Icon.Warning" FillRule="EvenOdd">
+        <PathGeometry Figures="M 10,2 L 18,17 L 2,17 Z" />
+        <RectangleGeometry Rect="9.3,7,1.4,5" />
+        <EllipseGeometry Center="10,14.5" RadiusX="1" RadiusY="1" />
+    </GeometryGroup>
 </ResourceDictionary>

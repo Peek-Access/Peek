@@ -37,6 +37,15 @@
             <Setter Property="BorderThickness" Value="2,0,0,0" />
             <Setter Property="BorderBrush" Value="{DynamicResource PipboyPrimaryBrush}" />
         </Style>
+        <!--  Path is a Shape (Fill/Stroke), not a TextElement, so the nav icon doesn't pick up
+              ToggleButton.navItem's own Foreground (dim/checked above) the way the label
+              TextBlock beside it does - mirror the same two states onto Fill explicitly.  -->
+        <Style Selector="ToggleButton.navItem Path.icon">
+            <Setter Property="Fill" Value="{DynamicResource PipboyTextDimBrush}" />
+        </Style>
+        <Style Selector="ToggleButton.navItem:checked Path.icon">
+            <Setter Property="Fill" Value="{DynamicResource PipboyPrimaryLightBrush}" />
+        </Style>
     </UserControl.Styles>
     <Grid Margin="18,16,18,18" ColumnDefinitions="220,*" RowDefinitions="*,Auto" ColumnSpacing="16" RowSpacing="12">
 
@@ -83,7 +92,7 @@
                         CommandParameter="ScreenReaderView"
                         IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='ScreenReaderView'}">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="◎" />
+                            <Path Classes="icon" Width="16" Height="16" VerticalAlignment="Center" Data="{StaticResource Icon.ScreenReader}" />
                             <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ScreenReader}}" />
                         </StackPanel>
                     </ToggleButton>
@@ -95,7 +104,7 @@
                         CommandParameter="ElementInspectorView"
                         IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='ElementInspectorView'}">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="⌕" />
+                            <Path Classes="icon" Width="16" Height="16" VerticalAlignment="Center" Data="{StaticResource Icon.Inspector}" />
                             <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ElementInspector}}" />
                         </StackPanel>
                     </ToggleButton>
@@ -107,7 +116,7 @@
                         CommandParameter="AppMonitorView"
                         IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='AppMonitorView'}">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="▤" />
+                            <Path Classes="icon" Width="16" Height="16" VerticalAlignment="Center" Data="{StaticResource Icon.AppMonitor}" />
                             <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_AppMonitor}}" />
                         </StackPanel>
                     </ToggleButton>
@@ -119,7 +128,7 @@
                         CommandParameter="ProcessMonitorView"
                         IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='ProcessMonitorView'}">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="▦" />
+                            <Path Classes="icon" Width="16" Height="16" VerticalAlignment="Center" Data="{StaticResource Icon.ProcessMonitor}" />
                             <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_ProcessMonitor}}" />
                         </StackPanel>
                     </ToggleButton>
@@ -131,7 +140,7 @@
                         CommandParameter="SettingsView"
                         IsChecked="{Binding CurrentViewName, Mode=OneWay, Converter={StaticResource ObjectToBoolConverter}, ConverterParameter='SettingsView'}">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Width="16" VerticalAlignment="Center" FontSize="14" Text="⚙" />
+                            <Path Classes="icon" Width="16" Height="16" VerticalAlignment="Center" Data="{StaticResource Icon.Settings}" />
                             <TextBlock VerticalAlignment="Center" Text="{Translate {x:Static i18n:LanguageManager+Keys.Nav_Settings}}" />
                         </StackPanel>
                     </ToggleButton>

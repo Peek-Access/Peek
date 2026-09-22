@@ -52,14 +52,22 @@
                 <Button
                     Margin="0,0,10,4"
                     Command="{Binding RefreshCommand}"
-                    Content="{Translate {x:Static i18n:LanguageManager+Keys.Common_Refresh}}"
-                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_RefreshTooltip}}" />
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_RefreshTooltip}}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Path Classes="icon" Width="11" Height="11" VerticalAlignment="Center" Data="{StaticResource Icon.Refresh}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                        <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Refresh}}" />
+                    </StackPanel>
+                </Button>
                 <Button
                     Margin="0,0,10,4"
                     Command="{Binding LaunchCommand}"
-                    Content="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Launch}}"
                     IsEnabled="{Binding SelectedApp.CanLaunch}"
-                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_LaunchTooltip}}" />
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_LaunchTooltip}}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Path Classes="icon" Width="11" Height="11" VerticalAlignment="Center" Data="{StaticResource Icon.ChevronRight}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                        <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.AppMonitor_Launch}}" />
+                    </StackPanel>
+                </Button>
                 <TextBlock
                     Margin="0,0,0,4"
                     VerticalAlignment="Center"

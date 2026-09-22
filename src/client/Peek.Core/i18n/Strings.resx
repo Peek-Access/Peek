@@ -52,7 +52,7 @@
     <value>Rate</value>
   </data>
   <data name="Settings_Speech_Preview" xml:space="preserve">
-    <value>▶  Preview</value>
+    <value>Preview</value>
   </data>
   <data name="Settings_Ocr_Header" xml:space="preserve">
     <value>OCR</value>
@@ -142,7 +142,7 @@
     <value>Tracking</value>
   </data>
   <data name="ScreenReader_Describe" xml:space="preserve">
-    <value>✎ Describe</value>
+    <value>Describe</value>
   </data>
   <data name="ScreenReader_DescribeTooltip" xml:space="preserve">
     <value>Uses the local LLM (Screenshot + OCR + UI Automation context) to briefly explain the element under the cursor.</value>
@@ -175,10 +175,10 @@
     <value>Nothing announced yet</value>
   </data>
   <data name="ScreenReader_AnalyzeScreen" xml:space="preserve">
-    <value>🔍 Analyze Screen</value>
+    <value>Analyze Screen</value>
   </data>
   <data name="Inspector_AnalyzeWindow" xml:space="preserve">
-    <value>🔍 Analyze Window</value>
+    <value>Analyze Window</value>
   </data>
   <data name="Ai_ResultHeader" xml:space="preserve">
     <value>AI Analysis</value>
@@ -274,7 +274,7 @@
     <value>Announce memory usage when a process is selected</value>
   </data>
   <data name="Common_Refresh" xml:space="preserve">
-    <value>⟳ Refresh</value>
+    <value>Refresh</value>
   </data>
   <data name="Common_Loading" xml:space="preserve">
     <value>Loading…</value>
@@ -301,7 +301,7 @@
     <value>Re-read the installed-apps registry</value>
   </data>
   <data name="AppMonitor_Launch" xml:space="preserve">
-    <value>▶ Launch</value>
+    <value>Launch</value>
   </data>
   <data name="AppMonitor_LaunchTooltip" xml:space="preserve">
     <value>Launch the selected app</value>
@@ -325,10 +325,10 @@
     <value>Re-enumerate running processes</value>
   </data>
   <data name="ProcessMonitor_EndProcessButton" xml:space="preserve">
-    <value>✕ End process</value>
+    <value>End process</value>
   </data>
   <data name="ProcessMonitor_OpenFolderButton" xml:space="preserve">
-    <value>📁 Open folder</value>
+    <value>Open folder</value>
   </data>
   <data name="ProcessMonitor_EndProcessMenu" xml:space="preserve">
     <value>End process</value>
@@ -346,7 +346,7 @@
     <value>Memory</value>
   </data>
   <data name="Inspector_RefreshWindows" xml:space="preserve">
-    <value>⟳ Refresh windows</value>
+    <value>Refresh windows</value>
   </data>
   <data name="Inspector_RefreshWindowsTooltip" xml:space="preserve">
     <value>Re-enumerate top-level windows and clear the worker's cached automation tree</value>
@@ -361,7 +361,7 @@
     <value>loading…</value>
   </data>
   <data name="Inspector_LoadFailed" xml:space="preserve">
-    <value>⚠ failed to load children - collapse and re-expand to retry</value>
+    <value>failed to load children - collapse and re-expand to retry</value>
   </data>
   <data name="Inspector_LoadFailedTooltip" xml:space="preserve">
     <value>The window/element may have closed while browsing, or the worker call failed. Collapsing and expanding this row again will retry.</value>

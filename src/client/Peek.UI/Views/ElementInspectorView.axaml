@@ -49,14 +49,22 @@
                 <Button
                     Margin="0,0,10,4"
                     Command="{Binding RefreshCommand}"
-                    Content="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindows}}"
-                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindowsTooltip}}" />
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindowsTooltip}}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Path Classes="icon" Width="11" Height="11" VerticalAlignment="Center" Data="{StaticResource Icon.Refresh}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                        <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RefreshWindows}}" />
+                    </StackPanel>
+                </Button>
                 <Button
                     Margin="0,0,10,4"
                     Command="{Binding AnalyzeSelectedWindowCommand}"
-                    Content="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindow}}"
                     IsEnabled="{Binding !ScreenAnalysis.IsAnalyzing}"
-                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindowTooltip}}" />
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindowTooltip}}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Path Classes="icon" Width="13" Height="13" VerticalAlignment="Center" Data="{StaticResource Icon.Inspector}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                        <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_AnalyzeWindow}}" />
+                    </StackPanel>
+                </Button>
                 <Button
                     Margin="0,0,10,4"
                     Command="{Binding StopAnalysisCommand}"
@@ -139,14 +147,20 @@
                                         Foreground="{DynamicResource PipboyPrimaryLightBrush}"
                                         IsVisible="{Binding IsLoading}"
                                         Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_RowLoading}}" />
-                                    <TextBlock
+                                    <StackPanel
                                         Grid.Column="2"
                                         VerticalAlignment="Center"
-                                        FontSize="10"
-                                        Foreground="{DynamicResource PipboyWarningBrush}"
+                                        Orientation="Horizontal"
+                                        Spacing="3"
                                         IsVisible="{Binding LoadFailed}"
-                                        Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_LoadFailed}}"
-                                        ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_LoadFailedTooltip}}" />
+                                        ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_LoadFailedTooltip}}">
+                                        <Path Classes="icon" Width="10" Height="10" VerticalAlignment="Center" Data="{StaticResource Icon.Warning}" Fill="{DynamicResource PipboyWarningBrush}" />
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontSize="10"
+                                            Foreground="{DynamicResource PipboyWarningBrush}"
+                                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Inspector_LoadFailed}}" />
+                                    </StackPanel>
                                 </Grid>
                             </DataTemplate>
                         </DataGridHierarchicalColumn.CellTemplate>

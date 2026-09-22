@@ -47,16 +47,28 @@
             <Button
                 Margin="0,0,10,4"
                 Command="{Binding RefreshCommand}"
-                Content="{Translate {x:Static i18n:LanguageManager+Keys.Common_Refresh}}"
-                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_RefreshTooltip}}" />
+                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_RefreshTooltip}}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Path Classes="icon" Width="11" Height="11" VerticalAlignment="Center" Data="{StaticResource Icon.Refresh}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                    <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.Common_Refresh}}" />
+                </StackPanel>
+            </Button>
             <Button
                 Margin="0,0,10,4"
-                Command="{Binding KillCommand}"
-                Content="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_EndProcessButton}}" />
+                Command="{Binding KillCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Path Classes="icon" Width="11" Height="11" VerticalAlignment="Center" Data="{StaticResource Icon.Close}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                    <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_EndProcessButton}}" />
+                </StackPanel>
+            </Button>
             <Button
                 Margin="0,0,10,4"
-                Command="{Binding OpenFolderCommand}"
-                Content="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_OpenFolderButton}}" />
+                Command="{Binding OpenFolderCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Path Classes="icon" Width="12" Height="12" VerticalAlignment="Center" Data="{StaticResource Icon.Folder}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                    <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_OpenFolderButton}}" />
+                </StackPanel>
+            </Button>
             <CheckBox
                 Margin="0,0,10,4"
                 Content="{Translate {x:Static i18n:LanguageManager+Keys.ProcessMonitor_ShowSystemProcessesCheckbox}}"

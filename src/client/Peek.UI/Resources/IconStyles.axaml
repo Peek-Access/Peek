@@ -1,0 +1,12 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        Every icon Path in the app carries this class. It only fixes the one thing every icon
+        usage needs in common - scaling its 20x20 design-grid geometry (see Resources/Icons.axaml)
+        down to whatever Width/Height that spot sets - so each view still sets its own size and
+        Foreground (dim/bright/hover follow the same per-view styling the old glyph TextBlocks
+        already had) instead of this file trying to own per-context color/size too.
+    -->
+    <Style Selector="Path.icon">
+        <Setter Property="Stretch" Value="Uniform" />
+    </Style>
+</Styles>

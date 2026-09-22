@@ -47,7 +47,7 @@
                         Classes="announcementAction"
                         Command="{Binding ToggleExpandedCommand}"
                         AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryExpandCollapse}}">
-                        <TextBlock FontSize="16" Text="⌄" />
+                        <Path Classes="icon" Width="16" Height="16" Data="{StaticResource Icon.ChevronDown}" Fill="{DynamicResource PipboyTextDimBrush}" />
                     </Button>
                 </StackPanel>
             </Grid>

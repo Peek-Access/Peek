@@ -18,12 +18,19 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusControl}" />
-            <Setter Property="Foreground" Value="{DynamicResource PipboyTextDimBrush}" />
             <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <!--  Path is a Shape (Fill/Stroke), not a TextElement, so it doesn't inherit Foreground
+              from the Button the way the old glyph TextBlocks did - these descendant selectors
+              are the replacement (see Resources/IconStyles.axaml for the shared sizing style).  -->
+        <Style Selector="Button.dockHeaderBtn Path.icon">
+            <Setter Property="Fill" Value="{DynamicResource PipboyTextDimBrush}" />
         </Style>
         <Style Selector="Button.dockHeaderBtn:pointerover">
             <Setter Property="Background" Value="{DynamicResource PipboyHoverBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource PipboyTextBrush}" />
+        </Style>
+        <Style Selector="Button.dockHeaderBtn:pointerover Path.icon">
+            <Setter Property="Fill" Value="{DynamicResource PipboyTextBrush}" />
         </Style>
     </UserControl.Styles>
     <Grid
@@ -50,7 +57,7 @@
                     Classes="dockHeaderBtn"
                     Click="OnPreviousClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_PreviousMonitor}}">
-                    <TextBlock FontSize="13" Text="◀" />
+                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.ChevronLeft}" />
                 </Button>
                 <TextBlock
                     Grid.Column="1"
@@ -68,7 +75,7 @@
                     Classes="dockHeaderBtn"
                     Click="OnNextClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_NextMonitor}}">
-                    <TextBlock FontSize="13" Text="▶" />
+                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.ChevronRight}" />
                 </Button>
 
                 <TextBlock
@@ -86,7 +93,7 @@
                     Classes="dockHeaderBtn"
                     Click="OnSettingsClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_Settings}}">
-                    <TextBlock FontSize="13" Text="⚙" />
+                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.Settings}" />
                 </Button>
                 <Button
                     Grid.Column="6"
@@ -94,7 +101,7 @@
                     Classes="dockHeaderBtn"
                     Click="OnAboutClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}">
-                    <TextBlock FontSize="13" Text="ⓘ" />
+                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.Info}" />
                 </Button>
             </Grid>
         </Border>

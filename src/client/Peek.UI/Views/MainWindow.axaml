@@ -18,18 +18,25 @@
     Icon="avares://Peek.UI/Assets/peek-icon.ico"
     mc:Ignorable="d">
     <Window.Styles>
-        <!--  Flat, borderless title-bar buttons (About).  -->
+        <!--  Flat, borderless title-bar buttons (About). Icon color lives here rather than on
+              a Foreground the Path could inherit - Path is a Shape (Fill/Stroke), not a
+              TextElement, so it doesn't inherit Foreground from its parent Button the way the
+              old glyph TextBlocks did; these descendant selectors are the replacement.  -->
         <Style Selector="Button.titleBarIconBtn">
             <Setter Property="Padding" Value="6,3" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusControl}" />
-            <Setter Property="Foreground" Value="{DynamicResource PipboyTextDimBrush}" />
             <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.titleBarIconBtn Path.icon">
+            <Setter Property="Fill" Value="{DynamicResource PipboyTextDimBrush}" />
         </Style>
         <Style Selector="Button.titleBarIconBtn:pointerover">
             <Setter Property="Background" Value="{DynamicResource PipboyHoverBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource PipboyTextBrush}" />
+        </Style>
+        <Style Selector="Button.titleBarIconBtn:pointerover Path.icon">
+            <Setter Property="Fill" Value="{DynamicResource PipboyTextBrush}" />
         </Style>
         <!--  Same flat chrome as the About button, plus a checked state for the pin toggle.  -->
         <Style Selector="ToggleButton.titleBarIconBtn">
@@ -37,22 +44,28 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusControl}" />
-            <Setter Property="Foreground" Value="{DynamicResource PipboyTextDimBrush}" />
             <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="ToggleButton.titleBarIconBtn Path.icon">
+            <Setter Property="Fill" Value="{DynamicResource PipboyTextDimBrush}" />
         </Style>
         <Style Selector="ToggleButton.titleBarIconBtn:pointerover">
             <Setter Property="Background" Value="{DynamicResource PipboyHoverBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource PipboyTextBrush}" />
         </Style>
-        <Style Selector="ToggleButton.titleBarIconBtn:checked">
-            <Setter Property="Foreground" Value="{DynamicResource PipboyPrimaryLightBrush}" />
+        <Style Selector="ToggleButton.titleBarIconBtn:pointerover Path.icon">
+            <Setter Property="Fill" Value="{DynamicResource PipboyTextBrush}" />
         </Style>
-        <!--  Hollow flag = not pinned, filled flag = pinned on top - same shape family as the app's other flat glyph icons (ⓘ ◎ ⌕ ▤ ▦ ⚙), so the state is visible by shape as well as by the checked-state color above.  -->
-        <Style Selector="TextBlock.pinGlyph">
-            <Setter Property="Text" Value="⚐" />
+        <Style Selector="ToggleButton.titleBarIconBtn:checked Path.icon">
+            <Setter Property="Fill" Value="{DynamicResource PipboyPrimaryLightBrush}" />
         </Style>
-        <Style Selector="ToggleButton.titleBarIconBtn:checked TextBlock.pinGlyph">
-            <Setter Property="Text" Value="⚑" />
+        <!--  Hollow-flag/filled-flag pin icon - same shape family as every other icon in
+              Resources/Icons.axaml, so the pinned state is visible by shape as well as by the
+              checked-state color above.  -->
+        <Style Selector="Path.pinGlyph">
+            <Setter Property="Data" Value="{StaticResource Icon.Pin}" />
+        </Style>
+        <Style Selector="ToggleButton.titleBarIconBtn:checked Path.pinGlyph">
+            <Setter Property="Data" Value="{StaticResource Icon.PinFilled}" />
         </Style>
     </Window.Styles>
     <Grid
@@ -92,13 +105,12 @@
                     IsChecked="{Binding #Self.Topmost, Mode=TwoWay}"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Pin}}">
                     <!--
-                        No literal glyph swap here - the ":checked" style below drives both
-                        the Text and the Foreground, so the pinned/unpinned states pick up
-                        theme colors (PipboyTextDimBrush / PipboyPrimaryLightBrush) the same
-                        way every other title-bar icon does, instead of a fixed-color emoji
-                        glyph that ignored the theme entirely.
+                        No literal Data swap here - the ":checked" style above drives both the
+                        geometry and the fill, so the pinned/unpinned states pick up theme
+                        colors (PipboyTextDimBrush / PipboyPrimaryLightBrush) the same way
+                        every other title-bar icon does.
                     -->
-                    <TextBlock Classes="pinGlyph" FontSize="13" />
+                    <Path Classes="icon pinGlyph" Width="13" Height="13" />
                 </ToggleButton>
 
                 <Button
@@ -106,7 +118,7 @@
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}"
                     Click="OnAboutClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Dock_About}}">
-                    <TextBlock FontSize="13" Text="ⓘ" />
+                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.Info}" />
                 </Button>
 
                 <!--  Native min/max/close are gone now that both shells use BorderOnly (see
@@ -116,7 +128,7 @@
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Minimize}}"
                     Click="OnMinimizeClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Minimize}}">
-                    <TextBlock FontSize="13" Text="─" />
+                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.Minimize}" />
                 </Button>
 
                 <!--  Two separate buttons, not one toggle whose name/tooltip changes with
@@ -129,7 +141,7 @@
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Maximize}}"
                     Click="OnMaximizeRestoreClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Maximize}}">
-                    <TextBlock FontSize="13" Text="□" />
+                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.Maximize}" />
                 </Button>
                 <Button
                     Name="RestoreButton"
@@ -138,7 +150,7 @@
                     Click="OnMaximizeRestoreClick"
                     IsVisible="False"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Restore}}">
-                    <TextBlock FontSize="13" Text="❐" />
+                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.Restore}" />
                 </Button>
 
                 <Button
@@ -146,7 +158,7 @@
                     AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Close}}"
                     Click="OnCloseClick"
                     ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.MainWindow_Close}}">
-                    <TextBlock FontSize="13" Text="✕" />
+                    <Path Classes="icon" Width="13" Height="13" Data="{StaticResource Icon.Close}" />
                 </Button>
             </StackPanel>
         </Grid>

@@ -24,9 +24,12 @@
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="{DynamicResource PipboyCornerRadiusPanel}" />
         </Style>
-        <Style Selector="TextBlock.sectionIcon">
-            <Setter Property="FontSize" Value="14" />
+        <Style Selector="Path.sectionIcon">
+            <Setter Property="Width" Value="15" />
+            <Setter Property="Height" Value="15" />
+            <Setter Property="Margin" Value="0,0,0,2" />
             <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="Fill" Value="{DynamicResource PipboyTextDimBrush}" />
         </Style>
         <!--  The installed Pipboy.Avalonia package version doesn't dim a disabled
               ComboBox on its own - fix locally rather than depend on a future
@@ -89,7 +92,7 @@
             <GroupBox FontSize="13">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="👁" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.Eye}" />
                         <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Accessibility_Header}}" />
                     </StackPanel>
                 </GroupBox.Header>
@@ -114,7 +117,7 @@
                         VerticalAlignment="Bottom"
                         Orientation="Horizontal"
                         Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="🌐" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.Globe}" />
                         <SelectableTextBlock VerticalAlignment="Bottom" Text="{Binding DisplayLanguage^}" />
                     </StackPanel>
                 </GroupBox.Header>
@@ -145,7 +148,7 @@
             <GroupBox FontSize="13">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="🎨" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.Palette}" />
                         <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Appearance_Header}}" />
                     </StackPanel>
                 </GroupBox.Header>
@@ -175,7 +178,7 @@
             <GroupBox FontSize="13">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="🔊" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.Speaker}" />
                         <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_Header}}" />
                     </StackPanel>
                 </GroupBox.Header>
@@ -248,9 +251,10 @@
                                 Grid.Column="2"
                                 AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewEnglishVoice}}"
                                 Command="{Binding PreviewEnglishVoiceCommand}"
-                                Content="▶"
                                 IsEnabled="{Binding !IsPreviewing}"
-                                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewTooltip}}" />
+                                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewTooltip}}">
+                                <Path Classes="icon" Width="14" Height="14" Data="{StaticResource Icon.Play}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                            </Button>
                         </Grid>
                         <Grid ColumnDefinitions="90,*,32" ColumnSpacing="6">
                             <TextBlock
@@ -266,9 +270,10 @@
                                 Grid.Column="2"
                                 AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewGermanVoice}}"
                                 Command="{Binding PreviewGermanVoiceCommand}"
-                                Content="▶"
                                 IsEnabled="{Binding !IsPreviewing}"
-                                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewTooltip}}" />
+                                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewTooltip}}">
+                                <Path Classes="icon" Width="14" Height="14" Data="{StaticResource Icon.Play}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                            </Button>
                         </Grid>
                         <Grid ColumnDefinitions="90,*,32" ColumnSpacing="6">
                             <TextBlock
@@ -284,9 +289,10 @@
                                 Grid.Column="2"
                                 AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewChineseVoice}}"
                                 Command="{Binding PreviewChineseVoiceCommand}"
-                                Content="▶"
                                 IsEnabled="{Binding !IsPreviewing}"
-                                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewTooltip}}" />
+                                ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_PreviewTooltip}}">
+                                <Path Classes="icon" Width="14" Height="14" Data="{StaticResource Icon.Play}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                            </Button>
                         </Grid>
                     </StackPanel>
 
@@ -320,15 +326,19 @@
                         Padding="12,6"
                         HorizontalAlignment="Left"
                         Command="{Binding PreviewVoiceCommand}"
-                        Content="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_Preview}}"
-                        IsEnabled="{Binding !IsPreviewing}" />
+                        IsEnabled="{Binding !IsPreviewing}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Path Classes="icon" Width="12" Height="12" VerticalAlignment="Center" Data="{StaticResource Icon.Play}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                            <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Speech_Preview}}" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </GroupBox>
 
             <GroupBox FontSize="13">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="🔎" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.Ocr}" />
                         <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ocr_Header}}" />
                     </StackPanel>
                 </GroupBox.Header>
@@ -375,7 +385,7 @@
             <GroupBox FontSize="13">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="🤖" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.Ai}" />
                         <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Ai_Header}}" />
                     </StackPanel>
                 </GroupBox.Header>
@@ -459,7 +469,7 @@
             <GroupBox FontSize="13">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="📜" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.History}" />
                         <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_AnnouncementHistory_Header}}" />
                     </StackPanel>
                 </GroupBox.Header>
@@ -489,7 +499,7 @@
             <GroupBox FontSize="13">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="🔔" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.Bell}" />
                         <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_WindowAnnouncement_Header}}" />
                     </StackPanel>
                 </GroupBox.Header>
@@ -531,7 +541,7 @@
             <GroupBox FontSize="13">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="🖥" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.Shell}" />
                         <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_Header}}" />
                     </StackPanel>
                 </GroupBox.Header>
@@ -760,7 +770,7 @@
             <GroupBox FontSize="13">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <TextBlock Classes="sectionIcon" Text="📋" />
+                        <Path Classes="icon sectionIcon" Data="{StaticResource Icon.ProcessMonitor}" />
                         <TextBlock VerticalAlignment="Bottom" Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_ProcessMonitor_Header}}" />
                     </StackPanel>
                 </GroupBox.Header>

@@ -26,11 +26,13 @@
             Margin="4,4,4,0"
             Spacing="6">
             <StackPanel Orientation="Horizontal" Spacing="9">
-                <TextBlock
+                <Path
+                    Classes="icon"
+                    Width="18"
+                    Height="18"
                     VerticalAlignment="Center"
-                    FontSize="18"
-                    Foreground="{DynamicResource PipboyPrimaryBrush}"
-                    Text="◎" />
+                    Data="{StaticResource Icon.ScreenReader}"
+                    Fill="{DynamicResource PipboyPrimaryBrush}" />
                 <TextBlock
                     VerticalAlignment="Center"
                     FontSize="22"
@@ -63,14 +65,22 @@
                 <Button
                     Margin="0,0,14,4"
                     Command="{Binding DescribeCommand}"
-                    Content="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_Describe}}"
                     IsEnabled="{Binding !IsDescribing}"
-                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_DescribeTooltip}}" />
+                    ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_DescribeTooltip}}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Path Classes="icon" Width="12" Height="12" VerticalAlignment="Center" Data="{StaticResource Icon.Describe}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                        <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_Describe}}" />
+                    </StackPanel>
+                </Button>
                 <Button
                     Margin="0,0,14,4"
                     Command="{Binding AnalyzeScreenCommand}"
-                    Content="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_AnalyzeScreen}}"
-                    IsEnabled="{Binding !ScreenAnalysis.IsAnalyzing}" />
+                    IsEnabled="{Binding !ScreenAnalysis.IsAnalyzing}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Path Classes="icon" Width="13" Height="13" VerticalAlignment="Center" Data="{StaticResource Icon.Inspector}" Fill="{DynamicResource PipboyTextDimBrush}" />
+                        <TextBlock Text="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_AnalyzeScreen}}" />
+                    </StackPanel>
+                </Button>
                 <Button
                     Margin="0,0,14,4"
                     Command="{Binding StopAnalysisCommand}"
@@ -111,12 +121,14 @@
                 VerticalAlignment="Center"
                 Spacing="10"
                 IsVisible="{Binding ElementTracker.CurrentElement, Converter={x:Static ObjectConverters.IsNull}}">
-                <TextBlock
+                <Path
+                    Classes="icon"
+                    Width="42"
+                    Height="42"
                     HorizontalAlignment="Center"
-                    FontSize="42"
-                    Foreground="{DynamicResource PipboyTextDimBrush}"
-                    Opacity="0.4"
-                    Text="◎" />
+                    Data="{StaticResource Icon.ScreenReader}"
+                    Fill="{DynamicResource PipboyTextDimBrush}"
+                    Opacity="0.4" />
                 <TextBlock
                     HorizontalAlignment="Center"
                     FontSize="15"

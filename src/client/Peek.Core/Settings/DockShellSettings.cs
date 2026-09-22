@@ -8,13 +8,14 @@ namespace Peek.Core.Settings;
 /// </summary>
 public enum ShellMode
 {
-    /// <summary>Today's shell: a normal, freely-moved MainWindow with a nav sidebar and one tab visible at a time.</summary>
+    /// <summary>A normal, freely-moved MainWindow with a nav sidebar and one tab visible at a time.</summary>
     NormalWindow,
 
     /// <summary>
-    /// A permanently docked strip (see IEdgeDockingService) reserving its own screen edge,
-    /// hosting the same four monitor views cycled via a keyboard shortcut instead of a nav
-    /// sidebar - the "reading-impaired user's dedicated control region" product direction.
+    /// Peek's default shell: a permanently docked strip (see IEdgeDockingService) reserving
+    /// its own screen edge, hosting the same four monitor views cycled via a keyboard
+    /// shortcut instead of a nav sidebar - the "reading-impaired user's dedicated control
+    /// region" product direction.
     /// </summary>
     Docked,
 }
@@ -28,8 +29,12 @@ public enum ShellMode
 /// </summary>
 public sealed class DockShellSettings
 {
-    /// <summary>Decided once at startup (see App.axaml.cs) - switching requires a restart, not a live re-parenting of the shell's views.</summary>
-    public ShellMode Mode { get; set; } = ShellMode.NormalWindow;
+    /// <summary>
+    /// Decided once at startup (see App.axaml.cs) - switching requires a restart, not a live
+    /// re-parenting of the shell's views. Defaults to Docked: the permanently docked strip is
+    /// Peek's primary product direction (see ShellMode.Docked), not an opt-in extra.
+    /// </summary>
+    public ShellMode Mode { get; set; } = ShellMode.Docked;
 
     public DockEdge DockEdge { get; set; } = DockEdge.Right;
 

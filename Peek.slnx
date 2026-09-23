@@ -10,6 +10,7 @@
   <Project Path="src/worker/Peek.Worker.Automation.Windows/Peek.Worker.Automation.Windows.csproj" />
   <Project Path="src/worker/Peek.Worker.Tts/Peek.Worker.Tts.csproj" />
   <Project Path="src/worker/Peek.Worker.Tts.Windows/Peek.Worker.Tts.Windows.csproj" />
+  <Project Path="src/worker/Peek.Worker.Tts.AssetBundler/Peek.Worker.Tts.AssetBundler.csproj" />
   <Project Path="src/worker/Peek.Worker.Ocr/Peek.Worker.Ocr.csproj" />
   <Project Path="src/worker/Peek.Worker.Screenshot/Peek.Worker.Screenshot.csproj" />
   <Project Path="src/worker/Peek.Worker.Screenshot.Windows/Peek.Worker.Screenshot.Windows.csproj" />

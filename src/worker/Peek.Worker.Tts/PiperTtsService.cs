@@ -56,6 +56,7 @@ public sealed class PiperTtsService : ITtsService, IAsyncDisposable
         {
             Directory.CreateDirectory(_piperDir);
             Directory.CreateDirectory(_modelsDir);
+            SeedFromBundledAssets();
         }
         catch (Exception ex)
         {
@@ -63,6 +64,58 @@ public sealed class PiperTtsService : ITtsService, IAsyncDisposable
         }
 
         _consumerLoop = Task.Run(() => ConsumeAsync(_serviceCts.Token));
+    }
+
+    /// <summary>
+    /// Copies the pre-packaged Piper runtime and default voice models (see
+    /// Peek.Worker.Tts.AssetBundler and PiperTtsOptions.BundledAssetsDirectory) from the
+    /// read-only install folder into DataDirectory, once, if they're not already there - so a
+    /// fresh install's very first announcement never has to wait on a network download for a
+    /// voice Peek already shipped. Best-effort and synchronous (plain local file copies, not
+    /// network I/O, so this doesn't reintroduce the kind of startup delay the DataDirectory
+    /// creation above already guards against): a failed or partial copy just leaves the normal
+    /// download-on-demand path (EnsurePiperInstalledAsync/GetOrLoadVoiceModelAsync) to handle
+    /// it exactly as it always has, same as if no bundle existed at all. Every bundled voice
+    /// folder is seeded, not just a hardcoded three, so bundling a fourth voice later needs no
+    /// code change here.
+    /// </summary>
+    private void SeedFromBundledAssets()
+    {
+        if (_options.BundledAssetsDirectory is not { } bundledDir || !Directory.Exists(bundledDir))
+            return;
+
+        if (!File.Exists(_piperExecutablePath))
+        {
+            var bundledPiperDir = Path.Combine(bundledDir, "piper");
+            if (Directory.Exists(bundledPiperDir))
+            {
+                _logger.LogInformation("Seeding Piper runtime from bundled assets at '{BundledDir}'", bundledDir);
+                CopyDirectory(bundledPiperDir, _piperDir);
+            }
+        }
+
+        var bundledModelsDir = Path.Combine(bundledDir, "models");
+        if (!Directory.Exists(bundledModelsDir)) return;
+
+        foreach (var bundledModelDir in Directory.GetDirectories(bundledModelsDir))
+        {
+            var voiceId = Path.GetFileName(bundledModelDir);
+            var targetDir = Path.Combine(_modelsDir, voiceId);
+            if (Directory.Exists(targetDir) && File.Exists(Path.Combine(targetDir, "model.json")))
+                continue;
+
+            _logger.LogInformation("Seeding voice model '{VoiceId}' from bundled assets", voiceId);
+            CopyDirectory(bundledModelDir, targetDir);
+        }
+    }
+
+    private static void CopyDirectory(string sourceDir, string targetDir)
+    {
+        Directory.CreateDirectory(targetDir);
+        foreach (var file in Directory.GetFiles(sourceDir))
+            File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), overwrite: true);
+        foreach (var subDir in Directory.GetDirectories(sourceDir))
+            CopyDirectory(subDir, Path.Combine(targetDir, Path.GetFileName(subDir)));
     }
 
     public Task<IReadOnlyList<TtsVoiceInfo>> GetVoicesAsync(CancellationToken ct = default)

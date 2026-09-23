@@ -27,6 +27,16 @@ public partial class AnnouncementViewModel : ViewModelBase, IDisposable
     private readonly NotifyCollectionChangedEventHandler _entriesChangedHandler;
     private bool _disposed;
 
+    /// <summary>
+    /// Bumped at the start of every ReplaySelected call and checked after each await inside it,
+    /// so a fast second replay (double-click row A, then row B before A's TTS finishes)
+    /// supersedes the first cleanly instead of both running to completion - AccessibilitySpeechService
+    /// cancels A's audio for B, but swallows that cancellation internally rather than faulting
+    /// A's own Task, so without this A's window-foreground/confirmation would still run, possibly
+    /// after B's already have.
+    /// </summary>
+    private int _replayGeneration;
+
     [Reactive] private bool _isSpeaking;
     [Reactive] private bool _historyEnabled;
     [Reactive] private bool _isExpanded;
@@ -94,24 +104,27 @@ public partial class AnnouncementViewModel : ViewModelBase, IDisposable
     {
         if (SelectedEntry is not { } entry) return;
 
+        var generation = Interlocked.Increment(ref _replayGeneration);
+        bool IsCurrent() => Volatile.Read(ref _replayGeneration) == generation;
+
         try
         {
             await _speech.AnnounceTextAsync(
                 entry.Text, SpeechPriority.UserRequested,
-                sourceWindowHandle: entry.SourceWindowHandle, recordInHistory: false).ConfigureAwait(false);
+                sourceWindowHandle: entry.SourceWindowHandle, recordInHistory: false);
 
-            if (entry.SourceWindowHandle == default) return;
+            if (entry.SourceWindowHandle == default || !IsCurrent()) return;
 
             // Silent (no extra announcement) when the window's gone - the absence of a
             // confirmation already tells a sighted user nothing happened, and re-reading the
             // stale text a second time with a caveat attached would be noisier than useful.
             var window = _windowEnumerator.SnapshotSingle(entry.SourceWindowHandle);
-            if (window is null) return;
+            if (window is null || !IsCurrent()) return;
 
             _windowEnumerator.EnsureWindowForeground(entry.SourceWindowHandle);
             await _speech.AnnounceTextAsync(
                 SpeechStrings.Format("Speech_AnnouncementHistory_SwitchedToFormat", SpeechCulture, window.Title),
-                SpeechPriority.UserRequested, recordInHistory: false).ConfigureAwait(false);
+                SpeechPriority.UserRequested, recordInHistory: false);
         }
         catch (Exception ex)
         {

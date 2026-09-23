@@ -25,6 +25,12 @@ public sealed class AnnouncementHistoryService
     private readonly ISettingsService _settings;
     private readonly SynchronizationContext? _uiContext;
 
+    /// <summary>Running total of Entries[*].Text.Length, maintained incrementally rather than
+    /// re-summed on every Append - history can grow into the thousands of entries over a long
+    /// session, and re-scanning all of it on every single announcement would be needless,
+    /// repeated UI-thread work for something a running counter answers in O(1).</summary>
+    private int _totalCharacters;
+
     public AnnouncementHistoryService(ISettingsService settings)
     {
         _settings = settings;
@@ -46,21 +52,25 @@ public sealed class AnnouncementHistoryService
         RunOnUiThread(() =>
         {
             Entries.Add(entry);
+            _totalCharacters += entry.Text.Length;
             TrimToCapacity();
         });
     }
 
-    public void Clear() => RunOnUiThread(Entries.Clear);
+    public void Clear() => RunOnUiThread(() =>
+    {
+        Entries.Clear();
+        _totalCharacters = 0;
+    });
 
     /// <summary>Drops the oldest entries once the total character count exceeds the cap - never the most recently added one, even if that single entry alone exceeds it, so appending never makes the history it just grew appear empty.</summary>
     private void TrimToCapacity()
     {
         var max = Math.Max(1000, _settings.Current.AnnouncementHistory.MaxCharacters);
-        var total = Entries.Sum(e => e.Text.Length);
 
-        while (total > max && Entries.Count > 1)
+        while (_totalCharacters > max && Entries.Count > 1)
         {
-            total -= Entries[0].Text.Length;
+            _totalCharacters -= Entries[0].Text.Length;
             Entries.RemoveAt(0);
         }
     }

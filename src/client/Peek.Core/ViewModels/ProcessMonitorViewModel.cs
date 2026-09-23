@@ -139,10 +139,15 @@ public partial class ProcessMonitorViewModel : MonitorViewModelBase
             var detailed = _settingsService.Current.ProcessMonitor.AnnounceDetailedInfo;
             var text = ProcessAnnouncementFormatter.FormatSelection(process.Name, process.Id, detailed, process.MemoryBytes, SpeechCulture);
 
+            // Off the UI thread, same as ElementInspectorViewModel's own use of
+            // EnumerateVisibleRoots (which this calls into) - it walks every top-level window
+            // and PropertyChanged (this method's caller) fires synchronously on the UI thread,
+            // e.g. once per arrow-key press while moving through the list.
+            //
             // Best-effort: most processes own a top-level window, but a background/system one
             // may not - FindMainWindowForProcess returns null there, leaving this entry with no
             // window to replay-activate later (Announcement History already handles that case).
-            var window = _windowEnumerator.FindMainWindowForProcess((uint)process.Id);
+            var window = await Task.Run(() => _windowEnumerator.FindMainWindowForProcess((uint)process.Id)).ConfigureAwait(true);
             await _speechService.AnnounceTextAsync(text, SpeechPriority.UserRequested, sourceWindowHandle: window?.Hwnd ?? default);
         }
         catch (Exception ex)

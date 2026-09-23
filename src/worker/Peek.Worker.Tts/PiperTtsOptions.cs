@@ -16,6 +16,22 @@ public sealed class PiperTtsOptions
     public string DataDirectory { get; set; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Peek", "tts");
 
+    /// <summary>
+    /// Optional read-only folder, installed alongside the worker executable (not
+    /// DataDirectory), holding a pre-packaged Piper runtime plus the three voice models Peek
+    /// ships UI translations for - built by Peek.Worker.Tts.AssetBundler at publish time (see
+    /// pack/peek.iss and the pack-*/release GitHub Actions workflows), not checked into the
+    /// repo itself. When present, PiperTtsService copies from here into DataDirectory once
+    /// instead of downloading, so a fresh install's first announcement never waits on a
+    /// network fetch for a voice Peek already shipped. Null (the default here) on a dev build
+    /// or any install that predates this folder existing - everything falls back to the
+    /// original download-on-demand behavior exactly as before, just slower on first use.
+    /// </summary>
+    public string? BundledAssetsDirectory { get; set; } =
+        Directory.Exists(Path.Combine(AppContext.BaseDirectory, "tts-assets"))
+            ? Path.Combine(AppContext.BaseDirectory, "tts-assets")
+            : null;
+
     /// <summary>Piper voice model key (from Hugging Face's rhasspy/piper-voices) used when a request does not specify one.</summary>
     public string DefaultVoiceId { get; set; } = "en_US-lessac-medium";
 

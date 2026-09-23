@@ -123,6 +123,20 @@ jobs:
 
           Get-ChildItem dist/win-x64 -Recurse -Filter *.pdb | Remove-Item -Force
 
+      # Pre-fetches the Piper runtime + the three voice models Peek ships UI translations
+      # for, so a fresh install never needs a first-run network download just to hear its
+      # own default voices (PiperTtsOptions.BundledAssetsDirectory / PiperTtsService read
+      # this at runtime). Everything else Peek ever downloads still goes through the normal
+      # on-demand path. Fails the job if unreachable, rather than silently shipping an
+      # installer without the bundle.
+      - name: Bundle TTS assets
+        shell: pwsh
+        run: |
+          dotnet run --project src/worker/Peek.Worker.Tts.AssetBundler/Peek.Worker.Tts.AssetBundler.csproj `
+            -c Release `
+            -- "dist/win-x64/worker/tts-assets"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       # Exercise the actual trimmed executable, including COM interop and OCR.
       - name: Integration tests against published worker
         shell: pwsh

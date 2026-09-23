@@ -152,6 +152,22 @@ public partial class MainWindow : Window, IColorChangedNotify, IPeekSelfWindow
     public void RestoreAfterScreenCapture() => Dispatcher.UIThread.Post(Show);
 
     /// <summary>
+    /// Same Show/restore/Activate sequence as the tray icon's own "Show Peek" menu item (see
+    /// App.axaml.cs's SetupTrayIcon) - the "ShowPeek" global hotkey's target, reachable from
+    /// GlobalHotkeyService's WH_KEYBOARD_LL callback thread, hence the Dispatcher.Post rather
+    /// than calling Show/Activate directly (same reasoning as RestoreAfterScreenCapture
+    /// above). Activating focuses the window, which re-fires OnOpenedOrActivated's Focus()
+    /// call below - the existing self-reading pipeline announces whatever ends up focused, so
+    /// this needs no separate spoken confirmation of its own.
+    /// </summary>
+    public void ShowAndActivate() => Dispatcher.UIThread.Post(() =>
+    {
+        Show();
+        WindowState = WindowState.Normal;
+        Activate();
+    });
+
+    /// <summary>
     /// MainWindow itself is shell-mode-agnostic and its own DataContext is always
     /// MainViewModel (its title-bar chrome - the About/ColorPicker buttons - is compiled
     /// against that type; a second distinct DataContext type there reproducibly crashed

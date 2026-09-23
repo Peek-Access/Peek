@@ -657,4 +657,7 @@
   <data name="Settings_Shell_StopSpeakingShortcut" xml:space="preserve">
     <value>Sprachausgabe stoppen</value>
   </data>
+  <data name="Settings_Shell_ShowPeekShortcut" xml:space="preserve">
+    <value>Peek anzeigen (funktioniert auch, wenn das Fenster ausgeblendet ist)</value>
+  </data>
 </root>

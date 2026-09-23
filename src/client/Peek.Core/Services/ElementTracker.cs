@@ -288,6 +288,16 @@ public partial class ElementTracker : ReactiveObject, IDisposable
         await _workerConnection.StartAsync();
         await Task.Delay(TimeSpan.FromSeconds(1));
 
+        // IsTracking has no persisted setting behind it - it's pure runtime state that always
+        // starts false, so without this every single launch (not just the first one) left
+        // Peek's core feature silently off until the user found the ON/OFF switch or already
+        // knew Ctrl+Alt+T. For a screen-reading tool, hovering doing nothing by default was the
+        // single biggest gap in an otherwise-working out-of-the-box experience. Set here (after
+        // the worker's up), not in the field initializer, so it goes through the same
+        // WhenAnyValue(IsTracking).Skip(1) pipeline as a real user toggle and doesn't fire
+        // before there's a worker connection to query.
+        IsTracking = true;
+
         _workerConnection.State
             .ObserveOn(RxSchedulers.MainThreadScheduler)
             .Subscribe(s => WorkerState = s)

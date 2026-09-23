@@ -94,6 +94,10 @@ public partial class AppMonitorViewModel : MonitorViewModelBase
     {
         try
         {
+            // No sourceWindowHandle here, unlike ProcessMonitorViewModel's own selection
+            // announcement: InstalledAppDto (a registry read - see ISystemMonitorService) never
+            // carries a process id, and this app may not even be running. Announcement History
+            // already treats a window-less entry as simply not replay-activating anything.
             await _speechService.AnnounceTextAsync(InstalledAppAnnouncementFormatter.FormatSelection(app.Name, app.Version, app.Publisher, SpeechCulture), SpeechPriority.UserRequested);
         }
         catch (Exception ex)

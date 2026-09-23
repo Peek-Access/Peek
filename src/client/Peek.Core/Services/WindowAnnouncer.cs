@@ -53,7 +53,7 @@ public sealed class WindowAnnouncer : IDisposable
         var s = _settings.Current.WindowAnnouncement;
         if (!s.Enabled || !s.AnnounceFocusChanged) return;
 
-        _ = AnnounceAsync(WindowAnnouncementKind.FocusChanged, e.WindowTitle, e.ProcessId);
+        _ = AnnounceAsync(WindowAnnouncementKind.FocusChanged, e.WindowTitle, e.ProcessId, e.WindowHandle);
     }
 
     private void OnWindowLifecycleChanged(object? sender, WindowLifecycleChangedArgs e)
@@ -68,10 +68,10 @@ public sealed class WindowAnnouncer : IDisposable
         if (kind == WindowAnnouncementKind.Opened && !s.AnnounceWindowOpened) return;
         if (kind == WindowAnnouncementKind.Closed && !s.AnnounceWindowClosed) return;
 
-        _ = AnnounceAsync(kind, e.WindowTitle, e.ProcessId);
+        _ = AnnounceAsync(kind, e.WindowTitle, e.ProcessId, e.WindowHandle);
     }
 
-    private async Task AnnounceAsync(WindowAnnouncementKind kind, string windowTitle, uint processId)
+    private async Task AnnounceAsync(WindowAnnouncementKind kind, string windowTitle, uint processId, nint windowHandle)
     {
         try
         {
@@ -87,7 +87,7 @@ public sealed class WindowAnnouncer : IDisposable
             // the chime has finished, so AccessibilitySpeechService's own AudioPlayer.Stop()
             // right before it plays the TTS clip can never cut the chime off mid-play.
             await _notificationSound.PlayAsync().ConfigureAwait(false);
-            await _speechService.AnnounceTextAsync(text, SpeechPriority.Ambient).ConfigureAwait(false);
+            await _speechService.AnnounceTextAsync(text, SpeechPriority.Ambient, sourceWindowHandle: windowHandle).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

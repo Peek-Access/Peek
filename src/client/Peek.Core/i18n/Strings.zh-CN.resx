@@ -165,6 +165,12 @@
   <data name="ScreenReader_HistoryExpandCollapse" xml:space="preserve">
     <value>展开或折叠朗读历史</value>
   </data>
+  <data name="ScreenReader_HistoryReplay" xml:space="preserve">
+    <value>重放</value>
+  </data>
+  <data name="ScreenReader_HistoryReplayTooltip" xml:space="preserve">
+    <value>重新播报选中的条目 · 双击某一行或按 Enter 效果相同</value>
+  </data>
   <data name="ScreenReader_SpeechActivity" xml:space="preserve">
     <value>语音活动</value>
   </data>
@@ -551,6 +557,9 @@
   </data>
   <data name="Speech_Window_FocusChanged" xml:space="preserve">
     <value>当前窗口</value>
+  </data>
+  <data name="Speech_AnnouncementHistory_SwitchedToFormat" xml:space="preserve">
+    <value>已切换到{0}。</value>
   </data>
   <data name="Speech_Process_Unnamed" xml:space="preserve">
     <value>未命名进程</value>

@@ -23,7 +23,24 @@ public interface IAccessibilitySpeechService
     /// (an OCR suggestion message, an LLM-generated description, a settings preview
     /// phrase, ...) through the same voice/rate/priority pipeline as <see cref="AnnounceAsync"/>.
     /// </summary>
-    Task AnnounceTextAsync(string text, SpeechPriority priority, CancellationToken ct = default);
+    /// <param name="sourceWindowHandle">
+    /// The native window this announcement is about, when there is one (an OCR scan's target
+    /// window, an AI element description's window, a window-change chime's own subject, ...) -
+    /// recorded alongside the announcement in AnnouncementHistoryService so Announcement
+    /// History's replay can bring that window back to the foreground later. Zero when there
+    /// isn't a natural window (settings/navigation speech, an installed app that may not even
+    /// be running) - <see cref="AnnounceAsync"/> always supplies the element's own Hwnd here.
+    /// </param>
+    /// <param name="recordInHistory">
+    /// False for a replay of an already-recorded entry (Announcement History's own replay
+    /// action) - re-speaking history shouldn't grow the history it's replaying from.
+    /// </param>
+    Task AnnounceTextAsync(
+        string text,
+        SpeechPriority priority,
+        nint sourceWindowHandle = default,
+        bool recordInHistory = true,
+        CancellationToken ct = default);
 
     /// <summary>
     /// Reserves the speech channel for an operation that speaks over several utterances and a

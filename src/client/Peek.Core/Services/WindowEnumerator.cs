@@ -3,6 +3,8 @@ using Microsoft.Win32.SafeHandles;
 using Peek.Core.Models;
 using ReactiveUI.Primitives.Disposables;
 using ReactiveUI.Primitives.Signals;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Runtime.Versioning;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -16,7 +18,12 @@ namespace Peek.Core.Services;
 public sealed class WindowEnumerator
 {
     private readonly ILogger<WindowEnumerator> _logger;
-    private readonly Dictionary<uint, string>  _processNameCache = [];
+
+    // Concurrent, not a plain Dictionary: EnumerateVisibleRoots (which FindMainWindowForProcess
+    // calls synchronously) and EnumerateAll/EnumerateObservable's own Task.Run can now genuinely
+    // run on different threads at once against this same singleton - callers on this class have
+    // never been serialized, only kept off the UI thread individually.
+    private readonly ConcurrentDictionary<uint, string> _processNameCache = new();
     private const int MaxTextLength = 512;
 
     public WindowEnumerator(ILogger<WindowEnumerator> logger)
@@ -226,6 +233,20 @@ public sealed class WindowEnumerator
 
         return results;
     }
+
+    /// <summary>
+    /// The first visible top-level window owned by <paramref name="processId"/>, if any - lets
+    /// Announcement History's replay bring a Process Monitor selection's window forward the
+    /// same way an element-sourced entry does. A process can own several top-level windows (or
+    /// none, e.g. a background service); this is a best-effort "the" window, not an exhaustive
+    /// list - good enough for "switch to whatever this process is showing".
+    /// </summary>
+    /// <remarks>
+    /// Must run off the UI thread, same as <see cref="EnumerateVisibleRoots"/> itself (see its
+    /// callers' own remarks) - this walks every top-level window and is not cheap.
+    /// </remarks>
+    public WindowNode? FindMainWindowForProcess(uint processId) =>
+        EnumerateVisibleRoots().FirstOrDefault(w => w.ProcessId == processId);
 
     public IObservable<WindowNode> EnumerateObservable(bool includeChildren = true)
     {

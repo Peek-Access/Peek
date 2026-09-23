@@ -68,11 +68,16 @@ public sealed class AccessibilitySpeechService : IAccessibilitySpeechService, ID
             _settings.Current.Speech.Verbosity,
             SpeechStrings.ResolveCulture(_settings.Current.Localization));
 
-        return SpeakAsync(content.Text, element.Name, priority, ct);
+        return SpeakAsync(content.Text, element.Name, priority, element.Hwnd, recordInHistory: true, ct);
     }
 
-    public Task AnnounceTextAsync(string text, SpeechPriority priority, CancellationToken ct = default) =>
-        SpeakAsync(text, text, priority, ct);
+    public Task AnnounceTextAsync(
+        string text,
+        SpeechPriority priority,
+        nint sourceWindowHandle = default,
+        bool recordInHistory = true,
+        CancellationToken ct = default) =>
+        SpeakAsync(text, text, priority, sourceWindowHandle, recordInHistory, ct);
 
     public IDisposable BeginExclusive(string reason, Action? onStopRequested = null)
     {
@@ -116,7 +121,13 @@ public sealed class AccessibilitySpeechService : IAccessibilitySpeechService, ID
         }
     }
 
-    private async Task SpeakAsync(string text, string logLabel, SpeechPriority priority, CancellationToken ct)
+    private async Task SpeakAsync(
+        string text,
+        string logLabel,
+        SpeechPriority priority,
+        nint sourceWindowHandle,
+        bool recordInHistory,
+        CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
 
@@ -128,7 +139,8 @@ public sealed class AccessibilitySpeechService : IAccessibilitySpeechService, ID
             return;
         }
 
-        _history.Append(text);
+        if (recordInHistory)
+            _history.Append(text, sourceWindowHandle);
 
         var isUserRequested = priority == SpeechPriority.UserRequested;
         if (isUserRequested) Interlocked.Increment(ref _userUtteranceInFlight);

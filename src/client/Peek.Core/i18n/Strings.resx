@@ -165,6 +165,12 @@
   <data name="ScreenReader_HistoryExpandCollapse" xml:space="preserve">
     <value>Expand or collapse announcement history</value>
   </data>
+  <data name="ScreenReader_HistoryReplay" xml:space="preserve">
+    <value>Replay</value>
+  </data>
+  <data name="ScreenReader_HistoryReplayTooltip" xml:space="preserve">
+    <value>Replay the selected announcement · double-click a row or press Enter to do the same</value>
+  </data>
   <data name="ScreenReader_SpeechActivity" xml:space="preserve">
     <value>Speech activity</value>
   </data>
@@ -554,6 +560,9 @@
   </data>
   <data name="Speech_Window_FocusChanged" xml:space="preserve">
     <value>Active window</value>
+  </data>
+  <data name="Speech_AnnouncementHistory_SwitchedToFormat" xml:space="preserve">
+    <value>Switched to {0}.</value>
   </data>
   <data name="Speech_Process_Unnamed" xml:space="preserve">
     <value>Unnamed process</value>

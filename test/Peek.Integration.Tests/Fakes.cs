@@ -80,7 +80,12 @@ internal sealed class RecordingSpeechService : IAccessibilitySpeechService
         return Task.CompletedTask;
     }
 
-    public Task AnnounceTextAsync(string text, SpeechPriority priority, CancellationToken ct = default)
+    public Task AnnounceTextAsync(
+        string text,
+        SpeechPriority priority,
+        nint sourceWindowHandle = default,
+        bool recordInHistory = true,
+        CancellationToken ct = default)
     {
         AnnouncedPriorities.Add(priority);
         AnnouncedText.Add(text);

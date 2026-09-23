@@ -119,6 +119,8 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _announceOwnInterface;
     [Reactive]
     private string _stopSpeakingShortcut = "";
+    [Reactive]
+    private string _showPeekShortcut = "";
 
     public IObservable<string?> DisplayLanguage => _linguaManager.GetObservable("Settings_Language");
 
@@ -196,6 +198,7 @@ public partial class SettingsViewModel : ViewModelBase
         _highlightFocusedElement = settings.Accessibility.HighlightFocusedElement;
         _announceOwnInterface = settings.Accessibility.AnnounceOwnInterface;
         _stopSpeakingShortcut = settings.Keyboard.Shortcuts.GetValueOrDefault("StopSpeaking", "Ctrl+Alt+S");
+        _showPeekShortcut = settings.Keyboard.Shortcuts.GetValueOrDefault("ShowPeek", "Ctrl+Alt+P");
 
         this.WhenAnyValue(x => x.CurrentCulture)
             .Where(culture => culture is not null)
@@ -311,6 +314,9 @@ public partial class SettingsViewModel : ViewModelBase
         this.WhenAnyValue(x => x.StopSpeakingShortcut).Skip(1)
             .Where(g => !string.IsNullOrWhiteSpace(g))
             .Subscribe(g => _ = _settingsService.UpdateAsync(s => s.Keyboard.Shortcuts["StopSpeaking"] = g));
+        this.WhenAnyValue(x => x.ShowPeekShortcut).Skip(1)
+            .Where(g => !string.IsNullOrWhiteSpace(g))
+            .Subscribe(g => _ = _settingsService.UpdateAsync(s => s.Keyboard.Shortcuts["ShowPeek"] = g));
     }
 
     /// <summary>Previews the full pipeline (language detection + primary-language voice + rate) end to end, the way an actual announcement is spoken.</summary>

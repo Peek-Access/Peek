@@ -660,4 +660,7 @@
   <data name="Settings_Shell_StopSpeakingShortcut" xml:space="preserve">
     <value>Stop speaking</value>
   </data>
+  <data name="Settings_Shell_ShowPeekShortcut" xml:space="preserve">
+    <value>Show Peek (works even if the window is hidden)</value>
+  </data>
 </root>

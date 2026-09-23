@@ -764,6 +764,20 @@
                             AutomationProperties.LabeledBy="{Binding #StopSpeakingShortcutLabel}"
                             Text="{Binding StopSpeakingShortcut}" />
                     </Grid>
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="10">
+                        <TextBlock
+                            x:Name="ShowPeekShortcutLabel"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="12"
+                            Opacity="0.6"
+                            Text="{Translate {x:Static i18n:LanguageManager+Keys.Settings_Shell_ShowPeekShortcut}}"
+                            TextWrapping="Wrap" />
+                        <TextBox
+                            Grid.Column="1"
+                            AutomationProperties.LabeledBy="{Binding #ShowPeekShortcutLabel}"
+                            Text="{Binding ShowPeekShortcut}" />
+                    </Grid>
                 </StackPanel>
             </GroupBox>
 

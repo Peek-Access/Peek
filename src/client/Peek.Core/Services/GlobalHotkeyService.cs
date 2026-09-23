@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Microsoft.Extensions.Logging;
+using Peek.Core.Abstractions;
 using Peek.Core.Services.Llm;
 using Peek.Core.Services.Speech;
 using Peek.Core.Settings;
@@ -29,6 +30,7 @@ public sealed class GlobalHotkeyService : IDisposable
     private readonly ElementTracker _elementTracker;
     private readonly IElementDescriptionService _describer;
     private readonly IAccessibilitySpeechService _speechService;
+    private readonly IPeekSelfWindow _selfWindow;
     private readonly ILogger<GlobalHotkeyService> _logger;
     private readonly IDisposable _settingsSubscription;
     private int _disposed;
@@ -36,12 +38,14 @@ public sealed class GlobalHotkeyService : IDisposable
     private HotkeyGesture _describeGesture;
     private HotkeyGesture _toggleTrackingGesture;
     private HotkeyGesture _stopSpeakingGesture;
+    private HotkeyGesture _showPeekGesture;
 
     public GlobalHotkeyService(
         WindowsHookService hookService,
         ElementTracker elementTracker,
         IElementDescriptionService describer,
         IAccessibilitySpeechService speechService,
+        IPeekSelfWindow selfWindow,
         ISettingsService settingsService,
         ILogger<GlobalHotkeyService> logger)
     {
@@ -49,6 +53,7 @@ public sealed class GlobalHotkeyService : IDisposable
         _elementTracker = elementTracker;
         _describer = describer;
         _speechService = speechService;
+        _selfWindow = selfWindow;
         _logger = logger;
 
         ApplyShortcuts(settingsService.Current.Keyboard);
@@ -71,6 +76,8 @@ public sealed class GlobalHotkeyService : IDisposable
         // copy/paste/shortcut the user presses in any app.
         _stopSpeakingGesture = ParseOrFallback(
             keyboard.Shortcuts.GetValueOrDefault("StopSpeaking", "Ctrl+Alt+S"), "Ctrl+Alt+S");
+        _showPeekGesture = ParseOrFallback(
+            keyboard.Shortcuts.GetValueOrDefault("ShowPeek", "Ctrl+Alt+P"), "Ctrl+Alt+P");
     }
 
     private HotkeyGesture ParseOrFallback(string gesture, string fallback)
@@ -112,6 +119,10 @@ public sealed class GlobalHotkeyService : IDisposable
         else if (_stopSpeakingGesture.Matches(vkCode))
         {
             _ = RunStopSpeakingAsync();
+        }
+        else if (_showPeekGesture.Matches(vkCode))
+        {
+            _selfWindow.ShowAndActivate();
         }
     }
 

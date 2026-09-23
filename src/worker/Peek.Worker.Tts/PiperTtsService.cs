@@ -216,6 +216,18 @@ public sealed class PiperTtsService : ITtsService, IAsyncDisposable
         };
     }
 
+    /// <summary>
+    /// How long a first-run Piper runtime/voice download gets before this gives up on it for
+    /// this attempt and lets FallbackTtsService switch to a Windows voice instead. PiperSharp's
+    /// download calls take no CancellationToken of their own, so a dead/very slow connection
+    /// would otherwise hang the caller's very first announcement for however long HttpClient's
+    /// own default timeout is (~100s) - dead silence for a screen-reading tool's first real
+    /// utterance is a far worse failure mode than falling back to a lesser voice quickly. The
+    /// download keeps running in the background regardless (WaitAsync abandons the wait, not
+    /// the task) and populates the on-disk cache for next time either way.
+    /// </summary>
+    private static readonly TimeSpan DownloadTimeout = TimeSpan.FromSeconds(20);
+
     private async Task EnsurePiperInstalledAsync(CancellationToken ct)
     {
         if (File.Exists(_piperExecutablePath)) return;
@@ -230,7 +242,8 @@ public sealed class PiperTtsService : ITtsService, IAsyncDisposable
         // extracts into DataDirectory/piper/... (i.e. _piperDir) - matching
         // PiperDownloader's own DefaultPiperLocation convention. Extracting to
         // _piperDir itself would double-nest it as _piperDir/piper/piper.exe.
-        await PiperDownloader.DownloadPiper().ExtractPiper(_options.DataDirectory).ConfigureAwait(false);
+        await PiperDownloader.DownloadPiper().ExtractPiper(_options.DataDirectory)
+            .WaitAsync(DownloadTimeout, ct).ConfigureAwait(false);
     }
 
     private async Task<VoiceModel> GetOrLoadVoiceModelAsync(string voiceId, CancellationToken ct)
@@ -253,9 +266,9 @@ public sealed class PiperTtsService : ITtsService, IAsyncDisposable
 
             _logger.LogInformation("Voice model '{VoiceId}' not found locally - downloading", voiceId);
             ct.ThrowIfCancellationRequested();
-            var descriptor = await PiperDownloader.GetModelByKey(voiceId).ConfigureAwait(false)
+            var descriptor = await PiperDownloader.GetModelByKey(voiceId).WaitAsync(DownloadTimeout, ct).ConfigureAwait(false)
                 ?? throw new InvalidOperationException($"Unknown Piper voice model key '{voiceId}'.");
-            model = await descriptor.DownloadModel(_modelsDir).ConfigureAwait(false);
+            model = await descriptor.DownloadModel(_modelsDir).WaitAsync(DownloadTimeout, ct).ConfigureAwait(false);
         }
 
         _modelCache[voiceId] = model;

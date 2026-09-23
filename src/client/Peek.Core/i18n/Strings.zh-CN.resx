@@ -657,4 +657,7 @@
   <data name="Settings_Shell_StopSpeakingShortcut" xml:space="preserve">
     <value>停止朗读</value>
   </data>
+  <data name="Settings_Shell_ShowPeekShortcut" xml:space="preserve">
+    <value>显示 Peek(窗口被隐藏时也能用)</value>
+  </data>
 </root>

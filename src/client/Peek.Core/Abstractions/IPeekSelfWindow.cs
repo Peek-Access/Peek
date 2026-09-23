@@ -15,6 +15,14 @@ public interface IPeekSelfWindow
     void RestoreAfterScreenCapture();
 
     /// <summary>
+    /// Un-hides/un-minimizes and brings Peek's own window to the foreground - what the
+    /// "ShowPeek" global hotkey (see KeyboardSettings) resolves to, since closing the title
+    /// bar's X hides rather than quits and the tray icon is otherwise the only way back,
+    /// which is a notoriously screen-reader-hostile Windows pattern to have to hunt for.
+    /// </summary>
+    void ShowAndActivate();
+
+    /// <summary>
     /// True while Peek's own window is minimized or hidden (tray minimize, or the OS
     /// minimize button - both are covered). A plain cached bool, safe to read from any
     /// thread (e.g. HighlightService's background watchdog) without marshaling onto the UI

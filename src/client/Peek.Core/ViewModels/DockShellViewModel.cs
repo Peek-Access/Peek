@@ -102,7 +102,17 @@ public partial class DockShellViewModel : ViewModelBase
 
     public void RemoveDocking() => _dockingService.Remove();
 
-    public Task NavigateToFirstMonitorAsync() => _regionManager.RequestNavigateAsync(RegionName, MonitorViewNames[0]);
+    /// <summary>
+    /// Called once, when the docked shell first opens (Docked is now the default shell mode -
+    /// see DockShellSettings) - announces the landing page the same way PageUp/PageDown/
+    /// Settings navigation already does, so a fresh launch doesn't leave the user wondering
+    /// which of the four monitors (or Settings) they've opened into.
+    /// </summary>
+    public async Task NavigateToFirstMonitorAsync()
+    {
+        await _regionManager.RequestNavigateAsync(RegionName, MonitorViewNames[0]);
+        AnnounceCurrentPage(MonitorViewNames[0]);
+    }
 
     public Task NavigateToAnnouncementsAsync() =>
         _regionManager.RequestNavigateAsync(AnnouncementRegionName, "DockAnnouncementView");

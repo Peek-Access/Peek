@@ -1,48 +1,73 @@
+using System.Collections.ObjectModel;
+using Peek.Core.Models;
 using Peek.Core.Settings;
-using ReactiveUI;
-using ReactiveUI.SourceGenerators;
-using System.Text;
 
 namespace Peek.Core.Services.Speech;
 
 /// <summary>
-/// Records every announcement spoken through AccessibilitySpeechService into a running
-/// transcript, for reading-impaired users who want to review or copy what was just read
-/// aloud rather than relying on memory. Toggleable via AnnouncementHistorySettings.Enabled
-/// and length-capped - oldest text scrolls off the front once MaxCharacters is exceeded,
-/// the same idea as a terminal scrollback buffer.
+/// Records every announcement spoken through AccessibilitySpeechService as a structured
+/// <see cref="AnnouncementEntry"/>, for reading-impaired users who want to review, copy, or
+/// replay what was just read aloud rather than relying on memory. Toggleable via
+/// AnnouncementHistorySettings.Enabled and length-capped - oldest entries drop off the front
+/// once MaxCharacters is exceeded, the same idea as a terminal scrollback buffer.
 /// </summary>
-public sealed partial class AnnouncementHistoryService : ReactiveObject
+/// <remarks>
+/// <see cref="Entries"/> is bound directly to Announcement History's ListBox
+/// (AnnouncementView/DockAnnouncementView), so every mutation has to land on the UI thread -
+/// <see cref="Append"/> is called from wherever AccessibilitySpeechService.SpeakAsync happens
+/// to run, which is very often a background thread. The constructor captures whatever
+/// SynchronizationContext is current, exactly like AnnouncementViewModel already does for its
+/// own state - both rely on this service being constructed during App.axaml.cs's synchronous,
+/// UI-thread startup sequence, before anything could resolve it from elsewhere.
+/// </remarks>
+public sealed class AnnouncementHistoryService
 {
     private readonly ISettingsService _settings;
-    private readonly StringBuilder _buffer = new();
-
-    [Reactive]
-    private string _transcript = "";
+    private readonly SynchronizationContext? _uiContext;
 
     public AnnouncementHistoryService(ISettingsService settings)
     {
         _settings = settings;
+        _uiContext = SynchronizationContext.Current;
     }
 
-    /// <summary>Appends one full announcement's text as its own line - called once per AnnounceAsync/AnnounceTextAsync call, not once per TTS segment, so the transcript reads as whole utterances.</summary>
-    public void Append(string text)
+    /// <summary>Every announcement spoken, oldest first.</summary>
+    public ObservableCollection<AnnouncementEntry> Entries { get; } = [];
+
+    /// <summary>The whole history as one newline-joined block, for the Copy button - computed on demand rather than cached, since it's only ever read right before it's copied.</summary>
+    public string Transcript => string.Join('\n', Entries.Select(e => e.Text));
+
+    /// <summary>Records one full announcement - called once per AnnounceAsync/AnnounceTextAsync call, not once per TTS segment, so the history reads as whole utterances.</summary>
+    public void Append(string text, nint sourceWindowHandle = default)
     {
         if (!_settings.Current.AnnouncementHistory.Enabled || string.IsNullOrWhiteSpace(text)) return;
 
-        if (_buffer.Length > 0) _buffer.Append('\n');
-        _buffer.Append(text);
-
-        var max = Math.Max(1000, _settings.Current.AnnouncementHistory.MaxCharacters);
-        if (_buffer.Length > max)
-            _buffer.Remove(0, _buffer.Length - max);
-
-        Transcript = _buffer.ToString();
+        var entry = new AnnouncementEntry(text, DateTimeOffset.Now, sourceWindowHandle);
+        RunOnUiThread(() =>
+        {
+            Entries.Add(entry);
+            TrimToCapacity();
+        });
     }
 
-    public void Clear()
+    public void Clear() => RunOnUiThread(Entries.Clear);
+
+    /// <summary>Drops the oldest entries once the total character count exceeds the cap - never the most recently added one, even if that single entry alone exceeds it, so appending never makes the history it just grew appear empty.</summary>
+    private void TrimToCapacity()
     {
-        _buffer.Clear();
-        Transcript = "";
+        var max = Math.Max(1000, _settings.Current.AnnouncementHistory.MaxCharacters);
+        var total = Entries.Sum(e => e.Text.Length);
+
+        while (total > max && Entries.Count > 1)
+        {
+            total -= Entries[0].Text.Length;
+            Entries.RemoveAt(0);
+        }
+    }
+
+    private void RunOnUiThread(Action action)
+    {
+        if (_uiContext is null) action();
+        else _uiContext.Post(_ => action(), null);
     }
 }

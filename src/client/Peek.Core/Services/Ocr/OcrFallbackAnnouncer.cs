@@ -198,7 +198,7 @@ public sealed class OcrFallbackAnnouncer
 
             case OcrDecision.SuggestOcr:
                 var message = ocr.SuggestionMessage ?? OcrSuggestionMessages.Default;
-                await _speechService.AnnounceTextAsync(message, priority, ct).ConfigureAwait(false);
+                await _speechService.AnnounceTextAsync(message, priority, sourceWindowHandle: element.Hwnd, ct: ct).ConfigureAwait(false);
                 return true;
 
             default:
@@ -278,7 +278,7 @@ public sealed class OcrFallbackAnnouncer
             // by the real announcement below the moment it's ready (same "newer speech cancels
             // older" rule every other announcement already relies on) - no special handling needed
             // for the fast-OCR case where this gets cut off almost immediately.
-            await _speechService.AnnounceTextAsync(announceBeforeMessage, priority, ct).ConfigureAwait(false);
+            await _speechService.AnnounceTextAsync(announceBeforeMessage, priority, sourceWindowHandle: element.Hwnd, ct: ct).ConfigureAwait(false);
 
             var screenshot = await _workerConnection.Client.Screenshot.CaptureWindowAsync(element.Hwnd, ct).ConfigureAwait(false);
             var result = await _workerConnection.Client.Ocr.RecognizeAsync(screenshot.ImageData, ct: ct).ConfigureAwait(false);
@@ -292,7 +292,7 @@ public sealed class OcrFallbackAnnouncer
             var text = lineIndex >= 0 ? result.Lines[lineIndex].Text : result.Text;
             _lastAnnouncedLineIndex[element.Hwnd] = lineIndex;
 
-            await _speechService.AnnounceTextAsync(text, priority, ct).ConfigureAwait(false);
+            await _speechService.AnnounceTextAsync(text, priority, sourceWindowHandle: element.Hwnd, ct: ct).ConfigureAwait(false);
             return true;
         }
         catch (OperationCanceledException)
@@ -406,7 +406,7 @@ public sealed class OcrFallbackAnnouncer
         _lastAnnouncedLineIndex[hwnd] = lineIndex;
         if (lineIndex < 0) return false; // moved off every recognized line - fall silent, don't repeat the last one
 
-        await _speechService.AnnounceTextAsync(scan.Result.Lines[lineIndex].Text, priority, ct).ConfigureAwait(false);
+        await _speechService.AnnounceTextAsync(scan.Result.Lines[lineIndex].Text, priority, sourceWindowHandle: hwnd, ct: ct).ConfigureAwait(false);
         return true;
     }
 

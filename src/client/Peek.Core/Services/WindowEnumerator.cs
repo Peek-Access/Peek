@@ -3,6 +3,7 @@ using Microsoft.Win32.SafeHandles;
 using Peek.Core.Models;
 using ReactiveUI.Primitives.Disposables;
 using ReactiveUI.Primitives.Signals;
+using System.Linq;
 using System.Runtime.Versioning;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -226,6 +227,16 @@ public sealed class WindowEnumerator
 
         return results;
     }
+
+    /// <summary>
+    /// The first visible top-level window owned by <paramref name="processId"/>, if any - lets
+    /// Announcement History's replay bring a Process Monitor selection's window forward the
+    /// same way an element-sourced entry does. A process can own several top-level windows (or
+    /// none, e.g. a background service); this is a best-effort "the" window, not an exhaustive
+    /// list - good enough for "switch to whatever this process is showing".
+    /// </summary>
+    public WindowNode? FindMainWindowForProcess(uint processId) =>
+        EnumerateVisibleRoots().FirstOrDefault(w => w.ProcessId == processId);
 
     public IObservable<WindowNode> EnumerateObservable(bool includeChildren = true)
     {

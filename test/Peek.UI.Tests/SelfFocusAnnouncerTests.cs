@@ -142,7 +142,12 @@ internal sealed class RecordingSpeechService : Peek.Core.Services.Speech.IAccess
         return Task.CompletedTask;
     }
 
-    public Task AnnounceTextAsync(string text, Peek.Core.Services.Speech.SpeechPriority priority, CancellationToken ct = default)
+    public Task AnnounceTextAsync(
+        string text,
+        Peek.Core.Services.Speech.SpeechPriority priority,
+        nint sourceWindowHandle = default,
+        bool recordInHistory = true,
+        CancellationToken ct = default)
     {
         AnnouncedText.Add(text);
         return Task.CompletedTask;

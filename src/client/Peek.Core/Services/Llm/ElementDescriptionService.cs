@@ -37,7 +37,7 @@ public sealed class ElementDescriptionService : IElementDescriptionService
         var ai = _settings.Current.Ai;
         if (!ai.Enabled)
         {
-            await _speechService.AnnounceTextAsync("AI description is turned off in settings.", SpeechPriority.UserRequested, ct).ConfigureAwait(false);
+            await _speechService.AnnounceTextAsync("AI description is turned off in settings.", SpeechPriority.UserRequested, sourceWindowHandle: element.Hwnd, ct: ct).ConfigureAwait(false);
             return;
         }
 
@@ -70,12 +70,12 @@ public sealed class ElementDescriptionService : IElementDescriptionService
             var response = await _workerConnection.Client.Llm
                 .CompleteAsync(provider, messages, ai.Temperature, ai.MaxTokens, ct)
                 .ConfigureAwait(false);
-            await _speechService.AnnounceTextAsync(response.Text, SpeechPriority.UserRequested, ct).ConfigureAwait(false);
+            await _speechService.AnnounceTextAsync(response.Text, SpeechPriority.UserRequested, sourceWindowHandle: element.Hwnd, ct: ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "LLM description failed for element: {Name}", element.Name);
-            await _speechService.AnnounceTextAsync("Sorry, I couldn't get a description right now.", SpeechPriority.UserRequested, ct).ConfigureAwait(false);
+            await _speechService.AnnounceTextAsync("Sorry, I couldn't get a description right now.", SpeechPriority.UserRequested, sourceWindowHandle: element.Hwnd, ct: ct).ConfigureAwait(false);
         }
     }
 

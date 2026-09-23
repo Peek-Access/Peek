@@ -25,6 +25,7 @@ public partial class ProcessMonitorViewModel : MonitorViewModelBase
     private readonly WorkerConnection _workerConnection;
     private readonly IAccessibilitySpeechService _speechService;
     private readonly ISettingsService _settingsService;
+    private readonly WindowEnumerator _windowEnumerator;
 
     /// <summary>Spoken announcements follow the TTS language, not the UI language - see SpeechStrings.</summary>
     private CultureInfo SpeechCulture => SpeechStrings.ResolveCulture(_settingsService.Current.Localization);
@@ -45,6 +46,7 @@ public partial class ProcessMonitorViewModel : MonitorViewModelBase
         _workerConnection = serviceProvider.GetRequiredService<WorkerConnection>();
         _speechService = serviceProvider.GetRequiredService<IAccessibilitySpeechService>();
         _settingsService = serviceProvider.GetRequiredService<ISettingsService>();
+        _windowEnumerator = serviceProvider.GetRequiredService<WindowEnumerator>();
         _logger = logger;
 
         var settings = _settingsService.Current;
@@ -135,7 +137,13 @@ public partial class ProcessMonitorViewModel : MonitorViewModelBase
         try
         {
             var detailed = _settingsService.Current.ProcessMonitor.AnnounceDetailedInfo;
-            await _speechService.AnnounceTextAsync(ProcessAnnouncementFormatter.FormatSelection(process.Name, process.Id, detailed, process.MemoryBytes, SpeechCulture), SpeechPriority.UserRequested);
+            var text = ProcessAnnouncementFormatter.FormatSelection(process.Name, process.Id, detailed, process.MemoryBytes, SpeechCulture);
+
+            // Best-effort: most processes own a top-level window, but a background/system one
+            // may not - FindMainWindowForProcess returns null there, leaving this entry with no
+            // window to replay-activate later (Announcement History already handles that case).
+            var window = _windowEnumerator.FindMainWindowForProcess((uint)process.Id);
+            await _speechService.AnnounceTextAsync(text, SpeechPriority.UserRequested, sourceWindowHandle: window?.Hwnd ?? default);
         }
         catch (Exception ex)
         {

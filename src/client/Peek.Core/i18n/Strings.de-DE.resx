@@ -165,6 +165,12 @@
   <data name="ScreenReader_HistoryExpandCollapse" xml:space="preserve">
     <value>Ansageverlauf ein- oder ausklappen</value>
   </data>
+  <data name="ScreenReader_HistoryReplay" xml:space="preserve">
+    <value>Wiedergeben</value>
+  </data>
+  <data name="ScreenReader_HistoryReplayTooltip" xml:space="preserve">
+    <value>Ausgewählte Ansage erneut vorlesen · Doppelklick auf eine Zeile oder Eingabetaste bewirkt dasselbe</value>
+  </data>
   <data name="ScreenReader_SpeechActivity" xml:space="preserve">
     <value>Sprachaktivität</value>
   </data>
@@ -551,6 +557,9 @@
   </data>
   <data name="Speech_Window_FocusChanged" xml:space="preserve">
     <value>Aktives Fenster</value>
+  </data>
+  <data name="Speech_AnnouncementHistory_SwitchedToFormat" xml:space="preserve">
+    <value>Gewechselt zu {0}.</value>
   </data>
   <data name="Speech_Process_Unnamed" xml:space="preserve">
     <value>Unbenannter Prozess</value>

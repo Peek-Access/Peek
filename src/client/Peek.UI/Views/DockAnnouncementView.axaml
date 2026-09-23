@@ -3,6 +3,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:i18n="using:Peek.Core.i18n"
+    xmlns:models="using:Peek.Core.Models"
     xmlns:views="using:Peek.UI.Views"
     xmlns:vm="using:Peek.Core.ViewModels"
     x:DataType="{x:Type vm:AnnouncementViewModel}"
@@ -46,6 +47,12 @@
                         Content="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryClear}}" />
                     <Button
                         Classes="announcementAction"
+                        Command="{Binding ReplaySelectedCommand}"
+                        Content="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryReplay}}"
+                        IsEnabled="{Binding SelectedEntry, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryReplayTooltip}}" />
+                    <Button
+                        Classes="announcementAction"
                         Command="{Binding ToggleExpandedCommand}"
                         AutomationProperties.Name="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryExpandCollapse}}">
                         <!--  Viewbox, not Width/Height on the Path - see MainWindow.axaml's
@@ -83,7 +90,7 @@
 
             <Border
                 Grid.Row="3"
-                Padding="10"
+                Padding="6"
                 Background="{DynamicResource PipboyBackgroundBrush}"
                 BorderBrush="{DynamicResource PipboyBorderBrush}"
                 BorderThickness="1"
@@ -91,12 +98,42 @@
                 IsVisible="{Binding IsExpanded}"
                 MaxHeight="160"
                 MinHeight="110">
-                <ScrollViewer>
-                    <TextBlock
-                        FontSize="12"
-                        Text="{Binding History.Transcript}"
-                        TextWrapping="Wrap" />
-                </ScrollViewer>
+                <!--
+                    Double-click or Enter replays the same as the toolbar's Replay button (see
+                    DockAnnouncementView.axaml.cs) - the same "explicit button plus row
+                    shortcuts" pattern AppMonitorView/ProcessMonitorView already use for their
+                    own double-click-to-act rows.
+                -->
+                <ListBox
+                    Name="HistoryList"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    DoubleTapped="OnHistoryRowDoubleTapped"
+                    ItemsSource="{Binding History.Entries}"
+                    KeyDown="OnHistoryListKeyDown"
+                    SelectedItem="{Binding SelectedEntry}"
+                    SelectionMode="Single">
+                    <ListBox.Styles>
+                        <Style Selector="ListBoxItem" x:DataType="models:AnnouncementEntry">
+                            <Setter Property="Padding" Value="4,3" />
+                            <Setter Property="AutomationProperties.Name" Value="{Binding AccessibleName}" />
+                        </Style>
+                    </ListBox.Styles>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:AnnouncementEntry}">
+                            <StackPanel ToolTip.Tip="{Translate {x:Static i18n:LanguageManager+Keys.ScreenReader_HistoryReplayTooltip}}">
+                                <TextBlock
+                                    FontSize="10"
+                                    Foreground="{DynamicResource PipboyTextDimBrush}"
+                                    Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" />
+                                <TextBlock
+                                    FontSize="12"
+                                    Text="{Binding Text}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Border>
         </Grid>
     </Border>

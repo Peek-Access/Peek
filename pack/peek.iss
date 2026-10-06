@@ -4,7 +4,11 @@
 ; output folder (either the self-contained or the framework-dependent one - see build_binary.yml).
 ;
 ; Local build: publish first, then run
-;   iscc pack\peek.iss /DPeekDistDir="..\dist\win-x64" /DPeekVersion="0.1.0" /DPeekBuildMode="self-contained"
+;   iscc pack\peek.iss /DPeekDistDir="..\dist\win-x64" /DPeekVersion="0.1.0" /DPeekBuildMode="self-contained" /DPeekVariant="full"
+;
+; PeekVariant: "full" ships worker\tts-assets (bundled Piper runtime + default voices,
+; written by Peek.Worker.Tts.AssetBundler); "lite" is the same build without that folder.
+; This script packages whatever is in PeekDistDir either way - the variant only names the output.
 
 #define MyAppName "Peek"
 #define MyAppPublisher "NeverMorewd"
@@ -19,6 +23,9 @@
 #endif
 #ifndef PeekBuildMode
   #define PeekBuildMode "self-contained"
+#endif
+#ifndef PeekVariant
+  #define PeekVariant "full"
 #endif
 
 [Setup]
@@ -35,7 +42,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=..\dist\installer
-OutputBaseFilename=Peek-Setup-{#PeekVersion}-{#PeekBuildMode}
+OutputBaseFilename=Peek-Setup-{#PeekVersion}-{#PeekBuildMode}-{#PeekVariant}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern

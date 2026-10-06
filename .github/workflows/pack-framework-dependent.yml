@@ -2,6 +2,19 @@ name: pack-framework-dependent
 
 on:
   workflow_dispatch:
+    inputs:
+      # lite = the plain package without bundled voices (Piper + the selected voice download
+      # on first use, exactly as before the bundle existed); full = also ships the Piper
+      # runtime + the three default voices so first-run TTS works offline, at the cost of a
+      # much larger installer. "both" builds the two in parallel.
+      variant:
+        description: "Package variant: lite (no bundled TTS voices), full (bundled Piper runtime + default voices), or both"
+        type: choice
+        options:
+          - both
+          - lite
+          - full
+        default: both
 
 permissions:
   contents: read
@@ -10,6 +23,10 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJSON(inputs.variant == 'both' && '["lite","full"]' || format('["{0}"]', inputs.variant)) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -141,8 +158,9 @@ jobs:
       # own default voices (PiperTtsOptions.BundledAssetsDirectory / PiperTtsService read
       # this at runtime). Everything else Peek ever downloads still goes through the normal
       # on-demand path. Fails the job if unreachable, rather than silently shipping an
-      # installer without the bundle.
+      # installer without the bundle. Skipped for the lite variant.
       - name: Bundle TTS assets
+        if: matrix.variant == 'full'
         shell: pwsh
         run: |
           dotnet run --project src/worker/Peek.Worker.Tts.AssetBundler/Peek.Worker.Tts.AssetBundler.csproj `
@@ -153,7 +171,7 @@ jobs:
       - name: Verify build outputs
         shell: pwsh
         run: |
-          Write-Host "`n[Build outputs] dist/win-x64 (framework-dependent)"
+          Write-Host "`n[Build outputs] dist/win-x64 (framework-dependent, ${{ matrix.variant }})"
           Get-ChildItem dist/win-x64 -Recurse -File | ForEach-Object {
             $sizeMB = [math]::Round($_.Length / 1MB, 1)
             Write-Host ("  {0,-55} {1,7} MB" -f $_.Name, $sizeMB)
@@ -163,13 +181,13 @@ jobs:
 
       - name: Create zip
         run: |
-          powershell Compress-Archive -Path dist\win-x64\* -DestinationPath Peek-win-x64-framework-dependent.zip
+          powershell Compress-Archive -Path dist\win-x64\* -DestinationPath Peek-win-x64-framework-dependent-${{ matrix.variant }}.zip
 
       - name: Upload zip artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Peek-win-x64-framework-dependent
-          path: Peek-win-x64-framework-dependent.zip
+          name: Peek-win-x64-framework-dependent-${{ matrix.variant }}
+          path: Peek-win-x64-framework-dependent-${{ matrix.variant }}.zip
 
       # Inno Setup 6 (ISCC.exe) ships preinstalled on the windows-latest runner image - see
       # pack/peek.iss for what it packages.
@@ -179,10 +197,11 @@ jobs:
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" pack\peek.iss `
             "/DPeekDistDir=$pwd\dist\win-x64" `
             "/DPeekVersion=${{ steps.version.outputs.version }}" `
-            "/DPeekBuildMode=framework-dependent"
+            "/DPeekBuildMode=framework-dependent" `
+            "/DPeekVariant=${{ matrix.variant }}"
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Peek-Setup-framework-dependent
+          name: Peek-Setup-framework-dependent-${{ matrix.variant }}
           path: dist/installer/*.exe

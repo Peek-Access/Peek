@@ -170,13 +170,29 @@ jobs:
             dist/win-x64/Peek.Desktop.exe dist/win-x64/worker/Peek.Worker.exe
           Remove-Item $pfx -Force
 
-      - name: Build installer
+      # Two packages from the one (already tested + signed) build: "full" with the bundled
+      # TTS assets, then "lite" - the same files minus worker/tts-assets, so Piper and the
+      # voices download on first use instead (tens of MB vs. a much larger installer).
+      - name: Build installers and zips (full + lite)
         shell: pwsh
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" pack\peek.iss `
-            "/DPeekDistDir=$pwd\dist\win-x64" `
-            "/DPeekVersion=${{ steps.version.outputs.version }}" `
-            "/DPeekBuildMode=self-contained"
+          $v = "${{ steps.version.outputs.version }}"
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+
+          foreach ($variant in "full", "lite") {
+            if ($variant -eq "lite") {
+              Move-Item dist/win-x64/worker/tts-assets (Join-Path $env:RUNNER_TEMP "tts-assets")
+            }
+
+            & $iscc pack\peek.iss `
+              "/DPeekDistDir=$pwd\dist\win-x64" `
+              "/DPeekVersion=$v" `
+              "/DPeekBuildMode=self-contained" `
+              "/DPeekVariant=$variant"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+            Compress-Archive -Path dist\win-x64\* -DestinationPath "dist\Peek-$v-win-x64-$variant.zip"
+          }
 
       - name: Sign installer
         if: ${{ env.CERT != '' }}
@@ -192,12 +208,9 @@ jobs:
           }
           Remove-Item $pfx -Force
 
-      - name: Package zip and checksums
+      - name: Checksums
         shell: pwsh
         run: |
-          $v = "${{ steps.version.outputs.version }}"
-          Compress-Archive -Path dist\win-x64\* -DestinationPath "dist\Peek-$v-win-x64.zip"
-
           Get-ChildItem dist\installer\*.exe, dist\*.zip | ForEach-Object {
             $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
             "$hash  $($_.Name)"
@@ -218,7 +231,14 @@ jobs:
           body: |
             ## Install
 
-            Download `Peek-Setup-${{ steps.version.outputs.version }}-self-contained.exe` and run it.
-            Nothing else needs to be installed - the .NET runtime is bundled.
+            Download one installer and run it. Nothing else needs to be installed - the .NET
+            runtime is bundled in both.
+
+            - `Peek-Setup-${{ steps.version.outputs.version }}-self-contained-full.exe` - recommended. Includes the
+              offline voices (English, German, Chinese), so speech works immediately without
+              an internet connection.
+            - `Peek-Setup-${{ steps.version.outputs.version }}-self-contained-lite.exe` - much smaller download.
+              The speech engine and voice are downloaded the first time Peek speaks, so the
+              first run needs an internet connection.
 
             Verify your download against `SHA256SUMS.txt` if you want to.

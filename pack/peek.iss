@@ -4,7 +4,7 @@
 ; output folder (either the self-contained or the framework-dependent one - see build_binary.yml).
 ;
 ; Local build: publish first, then run
-;   iscc pack\peek.iss /DPeekDistDir="..\dist\win-x64" /DPeekVersion="0.1.0" /DPeekBuildMode="self-contained" /DPeekVariant="full"
+;   iscc pack\peek.iss /DPeekDistDir="..\dist\win-x64" /DPeekVersion="0.1.0" /DPeekBuildMode="self-contained" /DPeekVariant="lite"
 ;
 ; PeekVariant: "full" ships worker\tts-assets (bundled Piper runtime + default voices,
 ; written by Peek.Worker.Tts.AssetBundler); "lite" is the same build without that folder.
@@ -25,7 +25,7 @@
   #define PeekBuildMode "self-contained"
 #endif
 #ifndef PeekVariant
-  #define PeekVariant "full"
+  #define PeekVariant "lite"
 #endif
 
 [Setup]

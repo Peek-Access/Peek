@@ -11,10 +11,10 @@ on:
         description: "Package variant: lite (no bundled TTS voices), full (bundled Piper runtime + default voices), or both"
         type: choice
         options:
-          - both
           - lite
           - full
-        default: both
+          - both
+        default: lite
 
 permissions:
   contents: read
